@@ -23,18 +23,37 @@
 (global-set-key (kbd "C-x C-k") 'kill-buffer)
 (global-set-key (kbd "C-x f") 'find-file) ;; override fill column
 
-;; Copy current line
-(defun copy-line (arg)
+(global-set-key (kbd "C-c C-S-k") (lambda () (interactive) (copy-lines 1)))
+(global-set-key (kbd "C-c C-k") 'copy-current-line)
+
+;; Parentheses
+(global-set-key (kbd "M-[") 'insert-pair)
+(global-set-key (kbd "M-{") 'insert-paren)
+
+;; Copy current line with new line
+(defun copy-lines (arg)
   "Copy lines (as many as prefix argument) in the kill ring"
   (interactive "p")
   (kill-ring-save (line-beginning-position)
-		  (line-beginning-position (+ 1 arg)))
-  (message "%d line%s copied" arg (if (= 1 arg) "" "s"))
-  )
-(global-set-key "\C-c\C-k" 'copy-line)
+		  (line-beginning-position (+ 1 arg))
+		  )
+  (message "%d line%s copied" arg (if (= 1 arg) "" "s")))
+
+(defun copy-current-line ()
+  (interactive)
+  (kill-ring-save (line-beginning-position)
+				  (line-end-position))
+  (message "Copied current line"))
+
+(defun insert-paren ()
+  (interactive)
+  (if (region-active-p)
+      (insert-pair 1 ?{ ?})
+     (backward-paragraph)))
 
 ;; TYPING ;;
 
+(setq tab-width 4)
 (electric-pair-mode 1)
 (setq electric-pair-pairs '( ;; Additional pairs
 			    (?\" . ?\")

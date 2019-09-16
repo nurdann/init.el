@@ -91,6 +91,7 @@
   (keyfreq-autosave-mode t))
 
 (use-package undo-tree
+  :ensure t
   :init (global-undo-tree-mode)
   :bind (("C-S-z" . undo-tree-redo)
 	 ("C-z" . undo-tree-undo)))

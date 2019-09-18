@@ -9,14 +9,11 @@
 
 (eval-when-compile (require 'use-package))
 
-;(setq custom-safe-themes t) ;; skip prompt
-;(when (display-graphic-p)
-;  (load-theme 'dracula t))
-
-(use-package parchment-theme :ensure :defer)
 (use-package creamsody-theme :ensure :defer)
+(use-package parchment-theme :ensure :defer)
 
 (use-package circadian
+  :ensure t
   :config
   (setq circadian-themes '(("8:00" . parchment)
 			   ("19:00" . creamsody)))
@@ -51,6 +48,14 @@
 ;(switch-to-buffer (shell-get-buffer-create))
 ;(put 'mini)
 
+(use-package keyfreq
+  :ensure t
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1)
+  ;;:bind ("C-x C-p" . keyfreq-show)
+  )
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
@@ -59,15 +64,14 @@
 
 (show-paren-mode 1)
 
-;; Allow undo/redo
-;; Default C-c left/right arrow
 (use-package winner
+  :ensure t
   :config (winner-mode 1)
   :bind (("C-c <left>" . undo)
 	 ("C-c <right>" . redo)))
 
-;(electric-indent-mode)
 (use-package electric
+  :ensure t
   :config
   (electric-pair-mode 1)
   (setq electric-pair-pairs '((?\" . ?\")
@@ -111,15 +115,16 @@
 ;  (evil-mode t))
 
 (define-key input-decode-map "\C-i" [C-i])
+(windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
+
 (use-package ace-jump-mode
+  :ensure t	     
   :bind (("C-S-j" . ace-jump-char-mode)
 	 ("C-j" . ace-jump-word-mode)))
 
-(windmove-default-keybindings) ;; Shift <arrow-key> to move windows
-
 (use-package ace-window
   :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?f)) ;; limit characters
+  (setq aw-keys '(?a ?s ?d ?f ?g)) ;; limit characters
   :bind (("C-x o" . ace-window)
 	 ("C-;" . ace-window)))
 
@@ -129,7 +134,7 @@
   (helm-autoresize-mode t) ;; grow buffer as needed
   (setq helm-split-window-in-side-p t ;; split based on current buffer
 	helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
-	;helm-autoresize-max-height 50
+	helm-autoresize-max-height 50
 	;helm-autoresize-min-height 25
 	)
   :bind (("M-x" . helm-M-x)
@@ -163,4 +168,3 @@
   (kill-ring-save (line-beginning-position)
 				  (line-end-position))
   (message "Copied current line"))
-

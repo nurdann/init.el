@@ -45,8 +45,8 @@
 ;; Buffer
 ;;;;;;;;;;;;;;;;;;;;
 
-;(switch-to-buffer (shell-get-buffer-create))
-;(put 'mini)
+(add-to-list 'display-buffer-alist
+	     '("^\\*shell\\*$" . (display-buffer-same-window)))
 
 (use-package keyfreq
   :ensure t

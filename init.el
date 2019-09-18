@@ -96,8 +96,16 @@
   :bind (("C-S-z" . undo-tree-redo)
 	 ("C-z" . undo-tree-undo)))
 
-(global-unset-key (kbd "C-x s"))
 (global-set-key (kbd "C-x s") 'save-buffer) ;; same as C-x C-s
+
+;(global-set-key (kbd "s-x") 'delete-other-windows)
+;(global-set-key (kbd "s-c") 'split-window-below)
+;(global-set-key (kbd "s-v") 'split-window-right)
+;(global-set-key (kbd "s-b") 'delete-window)
+
+(setq scroll-preserve-screen-position 1)
+(global-set-key (kbd "M-n") (kbd "C-u 1 C-v"))
+(global-set-key (kbd "M-p") (kbd "C-u 1 M-v"))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -108,18 +116,18 @@
 ;  (evil-mode t))
 
 (define-key input-decode-map "\C-i" [C-i])
+(windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
+
 (use-package ace-jump-mode
   :ensure t	     
   :bind (("C-S-j" . ace-jump-char-mode)
 	 ("C-j" . ace-jump-word-mode)))
 
-
-(windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
-
 (use-package ace-window
   :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?f)) ;; limit characters
-  :bind ("C-;" . ace-window))
+  (setq aw-keys '(?a ?s ?d ?f ?g)) ;; limit characters
+  :bind (("C-x o" . ace-window)
+	 ("C-;" . ace-window)))
 
 (use-package helm
   :init

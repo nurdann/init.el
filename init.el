@@ -119,31 +119,38 @@
 
 (use-package ace-jump-mode
   :ensure t	     
-  :bind (("C-S-j" . ace-jump-char-mode)
-	 ("C-j" . ace-jump-word-mode)))
+  :bind (("M-S-j" . ace-jump-char-mode)
+	 ("M-j" . ace-jump-word-mode)))
 
 (use-package ace-window
   :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?f ?g)) ;; limit characters
-  :bind (("C-x o" . ace-window)
-	 ("C-;" . ace-window)))
+  (setq aw-keys '(?a ?s ?d ?w ?e)) ;; limit characters
+  :bind (("M-a" . ace-window)))
 
-(use-package helm
-  :init
-  (helm-mode t)
-  (helm-autoresize-mode t) ;; grow buffer as needed
-  (setq helm-split-window-in-side-p t ;; split based on current buffer
-	helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
-	helm-autoresize-max-height 50
-	;helm-autoresize-min-height 25
-	)
-  :bind (("M-x" . helm-M-x)
-	 ("C-x f" . helm-find-files)
-	 ("C-x b" . helm-buffers-list)
-	 ("C-x C-f" . helm-recentf)
-	 :map helm-find-files-map
-	 ("DEL" . helm-find-files-up-one-level)))
+;(use-package helm
+;  :init
+;  (helm-mode t)
+;  (helm-autoresize-mode t) ;; grow buffer as needed
+;  (setq helm-split-window-in-side-p t ;; split based on current buffer
+;	helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
+;	helm-autoresize-max-height 50
+;					;helm-autoresize-min-height 25
+;	)
+;  :bind (("M-x" . helm-M-x)
+;	 ("C-x f" . helm-find-files)
+;	 ("C-x b" . helm-buffers-list)
+;	 ("C-x C-f" . helm-recentf)
+;	 :map helm-find-files-map
+;	 ("DEL" . helm-find-files-up-one-level)))
+;
 
+(use-package ido
+  :config (ido-mode 1)
+  (setq ido-enable-flex-matching t)
+  (setq ido-everywhere t)
+  :bind
+  (("M-," . ido-find-file)
+   ("M-." . ido-switch-buffer)))
 
 ;; Matlab
 ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
@@ -160,11 +167,76 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;
+;; CUSTOM MODES
+;;;;;;;;;;;;;;;;;;;;
+
+;; navigation mode
+
+(define-minor-mode fox-mode
+  "Toggle Fox Mode"
+  :init-value nil
+  :lighter " Fox Mode"
+  :keymap
+  '(("f" . "<LEFT>"))
+  :group 'fox)
+
+;(rebind-key ("C-'" 'fox-mode))
+(global-set-key (kbd "C-'") 'fox-mode)
+(define-key fox-mode-map (kbd "h") (kbd "<left>"))
+(add-key-to-map fox-mode-map "j" (kbd "<down>"))
+
+;; <menu> mode
+
+(progn
+  (define-prefix-command 'menu-key-map)
+  (define-key menu-key-map (kbd "1") 'delete-other-windows))
+
+(global-set-key (kbd "<menu>") 'menu-key-map)
+
+
+;;;;;;;;;;;;;;;;;;;;
 ;; Functions
 ;;;;;;;;;;;;;;;;;;;;
 
 (defun copy-current-line ()
+  "Copy current line the cursor in"
   (interactive)
-  (kill-ring-save (line-beginning-position)
-				  (line-end-position))
+  (kill-ring-save (line-beginning-position) (line-end-position))
   (message "Copied current line"))
+
+(defun rebind-key (key out)
+  "Unbind then bind key"
+  (interactive)
+  (global-unset-key (kbd key))
+  (global-set-key (kbd key) out))
+
+(defun search-next-char (c)
+  "Search next character match"
+  (interactive)
+  (if (char-equal (char-after 1) c)
+      (message "found")
+    (message "not")))
+
+(defun add-key-to-map (map key out)
+  "Unbind and bind the key in the key map"
+  (interactive)
+  (define-key map (kbd key) nil)
+  (define-key map (kbd key) out))
+
+(defun add-keys-to-map (map list)
+  "Bind keys in the list to the map"
+  (interactive)
+  (if (not (null list))
+      (cons (car list) (cdr (add-keys-to-map map '(cdr list))))
+    (4)))
+
+;; TODO 
+(add-keys-to-map fox-mode-map '((a f) (b g)))
+
+(cons 'a '(f g d))
+
+(let list
+      '(("cf" . 23)
+	("ff" . 2)))
+(assoc "cf" list)
+

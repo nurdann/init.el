@@ -205,9 +205,6 @@
   (define-key fox-mode-map (kbd "l") (kbd "<right>"))
   (define-key fox-mode-map (kbd "e") (kbd "<end>"))
   (define-key fox-mode-map (kbd "a") (kbd "<home>"))
-  (define-key fox-mode-map (kbd "e") (kbd "<end>"))
-
-
   )
 
 (global-unset-key (kbd "M-'"))
@@ -279,12 +276,4 @@
   (interactive)
   (define-key map (kbd key) nil)
   (define-key map (kbd key) out))
-
-(defun add-keys-to-map (map list)
-  "Bind keys in the list to the map"
-  (interactive)
-  (if (not (null list))
-      (car list)
-    (4)))
-
 

@@ -25,10 +25,15 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (setq ring-bell-function 'ignore)
+;(setq completion-ignore-case t)
+(setq read-buffer-completion-ignore-case t)
+(setq read-file-name-completion-ignore-case t)
+
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (add-hook 'find-file-hook 'linum-mode)
 (auto-fill-mode -1)
+
 
 (setq backup-by-copying t
       backup-directory-alist '(("." . "~/.emacs.d/backup/"))
@@ -185,26 +190,32 @@
 (define-minor-mode fox-mode
   "Toggle Fox Mode"
   :init-value nil
-  :lighter " Fox Mode"
+  :lighter " Fox"
   :keymap
-  '(("h" . "<left>")
-    ("j" . "<down>")
-    ("k" . "<up>")
-    ("l" . "<right>")
-    )
+  '()
   :group 'fox)
 
-(global-set-key (kbd "C-'") 'fox-mode)
 (progn 
+  (setq scroll-preserve-screen-position 1)
+  (define-key fox-mode-map (kbd "p") (kbd "C-u 1 M-v"))
+  (define-key fox-mode-map (kbd "n") (kbd "C-u 1 C-v"))
+  (define-key fox-mode-map (kbd "h") (kbd "<left>"))
+  (define-key fox-mode-map (kbd "j") (kbd "<down>"))
+  (define-key fox-mode-map (kbd "k") (kbd "<up>"))
   (define-key fox-mode-map (kbd "l") (kbd "<right>"))
-)
+  (define-key fox-mode-map (kbd "e") (kbd "<end>"))
+  (define-key fox-mode-map (kbd "a") (kbd "<home>"))
+  (define-key fox-mode-map (kbd "e") (kbd "<end>"))
+
+
+  )
+
+(global-unset-key (kbd "M-'"))
+(global-set-key (kbd "M-'") 'fox-mode)
 
 
 (defun my-scroll ()
   (interactive)
-  (setq scroll-preserve-screen-position 1)
-  (global-set-key (kbd "M-n") (kbd "C-u 1 C-v"))
-  (global-set-key (kbd "M-p") (kbd "C-u 1 M-v"))
 )
 
 ;; <menu> mode
@@ -220,9 +231,15 @@
 					(interactive)
 					(revert-buffer t t)))
   (define-key menu-key-map (kbd "x") 'execute-extended-command)
+  (define-key menu-key-map (kbd "f") 'find-file)
+  (define-key menu-key-map (kbd "b") 'switch-to-buffer)
+  (define-key menu-key-map (kbd "a") 'mark-whole-buffer)
+  (define-key menu-key-map (kbd "c") 'kill-ring-save)
+  (define-key menu-key-map (kbd "v") 'yank)
+  (define-key menu-key-map (kbd "s") 'save-buffer)
 )
 
- (global-set-key (kbd "<menu>") 'menu-key-map)
+(global-set-key (kbd "<menu>") 'menu-key-map)
 
 
 ;;;;;;;;;;;;;;;;;;;;

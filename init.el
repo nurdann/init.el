@@ -37,16 +37,23 @@
       kept-old-versions 2)
 
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+(if (file-exists-p custom-file)
+    (load custom-file))
 
-(global-unset-key (kbd "C-z"))
-		  
+;(if (display-graphic-p)
+;    (global-unset-key (kbd "C-z")))
+
+
+(define-key input-decode-map "\C-i" [C-i])
+(define-key input-decode-map "\C-m" [C-m])
+(define-key input-decode-map "\C-j" [C-j])
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
 ;;;;;;;;;;;;;;;;;;;;
 
 (add-to-list 'display-buffer-alist
-	     '("^\\*shell\\*$" . (display-buffer-same-window)))
+	     '("^\\*.*\\*$" . (display-buffer-same-window)))
 
 (use-package keyfreq
   :ensure t
@@ -60,7 +67,11 @@
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
 
+(global-set-key (kbd "C-'") (lambda () (progn (
+					       ()))))
 (global-set-key (kbd "C-c C-k") 'copy-current-line)
+
+;(global-set-key (kbd "") 'revert-buffer)
 
 (show-paren-mode 1)
 
@@ -93,8 +104,8 @@
 (use-package undo-tree
   :ensure t
   :init (global-undo-tree-mode)
-  :bind (("C-S-z" . undo-tree-redo)
-	 ("C-z" . undo-tree-undo)))
+  :bind (("C-?" . undo-tree-redo)
+	 ("C-/" . undo-tree-undo)))
 
 (global-set-key (kbd "C-x s") 'save-buffer) ;; same as C-x C-s
 
@@ -115,36 +126,56 @@
 ;  :init
 ;  (evil-mode t))
 
-(define-key input-decode-map "\C-i" [C-i])
+
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
+
+(global-set-key (kbd "M-[") 'backward-paragraph)
+(global-set-key (kbd "M-]") 'forward-paragraph)
 
 (use-package ace-jump-mode
   :ensure t	     
-  :bind (("C-S-j" . ace-jump-char-mode)
-	 ("C-j" . ace-jump-word-mode)))
+  :bind (("C-:" . ace-jump-char-mode)
+	 ("C-;" . ace-jump-word-mode)))
 
 (use-package ace-window
   :init (ace-window t)
   (setq aw-keys '(?a ?s ?d ?f ?g)) ;; limit characters
   :bind (("C-x o" . ace-window)
-	 ("C-;" . ace-window)))
+	 ("M-o" . ace-window)))
 
-(use-package helm
-  :init
-  (helm-mode t)
-  (helm-autoresize-mode t) ;; grow buffer as needed
-  (setq helm-split-window-in-side-p t ;; split based on current buffer
-	helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
-	helm-autoresize-max-height 50
-	;helm-autoresize-min-height 25
-	)
-  :bind (("M-x" . helm-M-x)
-	 ("C-x f" . helm-find-files)
-	 ("C-x b" . helm-buffers-list)
-	 ("C-x C-f" . helm-recentf)
-	 :map helm-find-files-map
-	 ("DEL" . helm-find-files-up-one-level)))
+;; FILE NAVIGATION
+;(global-unset-key (kbd "C-x f"))
+;(define-key key-translation-map (kbd "C-x f") (kbd "C-x C-f"))
 
+;(use-package helm
+;  :init
+;  (helm-mode t)
+;  (helm-autoresize-mode t) ;; grow buffer as needed
+;  (setq helm-split-window-in-side-p t ;; split based on current buffer
+;	helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
+;	helm-autoresize-max-height 50
+;	;helm-autoresize-min-height 25
+;	)
+;  :bind (("M-x" . helm-M-x)
+;	 ("C-x f" . helm-find-files)
+;	 ("C-x b" . helm-buffers-list)
+;	 ("C-x C-f" . helm-recentf)
+;	 :map helm-find-files-map
+;	 ("C-<del>" . helm-find-files-up-one-level)))
+
+(use-package ido
+  :config
+  (ido-mode 1)
+  (setq ido-enable-flex-matching t)
+  (ido-everywhere t)
+  :bind (("C-x f" . ido-find-file)
+	 ("C-x C-f" . ido-find-file)))
+
+;;;;;;;;;;;;;;;;;;;;
+;; Modes
+;;;;;;;;;;;;;;;;;;;;
+
+;(autoload 'wikipedia-mode "./elpa/wikipedia-mode/wikipedia-mode.el" "Major mode for wiki" t)
 
 ;; Matlab
 ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
@@ -169,3 +200,20 @@
   (kill-ring-save (line-beginning-position)
 				  (line-end-position))
   (message "Copied current line"))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; CUSTOM MODES
+;;;;;;;;;;;;;;;;;;;;
+
+(define-minor-mode fox-mode
+  "Toggle fox mode"
+  :init-value nil
+  :lighter " Fox" ;; indicator for mode line
+  :keymap
+  '(("f" . forward-char))
+  :group 'fox)
+(global-unset-key (kbd "<insertchar>"))
+(global-unset-key (kbd "<insert>"))
+(global-set-key (kbd "<insert>") 'fox-mode)
+

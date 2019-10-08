@@ -24,6 +24,7 @@
 ;; Misc
 ;;;;;;;;;;;;;;;;;;;;
 
+(setq ring-bell-function 'ignore)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (add-hook 'find-file-hook 'linum-mode)
@@ -39,12 +40,18 @@
 (if (file-exists-p custom-file)
     (load custom-file))
 
-(global-set-key (kbd "C-z C-z") 'my-suspend-frame)
+;(global-unset-key (kbd "C-z"))
+;(global-set-key (kbd "C-z C-z") 'my-suspend-frame)
 
-(define-key input-decode-map "\C-i" [C-i])
-(define-key input-decode-map "\C-m" [C-m])
-(define-key input-decode-map "\C-j" [C-j])
 
+(let ((frame (framep (selected-frame))))
+  (or (eq  t  frame)
+      (eq 'pc frame)
+      (define-key input-decode-map (kbd "C-[") [C-bracketleft])
+      (define-key input-decode-map "\C-i" [C-i])
+      (define-key input-decode-map "\C-m" [C-m])
+      (define-key input-decode-map "\C-j" [C-j])
+     ))
 
 (global-set-key (kbd "M-g") 'keyboard-escape-quit)
 
@@ -67,11 +74,7 @@
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
 
-(global-set-key (kbd "C-'") (lambda () (progn (
-					       ()))))
 (global-set-key (kbd "C-c C-k") 'copy-current-line)
-
-;(global-set-key (kbd "") 'revert-buffer)
 
 (show-paren-mode 1)
 
@@ -109,14 +112,6 @@
 
 (global-set-key (kbd "C-x s") 'save-buffer) ;; same as C-x C-s
 
-;(global-set-key (kbd "s-x") 'delete-other-windows)
-;(global-set-key (kbd "s-c") 'split-window-below)
-;(global-set-key (kbd "s-v") 'split-window-right)
-;(global-set-key (kbd "s-b") 'delete-window)
-
-(setq scroll-preserve-screen-position 1)
-(global-set-key (kbd "M-n") (kbd "C-u 1 C-v"))
-(global-set-key (kbd "M-p") (kbd "C-u 1 M-v"))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -192,21 +187,42 @@
   :init-value nil
   :lighter " Fox Mode"
   :keymap
-  '(("f" . "<LEFT>"))
+  '(("h" . "<left>")
+    ("j" . "<down>")
+    ("k" . "<up>")
+    ("l" . "<right>")
+    )
   :group 'fox)
 
-;(rebind-key ("C-'" 'fox-mode))
 (global-set-key (kbd "C-'") 'fox-mode)
-(define-key fox-mode-map (kbd "h") (kbd "<left>"))
-(add-key-to-map fox-mode-map "j" (kbd "<down>"))
+(progn 
+  (define-key fox-mode-map (kbd "l") (kbd "<right>"))
+)
+
+
+(defun my-scroll ()
+  (interactive)
+  (setq scroll-preserve-screen-position 1)
+  (global-set-key (kbd "M-n") (kbd "C-u 1 C-v"))
+  (global-set-key (kbd "M-p") (kbd "C-u 1 M-v"))
+)
 
 ;; <menu> mode
 
 (progn
   (define-prefix-command 'menu-key-map)
-  (define-key menu-key-map (kbd "1") 'delete-other-windows))
+  (define-key menu-key-map (kbd "1") 'delete-other-windows)
+  (define-key menu-key-map (kbd "2") 'split-window-below)
+  (define-key menu-key-map (kbd "3") 'split-window-right)
+  (define-key menu-key-map (kbd "4") 'delete-window)
+  (define-key menu-key-map (kbd "r") '(lambda ()
+					"Revert buffer without prompting YES"
+					(interactive)
+					(revert-buffer t t)))
+  (define-key menu-key-map (kbd "x") 'execute-extended-command)
+)
 
-(global-set-key (kbd "<menu>") 'menu-key-map)
+ (global-set-key (kbd "<menu>") 'menu-key-map)
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -232,6 +248,15 @@
       (message "found")
     (message "not")))
 
+(defun my-suspend-frame ()
+  "Suspend only in non-GUI environment"
+  (interactive)
+  (if (display-graphic-p)
+      (message "suspend-frame disabled for graphical interface")
+    (suspend-frame)))
+
+
+;; TODO 
 (defun add-key-to-map (map key out)
   "Unbind and bind the key in the key map"
   (interactive)
@@ -242,23 +267,7 @@
   "Bind keys in the list to the map"
   (interactive)
   (if (not (null list))
-      (cons (car list) (cdr (add-keys-to-map map '(cdr list))))
+      (car list)
     (4)))
 
-;; TODO 
-(add-keys-to-map fox-mode-map '((a f) (b g)))
 
-(cons 'a '(f g d))
-
-(let list
-      '(("cf" . 23)
-	("ff" . 2)))
-(assoc "cf" list)
-
-
-(defun my-suspend-frame ()
-  "Suspend only in non-GUI environment"
-  (interactive)
-  (if (display-graphic-p)
-      (message "suspend-frame disabled for graphical interface")
-    (suspend-frame)))

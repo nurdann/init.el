@@ -26,10 +26,9 @@
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-;(global-linum-mode t)
-;(setq cursor-type '(hbar . 4))
+(add-hook 'find-file-hook 'linum-mode)
 (auto-fill-mode -1)
-;(scroll-bar-mode -1)
+
 (setq backup-by-copying t
       backup-directory-alist '(("." . "~/.emacs.d/backup/"))
       delete-old-versions t
@@ -40,13 +39,14 @@
 (if (file-exists-p custom-file)
     (load custom-file))
 
-;(if (display-graphic-p)
-;    (global-unset-key (kbd "C-z")))
-
+(global-set-key (kbd "C-z C-z") 'my-suspend-frame)
 
 (define-key input-decode-map "\C-i" [C-i])
 (define-key input-decode-map "\C-m" [C-m])
 (define-key input-decode-map "\C-j" [C-j])
+
+
+(global-set-key (kbd "M-g") 'keyboard-escape-quit)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -134,18 +134,13 @@
 
 (use-package ace-jump-mode
   :ensure t	     
-  :bind (("C-:" . ace-jump-char-mode)
-	 ("C-;" . ace-jump-word-mode)))
+  :bind (("M-S-j" . ace-jump-char-mode)
+	 ("M-j" . ace-jump-word-mode)))
 
 (use-package ace-window
   :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?f ?g)) ;; limit characters
-  :bind (("C-x o" . ace-window)
-	 ("M-o" . ace-window)))
-
-;; FILE NAVIGATION
-;(global-unset-key (kbd "C-x f"))
-;(define-key key-translation-map (kbd "C-x f") (kbd "C-x C-f"))
+  (setq aw-keys '(?a ?s ?d ?w ?e)) ;; limit characters
+  :bind (("M-a" . ace-window)))
 
 ;(use-package helm
 ;  :init
@@ -154,28 +149,23 @@
 ;  (setq helm-split-window-in-side-p t ;; split based on current buffer
 ;	helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
 ;	helm-autoresize-max-height 50
-;	;helm-autoresize-min-height 25
+;					;helm-autoresize-min-height 25
 ;	)
 ;  :bind (("M-x" . helm-M-x)
 ;	 ("C-x f" . helm-find-files)
 ;	 ("C-x b" . helm-buffers-list)
 ;	 ("C-x C-f" . helm-recentf)
 ;	 :map helm-find-files-map
-;	 ("C-<del>" . helm-find-files-up-one-level)))
+;	 ("DEL" . helm-find-files-up-one-level)))
+;
 
 (use-package ido
-  :config
-  (ido-mode 1)
+  :config (ido-mode 1)
   (setq ido-enable-flex-matching t)
-  (ido-everywhere t)
-  :bind (("C-x f" . ido-find-file)
-	 ("C-x C-f" . ido-find-file)))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Modes
-;;;;;;;;;;;;;;;;;;;;
-
-;(autoload 'wikipedia-mode "./elpa/wikipedia-mode/wikipedia-mode.el" "Major mode for wiki" t)
+  (setq ido-everywhere t)
+  :bind
+  (("M-," . ido-find-file)
+   ("M-." . ido-switch-buffer)))
 
 ;; Matlab
 ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
@@ -192,28 +182,83 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;
+;; CUSTOM MODES
+;;;;;;;;;;;;;;;;;;;;
+
+;; navigation mode
+
+(define-minor-mode fox-mode
+  "Toggle Fox Mode"
+  :init-value nil
+  :lighter " Fox Mode"
+  :keymap
+  '(("f" . "<LEFT>"))
+  :group 'fox)
+
+;(rebind-key ("C-'" 'fox-mode))
+(global-set-key (kbd "C-'") 'fox-mode)
+(define-key fox-mode-map (kbd "h") (kbd "<left>"))
+(add-key-to-map fox-mode-map "j" (kbd "<down>"))
+
+;; <menu> mode
+
+(progn
+  (define-prefix-command 'menu-key-map)
+  (define-key menu-key-map (kbd "1") 'delete-other-windows))
+
+(global-set-key (kbd "<menu>") 'menu-key-map)
+
+
+;;;;;;;;;;;;;;;;;;;;
 ;; Functions
 ;;;;;;;;;;;;;;;;;;;;
 
 (defun copy-current-line ()
+  "Copy current line the cursor in"
   (interactive)
-  (kill-ring-save (line-beginning-position)
-				  (line-end-position))
+  (kill-ring-save (line-beginning-position) (line-end-position))
   (message "Copied current line"))
 
+(defun rebind-key (key out)
+  "Unbind then bind key"
+  (interactive)
+  (global-unset-key (kbd key))
+  (global-set-key (kbd key) out))
 
-;;;;;;;;;;;;;;;;;;;;
-;; CUSTOM MODES
-;;;;;;;;;;;;;;;;;;;;
+(defun search-next-char (c)
+  "Search next character match"
+  (interactive)
+  (if (char-equal (char-after 1) c)
+      (message "found")
+    (message "not")))
 
-(define-minor-mode fox-mode
-  "Toggle fox mode"
-  :init-value nil
-  :lighter " Fox" ;; indicator for mode line
-  :keymap
-  '(("f" . forward-char))
-  :group 'fox)
-(global-unset-key (kbd "<insertchar>"))
-(global-unset-key (kbd "<insert>"))
-(global-set-key (kbd "<insert>") 'fox-mode)
+(defun add-key-to-map (map key out)
+  "Unbind and bind the key in the key map"
+  (interactive)
+  (define-key map (kbd key) nil)
+  (define-key map (kbd key) out))
 
+(defun add-keys-to-map (map list)
+  "Bind keys in the list to the map"
+  (interactive)
+  (if (not (null list))
+      (cons (car list) (cdr (add-keys-to-map map '(cdr list))))
+    (4)))
+
+;; TODO 
+(add-keys-to-map fox-mode-map '((a f) (b g)))
+
+(cons 'a '(f g d))
+
+(let list
+      '(("cf" . 23)
+	("ff" . 2)))
+(assoc "cf" list)
+
+
+(defun my-suspend-frame ()
+  "Suspend only in non-GUI environment"
+  (interactive)
+  (if (display-graphic-p)
+      (message "suspend-frame disabled for graphical interface")
+    (suspend-frame)))

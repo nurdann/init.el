@@ -286,19 +286,30 @@
 
 
 ;; todo
+(defun bind-key-to-map (map keyout)
+  (interactive)
+  (let ((key (car keyout))
+	(out (nth 1 keyout)))
+    (define-key map (kbd key) out)
+    (message "Bound %s to %s in %s" key out map)))
+
+;;(bind-key-to-map space-mode-map '("a" forward-line))
+
 (defun bind-keys-to-map (map keys)
   (interactive)
-  (setq n 0)
-  (let* ((xs keys))
+  (let ((xs keys)
+	(n 0))
     (while(not(null xs))
-      (princ (format "iteration %d: %s." n (car xs)))
-      
+      (let ((x (car xs)))
+	(bind-key-to-map map x)
+	(message "Bound %s to %s" (car x) (nth 1 x) x))
       (setq n (+ 1 n)
 	    xs (cdr xs))
       ))
-    '(n))
+    (message "Bound %d commands to %s" n map))
 
-(bind-keys-to-map navi-mode '(1 2 3))
+(bind-keys-to-map space-mode-map '(("f" forward-line)
+			      ("a" beginning-of-line)))
 
 
 

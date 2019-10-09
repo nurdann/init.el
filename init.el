@@ -28,10 +28,11 @@
 ;(setq completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
 (setq read-file-name-completion-ignore-case t)
+(setq display-line-numbers relative)
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-(add-hook 'find-file-hook 'linum-mode)
+;;(add-hook 'find-file-hook 'linum-mode)
 (auto-fill-mode -1)
 
 
@@ -57,8 +58,6 @@
       (define-key input-decode-map "\C-m" [C-m])
       (define-key input-decode-map "\C-j" [C-j])
      ))
-
-(global-set-key (kbd "M-g") 'keyboard-escape-quit)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -86,8 +85,8 @@
 (use-package winner
   :ensure t
   :config (winner-mode 1)
-  :bind (("C-c <left>" . undo)
-	 ("C-c <right>" . redo)))
+  :bind (("C-c <left>" . winner-undo)
+	 ("C-c <right>" . winner-redo)))
 
 (use-package electric
   :ensure t
@@ -187,33 +186,40 @@
 
 ;; navigation mode
 
-(define-minor-mode fox-mode
-  "Toggle Fox Mode"
+(define-minor-mode navi-mode
+  "Toggle Navi Mode"
   :init-value nil
-  :lighter " Fox"
-  :keymap
-  '()
-  :group 'fox)
+  :lighter " Navi"
+  :keymap '()
+  :group 'navi)
 
-(progn 
+(progn
+  ;; NAVIGATE
   (setq scroll-preserve-screen-position 1)
-  (define-key fox-mode-map (kbd "p") (kbd "C-u 1 M-v"))
-  (define-key fox-mode-map (kbd "n") (kbd "C-u 1 C-v"))
-  (define-key fox-mode-map (kbd "h") (kbd "<left>"))
-  (define-key fox-mode-map (kbd "j") (kbd "<down>"))
-  (define-key fox-mode-map (kbd "k") (kbd "<up>"))
-  (define-key fox-mode-map (kbd "l") (kbd "<right>"))
-  (define-key fox-mode-map (kbd "e") (kbd "<end>"))
-  (define-key fox-mode-map (kbd "a") (kbd "<home>"))
+  (define-key navi-mode-map (kbd "p") (kbd "C-u 1 M-v"))
+  (define-key navi-mode-map (kbd "n") (kbd "C-u 1 C-v"))
+  (define-key navi-mode-map (kbd "h") (kbd "<left>"))
+  (define-key navi-mode-map (kbd "j") (kbd "<down>"))
+  (define-key navi-mode-map (kbd "k") (kbd "<up>"))
+  (define-key navi-mode-map (kbd "l") (kbd "<right>"))
+  (define-key navi-mode-map (kbd "e") (kbd "<end>"))
+  (define-key navi-mode-map (kbd "a") (kbd "<home>"))
+  (define-key navi-mode-map (kbd "f") 'search-next-char)
+  
+  ;; EDIT
+  (define-key navi-mode-map (kbd "/") 'undo)
+  (define-key navi-mode-map (kbd "?") 'redo)
+  
+  (define-key navi-mode-map (kbd "d e") 'kill-line)
+  (define-key navi-mode-map (kbd "d a") (lambda ()
+					  (interactive)
+					  (move-beginning-of-line nil)
+					  (kill-line)))
+  
   )
 
 (global-unset-key (kbd "M-'"))
-(global-set-key (kbd "M-'") 'fox-mode)
-
-
-(defun my-scroll ()
-  (interactive)
-)
+(global-set-key (kbd "M-'") 'navi-mode)
 
 ;; <menu> mode
 
@@ -234,10 +240,27 @@
   (define-key menu-key-map (kbd "c") 'kill-ring-save)
   (define-key menu-key-map (kbd "v") 'yank)
   (define-key menu-key-map (kbd "s") 'save-buffer)
+
+  (define-key menu-key-map (kbd "e") 'eval-last-sexp)
+  (define-key menu-key-map (kbd "w") 'eval-defun)
 )
 
 (global-set-key (kbd "<menu>") 'menu-key-map)
 
+;; <space> mode
+
+(define-minor-mode space-mode
+  "Toggle Space Mode"
+  :init-value nil
+  :lighter " Space"
+  :keymap '()
+  :group 'space)
+
+(progn
+  ;(define-key space-mode [remap self-insert-command] 'ignore)
+  (define-key space-mode (kbd "t") 'space-mode))
+
+(global-set-key (kbd "C-'") 'space-mode)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Functions
@@ -249,19 +272,6 @@
   (kill-ring-save (line-beginning-position) (line-end-position))
   (message "Copied current line"))
 
-(defun rebind-key (key out)
-  "Unbind then bind key"
-  (interactive)
-  (global-unset-key (kbd key))
-  (global-set-key (kbd key) out))
-
-(defun search-next-char (c)
-  "Search next character match"
-  (interactive)
-  (if (char-equal (char-after 1) c)
-      (message "found")
-    (message "not")))
-
 (defun my-suspend-frame ()
   "Suspend only in non-GUI environment"
   (interactive)
@@ -269,11 +279,33 @@
       (message "suspend-frame disabled for graphical interface")
     (suspend-frame)))
 
+(defun search-next-char (c)
+  "Move cursor to  the next character matched"
+  (interactive "c")
+  (search-forward (char-to-string c) nil nil 1))
 
-;; TODO 
-(defun add-key-to-map (map key out)
-  "Unbind and bind the key in the key map"
+
+;; todo
+(defun bind-keys-to-map (map keys)
   (interactive)
-  (define-key map (kbd key) nil)
-  (define-key map (kbd key) out))
+  (setq n 0)
+  (let* ((xs keys))
+    (while(not(null xs))
+      (princ (format "iteration %d: %s." n (car xs)))
+      
+      (setq n (+ 1 n)
+	    xs (cdr xs))
+      ))
+    '(n))
+
+(bind-keys-to-map navi-mode '(1 2 3))
+
+
+
+(defun next-char (c)
+  "Search next character match"
+  (interactive)
+  (if (char-equal (char-after 1) c)
+      (message "found")
+    (message "not")))
 

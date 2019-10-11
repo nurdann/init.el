@@ -3,7 +3,7 @@
 (require 'package)
 
 (add-to-list 'package-archives
-			 '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
 ;(package-refresh-contents)
 
@@ -16,7 +16,7 @@
   :ensure t
   :config
   (setq circadian-themes '(("8:00" . parchment)
-			   ("19:00" . creamsody)))
+                           ("19:00" . creamsody)))
   (circadian-setup))
 
 
@@ -28,13 +28,17 @@
 ;(setq completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
 (setq read-file-name-completion-ignore-case t)
-(setq display-line-numbers relative)
+;(setq display-line-numbers relative)
 
+(setq indent-tabs-mode nil)
+
+;(infer-indentation-style)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 ;;(add-hook 'find-file-hook 'linum-mode)
 (auto-fill-mode -1)
 
+(put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
 (setq backup-by-copying t
       backup-directory-alist '(("." . "~/.emacs.d/backup/"))
@@ -64,7 +68,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (add-to-list 'display-buffer-alist
-	     '("^\\*.*\\*$" . (display-buffer-same-window)))
+             '("^\\*.*\\*$" . (display-buffer-same-window)))
 
 (use-package keyfreq
   :ensure t
@@ -86,14 +90,14 @@
   :ensure t
   :config (winner-mode 1)
   :bind (("C-c <left>" . winner-undo)
-	 ("C-c <right>" . winner-redo)))
+         ("C-c <right>" . winner-redo)))
 
 (use-package electric
   :ensure t
   :config
   (electric-pair-mode 1)
   (setq electric-pair-pairs '((?\" . ?\")
-			      (?\{ . ?\}))))
+                              (?\{ . ?\}))))
 
 (use-package auto-complete
   :init (auto-complete-mode t)
@@ -101,7 +105,7 @@
   (ac-set-trigger-key "<tab>")
   (ac-config-default)
   (setq ac-delay 0.02
-	))
+        ))
 
 (use-package keyfreq
   :config
@@ -112,7 +116,7 @@
   :ensure t
   :init (global-undo-tree-mode)
   :bind (("C-?" . undo-tree-redo)
-	 ("C-/" . undo-tree-undo)))
+         ("C-/" . undo-tree-undo)))
 
 (global-set-key (kbd "C-x s") 'save-buffer) ;; same as C-x C-s
 
@@ -132,9 +136,9 @@
 (global-set-key (kbd "M-]") 'forward-paragraph)
 
 (use-package ace-jump-mode
-  :ensure t	     
+  :ensure t          
   :bind (("M-S-j" . ace-jump-char-mode)
-	 ("M-j" . ace-jump-word-mode)))
+         ("M-j" . ace-jump-word-mode)))
 
 (use-package ace-window
   :init (ace-window t)
@@ -146,16 +150,16 @@
 ;  (helm-mode t)
 ;  (helm-autoresize-mode t) ;; grow buffer as needed
 ;  (setq helm-split-window-in-side-p t ;; split based on current buffer
-;	helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
-;	helm-autoresize-max-height 50
-;					;helm-autoresize-min-height 25
-;	)
+;       helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
+;       helm-autoresize-max-height 50
+;                                       ;helm-autoresize-min-height 25
+;       )
 ;  :bind (("M-x" . helm-M-x)
-;	 ("C-x f" . helm-find-files)
-;	 ("C-x b" . helm-buffers-list)
-;	 ("C-x C-f" . helm-recentf)
-;	 :map helm-find-files-map
-;	 ("DEL" . helm-find-files-up-one-level)))
+;        ("C-x f" . helm-find-files)
+;        ("C-x b" . helm-buffers-list)
+;        ("C-x C-f" . helm-recentf)
+;        :map helm-find-files-map
+;        ("DEL" . helm-find-files-up-one-level)))
 ;
 
 (use-package ido
@@ -163,8 +167,9 @@
   (setq ido-enable-flex-matching t)
   (setq ido-everywhere t)
   :bind
-  (("M-," . ido-find-file)
-   ("M-." . ido-switch-buffer)))
+  (;;("M-," . ido-find-file)
+   ;;("M-." . ido-switch-buffer)
+   ))
 
 ;; Matlab
 ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
@@ -205,16 +210,21 @@
   (define-key navi-mode-map (kbd "e") (kbd "<end>"))
   (define-key navi-mode-map (kbd "a") (kbd "<home>"))
   (define-key navi-mode-map (kbd "f") 'search-next-char)
-  
+  (define-key navi-mode-map (kbd "F") 'search-previous-char)
+  (define-key navi-mode-map (kbd "u") 'backward-word)
+  (define-key navi-mode-map (kbd "o") 'forward-word)
+
+  (define-key navi-mode-map (kbd "s") 'set-goal-column)
+  (define-key navi-mode-map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
   ;; EDIT
   (define-key navi-mode-map (kbd "/") 'undo)
   (define-key navi-mode-map (kbd "?") 'redo)
   
   (define-key navi-mode-map (kbd "d e") 'kill-line)
   (define-key navi-mode-map (kbd "d a") (lambda ()
-					  (interactive)
-					  (move-beginning-of-line nil)
-					  (kill-line)))
+                                          (interactive)
+                                          (move-beginning-of-line nil)
+                                          (kill-line)))
   
   )
 
@@ -230,9 +240,9 @@
   (define-key menu-key-map (kbd "3") 'split-window-right)
   (define-key menu-key-map (kbd "4") 'delete-window)
   (define-key menu-key-map (kbd "r") '(lambda ()
-					"Revert buffer without prompting YES"
-					(interactive)
-					(revert-buffer t t)))
+                                        "Revert buffer without prompting YES"
+                                        (interactive)
+                                        (revert-buffer t t)))
   (define-key menu-key-map (kbd "x") 'execute-extended-command)
   (define-key menu-key-map (kbd "f") 'find-file)
   (define-key menu-key-map (kbd "b") 'switch-to-buffer)
@@ -257,8 +267,9 @@
   :group 'space)
 
 (progn
-  ;(define-key space-mode [remap self-insert-command] 'ignore)
-  (define-key space-mode (kbd "t") 'space-mode))
+  ;;(define-key space-mode [remap self-insert-command] 'ignore)
+  ;;(define-key space-mode (kbd "t") 'space-mode)
+  )
 
 (global-set-key (kbd "C-'") 'space-mode)
 
@@ -280,16 +291,21 @@
     (suspend-frame)))
 
 (defun search-next-char (c)
-  "Move cursor to  the next character matched"
+  "Move cursor to the next character matched"
   (interactive "c")
+  (if (char-equal ?char-after ?c))
   (search-forward (char-to-string c) nil nil 1))
 
+(defun search-previous-char (c)
+  "Move cursor to the previous character matched"
+  (interactive "c")
+  (search-forward (char-to-string c) nil nil -1))
 
 ;; todo
 (defun bind-key-to-map (map keyout)
   (interactive)
   (let ((key (car keyout))
-	(out (nth 1 keyout)))
+        (out (nth 1 keyout)))
     (define-key map (kbd key) out)
     (message "Bound %s to %s in %s" key out map)))
 
@@ -298,18 +314,18 @@
 (defun bind-keys-to-map (map keys)
   (interactive)
   (let ((xs keys)
-	(n 0))
+        (n 0))
     (while(not(null xs))
       (let ((x (car xs)))
-	(bind-key-to-map map x)
-	(message "Bound %s to %s" (car x) (nth 1 x) x))
+        (bind-key-to-map map x)
+        (message "Bound %s to %s" (car x) (nth 1 x) x))
       (setq n (+ 1 n)
-	    xs (cdr xs))
+            xs (cdr xs))
       ))
     (message "Bound %d commands to %s" n map))
 
 (bind-keys-to-map space-mode-map '(("f" forward-line)
-			      ("a" beginning-of-line)))
+                              ("a" beginning-of-line)))
 
 
 

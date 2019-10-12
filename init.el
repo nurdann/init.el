@@ -137,8 +137,10 @@
 
 (use-package ace-jump-mode
   :ensure t          
-  :bind (("M-S-j" . ace-jump-char-mode)
-         ("M-j" . ace-jump-word-mode)))
+  :bind (;("M-j" . ace-jump-char-mode)
+         ("M-j" . ace-jump-word-mode)
+	 ;("M-j" . ace-jump-line-mode)
+         ))
 
 (use-package ace-window
   :init (ace-window t)
@@ -195,39 +197,55 @@
   "Toggle Navi Mode"
   :init-value nil
   :lighter " Navi"
-  :keymap '()
-  :group 'navi)
+  :group 'navi
+  :keymap (let ((map (make-sparse-keymap)))
+            (suppress-keymap map)
+            (define-key map (kbd "1") (kbd "C-u 1"))
+            map))
 
-(progn
-  ;; NAVIGATE
-  (setq scroll-preserve-screen-position 1)
-  (define-key navi-mode-map (kbd "p") (kbd "C-u 1 M-v"))
-  (define-key navi-mode-map (kbd "n") (kbd "C-u 1 C-v"))
-  (define-key navi-mode-map (kbd "h") (kbd "<left>"))
-  (define-key navi-mode-map (kbd "j") (kbd "<down>"))
-  (define-key navi-mode-map (kbd "k") (kbd "<up>"))
-  (define-key navi-mode-map (kbd "l") (kbd "<right>"))
-  (define-key navi-mode-map (kbd "e") (kbd "<end>"))
-  (define-key navi-mode-map (kbd "a") (kbd "<home>"))
-  (define-key navi-mode-map (kbd "f") 'search-next-char)
-  (define-key navi-mode-map (kbd "F") 'search-previous-char)
-  (define-key navi-mode-map (kbd "u") 'backward-word)
-  (define-key navi-mode-map (kbd "o") 'forward-word)
-
-  (define-key navi-mode-map (kbd "s") 'set-goal-column)
-  (define-key navi-mode-map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
-  ;; EDIT
-  (define-key navi-mode-map (kbd "/") 'undo)
-  (define-key navi-mode-map (kbd "?") 'redo)
-  
-  (define-key navi-mode-map (kbd "d e") 'kill-line)
-  (define-key navi-mode-map (kbd "d a") (lambda ()
-                                          (interactive)
-                                          (move-beginning-of-line nil)
-                                          (kill-line)))
-  
-  )
-
+;;(setq navi-mode-map
+;;  (let ((map (make-keymap)))
+;;    (suppress-keymap map)
+;;  ;; NAVIGATE
+;;  (setq scroll-preserve-screen-position 1)
+;;  (define-key map (kbd "p") (kbd "C-u 1 M-v"))
+;;  (define-key map (kbd "n") (kbd "C-u 1 C-v"))
+;;  (define-key map (kbd "h") (kbd "<left>"))
+;;  (define-key map (kbd "j") (kbd "<down>"))
+;;  (define-key map (kbd "k") (kbd "<up>"))
+;;  (define-key map (kbd "l") (kbd "<right>"))
+;;  (define-key map (kbd "e") (kbd "<end>"))
+;;  (define-key map (kbd "a") (kbd "<home>"))
+;;  (define-key map (kbd "f") 'search-next-char)
+;;  (define-key map (kbd "F") 'search-previous-char)
+;;  (define-key map (kbd "u") 'backward-word)
+;;  (define-key map (kbd "o") 'forward-word)
+;;
+;;  (define-key map (kbd "s") 'set-goal-column)
+;;  (define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
+;;  ;; EDIT
+;;  (define-key map (kbd "/") 'undo)
+;;  (define-key map (kbd "?") 'redo)
+;;  
+;;  (define-key map (kbd "d e") 'kill-line)
+;;  (define-key map (kbd "d a") (lambda ()
+;;                                (interactive)
+;;                                (move-beginning-of-line nil)
+;;                                (kill-line)))
+;;
+;;  (define-key map (kbd "0") (kbd "C-u 0"))
+;;  (define-key map (kbd "1") (kbd "C-u 1"))
+;;  (define-key map (kbd "2") (kbd "C-u 3"))
+;;  (define-key map (kbd "4") (kbd "C-u 4"))
+;;  (define-key map (kbd "5") (kbd "C-u 5"))
+;;  (define-key map (kbd "6") (kbd "C-u 6"))
+;;  (define-key map (kbd "7") (kbd "C-u 7"))
+;;  (define-key map (kbd "8") (kbd "C-u 8"))
+;;  (define-key map (kbd "9") (kbd "C-u 9"))
+;;  
+;;  
+;;  map))
+;;
 (global-unset-key (kbd "M-'"))
 (global-set-key (kbd "M-'") 'navi-mode)
 

@@ -223,10 +223,12 @@
 
             ;; KILL
 	    (define-key map (kbd "SPC") 'set-mark-command)
-            (define-key map (kbd "d e") 'kill-line)
             (define-key map (kbd "w") 'kill-region)
 	    (define-key map (kbd "W") 'kill-ring-save)
-
+            (define-key map (kbd "d") 'delete-backward-char)
+            (define-key map (kbd "D") 'delete-forward-char)
+            (define-key map (kbd "i") 'yank)
+            
             map))
 
 ;(global-unset-key (kbd "S-SPC"))
@@ -286,11 +288,13 @@
   "Cut the region, if no region cut current line"
   (interactive
    (if mark-active
-       (list (region-beginning) (region-end))
-     (message "Cut the current line")
-     ;;(list (line-beginning-position) (line-beginning-position 2))
-     (list (line-beginning-position) (line-end-position))
-     (message "Cut the region")
+       (progn
+         (message "Cut the current line")
+         (list (region-beginning) (region-end)))
+     (progn
+       ;;(list (line-beginning-position) (line-beginning-position 2))
+       (message "Cut the region")
+       (list (line-beginning-position) (line-end-position)))
      )))
 
 (advice-add 'kill-region :before #'slick-cut)

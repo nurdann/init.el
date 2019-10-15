@@ -36,6 +36,7 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 ;;(add-hook 'find-file-hook 'linum-mode)
+(add-hook 'find-file-hook 'linum-relative-mode)
 (auto-fill-mode -1)
 
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
@@ -57,7 +58,7 @@
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)
       (eq 'pc frame)
-      (define-key input-decode-map (kbd "C-[") [C-bracketleft])
+      (define-key input-decode-map (kbd "C-[") [C-\[])
       (define-key input-decode-map "\C-i" [C-i])
       (define-key input-decode-map "\C-m" [C-m])
       (define-key input-decode-map "\C-j" [C-j])
@@ -122,7 +123,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;
-;; Navigating 
+;; Navigating
 ;;;;;;;;;;;;;;;;;;;;
 
 ;(use-package evil
@@ -136,10 +137,10 @@
 (global-set-key (kbd "M-]") 'forward-paragraph)
 
 (use-package ace-jump-mode
-  :ensure t          
-  :bind (;("M-j" . ace-jump-char-mode)
+  :ensure t
+  :bind (("C-;" . ace-jump-word-mode)
          ("M-j" . ace-jump-word-mode)
-	 ;("M-j" . ace-jump-line-mode)
+	 ("S-SPC" . ace-jump-word-mode)
          ))
 
 (use-package ace-window
@@ -173,20 +174,6 @@
    ;;("M-." . ido-switch-buffer)
    ))
 
-;; Matlab
-;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
-;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
-;(setq matlab-indent-function t)
-;(setq matlab-shell-command "matlab")
-;
-;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
-;(load-library "matlab")
-;
-;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
-;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
-;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
-
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
 ;;;;;;;;;;;;;;;;;;;;
@@ -200,53 +187,50 @@
   :group 'navi
   :keymap (let ((map (make-sparse-keymap)))
             (suppress-keymap map)
+
+	    ;; treat initial number as prefix
             (define-key map (kbd "1") (kbd "C-u 1"))
+            (define-key map (kbd "2") (kbd "C-u 2"))
+            (define-key map (kbd "3") (kbd "C-u 3"))
+            (define-key map (kbd "4") (kbd "C-u 4"))
+            (define-key map (kbd "5") (kbd "C-u 5"))
+            (define-key map (kbd "6") (kbd "C-u 6"))
+            (define-key map (kbd "7") (kbd "C-u 7"))
+            (define-key map (kbd "8") (kbd "C-u 8"))
+            (define-key map (kbd "9") (kbd "C-u 9"))
+
+	    ;; NAVIGATE
+	    (setq scroll-preserve-screen-position t)
+	    (define-key map (kbd "p") 'scroll-down-line)
+	    (define-key map (kbd "n") 'scroll-up-line)
+            (define-key map (kbd "h") (kbd "<left>"))
+            (define-key map (kbd "j") (kbd "<down>"))
+            (define-key map (kbd "k") (kbd "<up>"))
+            (define-key map (kbd "l") (kbd "<right>"))
+            (define-key map (kbd "e") (kbd "<end>"))
+            (define-key map (kbd "a") (kbd "<home>"))
+            (define-key map (kbd "f") 'search-next-char)
+            (define-key map (kbd "F") 'search-previous-char)
+            (define-key map (kbd "u") 'backward-word)
+            (define-key map (kbd "o") 'forward-word)
+
+            (define-key map (kbd "s") 'set-goal-column)
+            (define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
+
+            ;; EDIT
+            (define-key map (kbd "/") 'undo)
+            (define-key map (kbd "?") 'redo)
+
+            ;; KILL
+	    (define-key map (kbd "SPC") 'set-mark-command)
+            (define-key map (kbd "d e") 'kill-line)
+            (define-key map (kbd "w") 'kill-region)
+	    (define-key map (kbd "W") 'kill-ring-save)
+
             map))
 
-;;(setq navi-mode-map
-;;  (let ((map (make-keymap)))
-;;    (suppress-keymap map)
-;;  ;; NAVIGATE
-;;  (setq scroll-preserve-screen-position 1)
-;;  (define-key map (kbd "p") (kbd "C-u 1 M-v"))
-;;  (define-key map (kbd "n") (kbd "C-u 1 C-v"))
-;;  (define-key map (kbd "h") (kbd "<left>"))
-;;  (define-key map (kbd "j") (kbd "<down>"))
-;;  (define-key map (kbd "k") (kbd "<up>"))
-;;  (define-key map (kbd "l") (kbd "<right>"))
-;;  (define-key map (kbd "e") (kbd "<end>"))
-;;  (define-key map (kbd "a") (kbd "<home>"))
-;;  (define-key map (kbd "f") 'search-next-char)
-;;  (define-key map (kbd "F") 'search-previous-char)
-;;  (define-key map (kbd "u") 'backward-word)
-;;  (define-key map (kbd "o") 'forward-word)
-;;
-;;  (define-key map (kbd "s") 'set-goal-column)
-;;  (define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
-;;  ;; EDIT
-;;  (define-key map (kbd "/") 'undo)
-;;  (define-key map (kbd "?") 'redo)
-;;  
-;;  (define-key map (kbd "d e") 'kill-line)
-;;  (define-key map (kbd "d a") (lambda ()
-;;                                (interactive)
-;;                                (move-beginning-of-line nil)
-;;                                (kill-line)))
-;;
-;;  (define-key map (kbd "0") (kbd "C-u 0"))
-;;  (define-key map (kbd "1") (kbd "C-u 1"))
-;;  (define-key map (kbd "2") (kbd "C-u 3"))
-;;  (define-key map (kbd "4") (kbd "C-u 4"))
-;;  (define-key map (kbd "5") (kbd "C-u 5"))
-;;  (define-key map (kbd "6") (kbd "C-u 6"))
-;;  (define-key map (kbd "7") (kbd "C-u 7"))
-;;  (define-key map (kbd "8") (kbd "C-u 8"))
-;;  (define-key map (kbd "9") (kbd "C-u 9"))
-;;  
-;;  
-;;  map))
-;;
-(global-unset-key (kbd "M-'"))
+;(global-unset-key (kbd "S-SPC"))
+(global-set-key (kbd "S-<return>") 'navi-mode)
 (global-set-key (kbd "M-'") 'navi-mode)
 
 ;; <menu> mode
@@ -261,19 +245,23 @@
                                         "Revert buffer without prompting YES"
                                         (interactive)
                                         (revert-buffer t t)))
-  (define-key menu-key-map (kbd "x") 'execute-extended-command)
   (define-key menu-key-map (kbd "f") 'find-file)
   (define-key menu-key-map (kbd "b") 'switch-to-buffer)
   (define-key menu-key-map (kbd "a") 'mark-whole-buffer)
+  (define-key menu-key-map (kbd "x") 'kill-region)
   (define-key menu-key-map (kbd "c") 'kill-ring-save)
   (define-key menu-key-map (kbd "v") 'yank)
   (define-key menu-key-map (kbd "s") 'save-buffer)
 
   (define-key menu-key-map (kbd "e") 'eval-last-sexp)
   (define-key menu-key-map (kbd "w") 'eval-defun)
+
+  (define-key menu-key-map (kbd "SPC") 'just-one-space)
 )
 
 (global-set-key (kbd "<menu>") 'menu-key-map)
+(global-set-key (kbd "C-]") 'menu-key-map)
+
 
 ;; <space> mode
 
@@ -284,22 +272,40 @@
   :keymap '()
   :group 'space)
 
-(progn
-  ;;(define-key space-mode [remap self-insert-command] 'ignore)
-  ;;(define-key space-mode (kbd "t") 'space-mode)
-  )
+;;(define-key space-mode [remap self-insert-command] 'ignore)
+;;(define-key space-mode (kbd "t") 'space-mode)
 
-(global-set-key (kbd "C-'") 'space-mode)
+;(global-set-key (kbd "C-'") 'space-mode)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Functions
 ;;;;;;;;;;;;;;;;;;;;
 
-(defun copy-current-line ()
-  "Copy current line the cursor in"
-  (interactive)
-  (kill-ring-save (line-beginning-position) (line-end-position))
-  (message "Copied current line"))
+
+(defun slick-cut (start end)
+  "Cut the region, if no region cut current line"
+  (interactive
+   (if mark-active
+       (list (region-beginning) (region-end))
+     (message "Cut the current line")
+     ;;(list (line-beginning-position) (line-beginning-position 2))
+     (list (line-beginning-position) (line-end-position))
+     (message "Cut the region")
+     )))
+
+(advice-add 'kill-region :before #'slick-cut)
+
+(defun slick-copy (start end)
+  "Copy the region, if no region copy current line"
+  (interactive
+   (if mark-active
+       (list (region-beginning) (region-end))
+     (message "Copied current line")
+     ;;(list (line-beginning-position) (line-beginning-position 2))
+     (list (line-beginning-position) (line-end-position))
+     )))
+
+(advice-add 'kill-ring-save :before #'slick-copy)
 
 (defun my-suspend-frame ()
   "Suspend only in non-GUI environment"
@@ -311,7 +317,7 @@
 (defun search-next-char (c)
   "Move cursor to the next character matched"
   (interactive "c")
-  (if (char-equal ?char-after ?c))
+  ;;(if (char-equal ?char-after ?c))
   (search-forward (char-to-string c) nil nil 1))
 
 (defun search-previous-char (c)
@@ -319,7 +325,6 @@
   (interactive "c")
   (search-forward (char-to-string c) nil nil -1))
 
-;; todo
 (defun bind-key-to-map (map keyout)
   (interactive)
   (let ((key (car keyout))
@@ -327,7 +332,6 @@
     (define-key map (kbd key) out)
     (message "Bound %s to %s in %s" key out map)))
 
-;;(bind-key-to-map space-mode-map '("a" forward-line))
 
 (defun bind-keys-to-map (map keys)
   (interactive)
@@ -339,18 +343,22 @@
         (message "Bound %s to %s" (car x) (nth 1 x) x))
       (setq n (+ 1 n)
             xs (cdr xs))
-      ))
-    (message "Bound %d commands to %s" n map))
+      )
+    (message "Bound %d commands to %s" n map)))
 
-(bind-keys-to-map space-mode-map '(("f" forward-line)
-                              ("a" beginning-of-line)))
+;;;;;;;;;;;;;;;;;;;;
+;; Extentions
+;;;;;;;;;;;;;;;;;;;;
 
-
-
-(defun next-char (c)
-  "Search next character match"
-  (interactive)
-  (if (char-equal (char-after 1) c)
-      (message "found")
-    (message "not")))
-
+;; Matlab
+;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
+;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
+;(setq matlab-indent-function t)
+;(setq matlab-shell-command "matlab")
+;
+;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
+;(load-library "matlab")
+;
+;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
+;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
+;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)

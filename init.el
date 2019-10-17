@@ -3,9 +3,10 @@
 (require 'package)
 
 (add-to-list 'package-archives
-             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
 ;(package-refresh-contents)
+(setq package-check-signature  nil)
 
 (eval-when-compile (require 'use-package))
 
@@ -32,8 +33,10 @@
 
 (setq indent-tabs-mode nil)
 
+
 ;(infer-indentation-style)
-(menu-bar-mode -1)
+(menu-bar-mode 1)
+(size-indication-mode 1)
 (tool-bar-mode -1)
 ;;(add-hook 'find-file-hook 'linum-mode)
 (add-hook 'find-file-hook 'linum-relative-mode)
@@ -222,6 +225,8 @@
             (define-key map (kbd "?") 'redo)
 
             ;; KILL
+	    ;; C-u C-SPC jump to mark
+	    ;; C-x C-x exchange point and mark
 	    (define-key map (kbd "SPC") 'set-mark-command)
             (define-key map (kbd "w") 'kill-region)
 	    (define-key map (kbd "W") 'kill-ring-save)
@@ -254,11 +259,17 @@
   (define-key menu-key-map (kbd "c") 'kill-ring-save)
   (define-key menu-key-map (kbd "v") 'yank)
   (define-key menu-key-map (kbd "s") 'save-buffer)
+  (define-key menu-key-map (kbd "S") 'sudo-save-buffer)
 
-  (define-key menu-key-map (kbd "e") 'eval-last-sexp)
+  (define-key menu-key-map (kbd "W") 'eval-last-sexp)
   (define-key menu-key-map (kbd "w") 'eval-defun)
 
+  ;; EDITING
   (define-key menu-key-map (kbd "SPC") 'just-one-space)
+  (define-key menu-key-map (kbd "k") '(lambda () (interactive) (kill-buffer (current-buffer))))
+  ;; Applicable to html, xml
+  ;(define-key menu-key-map (kbd "e") 'sgml-close-tag)
+  
 )
 
 (global-set-key (kbd "<menu>") 'menu-key-map)
@@ -349,6 +360,32 @@
             xs (cdr xs))
       )
     (message "Bound %d commands to %s" n map)))
+
+(defun sudo-save-buffer ()
+  (interactive)
+  (if (not buffer-file-name)
+      (write-file (concat "/sudo:root@localhost:" (read-file-name "File:")))
+    (write-file (concat "/sudo:root@localhost:" buffer-file-name))))
+
+;; https://www.emacswiki.org/emacs/EshellNavigation
+ (defun bol-maybe-general-my (prompt &optional alt-bol-fcn)
+  ""
+  (interactive)
+  (if (and (string-match (concat "^" (regexp-quote prompt)
+                                 " *$")
+                         (buffer-substring-no-properties
+                          (line-beginning-position)
+                          (point)))
+           (not (bolp)))
+      (beginning-of-line)
+    (if alt-bol-fcn
+        (funcall alt-bol-fcn)
+      (beginning-of-line)
+      (search-forward-regexp prompt))))
+
+ (add-hook 'eshell-mode-hook '(lambda ()
+                               (local-set-key (kbd "C-a")
+                                              'eshell-bol-maybe-my)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Extentions

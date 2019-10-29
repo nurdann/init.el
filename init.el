@@ -9,6 +9,8 @@
 (setq package-check-signature  nil)
 
 (eval-when-compile (require 'use-package))
+;;(require 'diminish)                ;; if you use :diminish
+(require 'bind-key)                ;; if you use any :bind variant
 
 (use-package creamsody-theme :ensure :defer)
 (use-package parchment-theme :ensure :defer)
@@ -38,7 +40,7 @@
 (menu-bar-mode 1)
 (size-indication-mode 1)
 (tool-bar-mode -1)
-;;(add-hook 'find-file-hook 'linum-mode)
+(add-hook 'find-file-hook 'linum-mode)
 (add-hook 'find-file-hook 'linum-relative-mode)
 (auto-fill-mode -1)
 
@@ -86,8 +88,6 @@
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
 
-(global-set-key (kbd "C-c C-k") 'copy-current-line)
-
 (show-paren-mode 1)
 
 (use-package winner
@@ -108,8 +108,8 @@
   :config
   (ac-set-trigger-key "<tab>")
   (ac-config-default)
-  (setq ac-delay 0.02
-        ))
+  (setq ac-delay 0.02)
+  (add-to-list 'ac-modes 'markdown-mode))
 
 (use-package keyfreq
   :config
@@ -129,6 +129,32 @@
 ;; Navigating
 ;;;;;;;;;;;;;;;;;;;;
 
+;; Least frequent bigram combinations
+;;      fb
+;;      gb gp
+;;  jj  jc jf jg jh jk jl jm jp jq js jt jv jw jx jy jz
+;;  kk
+;;  qq  qb qf qg qh qk ql qm qp qt qv qw qx qy qz
+;;  vv  vc vf vg vh vk vm vp vw vz
+;;  ww
+;;      xb xd xg xk xm xs xw
+;;  yy
+;;      zb zd zf zg zk zm zp zs zw zx
+(use-package use-package-chords
+  :ensure t
+  :config (key-chord-mode 1)
+  ;;(setq key-chord-two-keys-delay .020
+;;	key-chord-one-key-delay .020)
+
+  ;; Add key-chord-mode to minor-mode-alist
+  (if (not (assq 'key-chord-mode minor-mode-alist))
+      (setq minor-mode-alist
+	    (cons '(key-chord-mode " Chord ")
+		  minor-mode-alist)))
+  ;;:chords (("qq" . (kbd "C-g"))
+  )
+
+
 ;(use-package evil
 ;  :init
 ;  (evil-mode t))
@@ -141,41 +167,23 @@
 
 (use-package ace-jump-mode
   :ensure t
-  :bind (("C-;" . ace-jump-word-mode)
-         ("M-j" . ace-jump-word-mode)
-	 ("S-SPC" . ace-jump-word-mode)
-         ))
+  :bind (("S-SPC" . ace-jump-word-mode))
+  :chords (("jw" . ace-jump-mode)
+           ("qq" . (lambda () (interactive)
+                     (progn
+                     (kbd "C-g"))))))
 
 (use-package ace-window
   :init (ace-window t)
   (setq aw-keys '(?a ?s ?d ?w ?e)) ;; limit characters
   :bind (("M-a" . ace-window)))
 
-;(use-package helm
-;  :init
-;  (helm-mode t)
-;  (helm-autoresize-mode t) ;; grow buffer as needed
-;  (setq helm-split-window-in-side-p t ;; split based on current buffer
-;       helm-move-to-line-cycle-in-source t ;; cycle options when reaching end/start of buffer
-;       helm-autoresize-max-height 50
-;                                       ;helm-autoresize-min-height 25
-;       )
-;  :bind (("M-x" . helm-M-x)
-;        ("C-x f" . helm-find-files)
-;        ("C-x b" . helm-buffers-list)
-;        ("C-x C-f" . helm-recentf)
-;        :map helm-find-files-map
-;        ("DEL" . helm-find-files-up-one-level)))
-;
-
 (use-package ido
   :config (ido-mode 1)
   (setq ido-enable-flex-matching t)
   (setq ido-everywhere t)
-  :bind
-  (;;("M-," . ido-find-file)
-   ;;("M-." . ido-switch-buffer)
-   ))
+)
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -216,24 +224,36 @@
             (define-key map (kbd "F") 'search-previous-char)
             (define-key map (kbd "u") 'backward-word)
             (define-key map (kbd "o") 'forward-word)
+	    (define-key map (kbd "[") 'backward-paragraph)
+	    (define-key map (kbd "]") 'forward-paragraph)
 
+	    ;; Parenthesis movement
+	    ;; C-M-u go up level
+	    ;; C-M-n/p go next/previous paren on the same level
+	    ;; C-M-e go to the end of defun
+	    ;; C-M-a go to the start of defun
+	    ;; C-m-f forward sexp
+	    
             (define-key map (kbd "s") 'set-goal-column)
             (define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
 
             ;; EDIT
             (define-key map (kbd "/") 'undo)
             (define-key map (kbd "?") 'redo)
-
+	    (define-key map (kbd "r") 'string-rectangle)
+	    (define-key map (kbd "t") 'transpose-words)
+	    
             ;; KILL
 	    ;; C-u C-SPC jump to mark
 	    ;; C-x C-x exchange point and mark
 	    (define-key map (kbd "SPC") 'set-mark-command)
             (define-key map (kbd "w") 'kill-region)
 	    (define-key map (kbd "W") 'kill-ring-save)
-            (define-key map (kbd "d") 'delete-backward-char)
-            (define-key map (kbd "D") 'delete-forward-char)
+            (define-key map (kbd "D") 'delete-backward-char)
+            (define-key map (kbd "d") 'delete-forward-char)
             (define-key map (kbd "i") 'yank)
-            
+
+
             map))
 
 ;(global-unset-key (kbd "S-SPC"))
@@ -248,18 +268,16 @@
   (define-key menu-key-map (kbd "2") 'split-window-below)
   (define-key menu-key-map (kbd "3") 'split-window-right)
   (define-key menu-key-map (kbd "4") 'delete-window)
-  (define-key menu-key-map (kbd "r") '(lambda ()
-                                        "Revert buffer without prompting YES"
-                                        (interactive)
-                                        (revert-buffer t t)))
-  (define-key menu-key-map (kbd "f") 'find-file)
-  (define-key menu-key-map (kbd "b") 'switch-to-buffer)
+
+  (define-key menu-key-map (kbd "f") 'ido-find-file)
+  (define-key menu-key-map (kbd "b") 'ido-switch-buffer)
   (define-key menu-key-map (kbd "a") 'mark-whole-buffer)
   (define-key menu-key-map (kbd "x") 'kill-region)
   (define-key menu-key-map (kbd "c") 'kill-ring-save)
   (define-key menu-key-map (kbd "v") 'yank)
   (define-key menu-key-map (kbd "s") 'save-buffer)
-  (define-key menu-key-map (kbd "S") 'sudo-save-buffer)
+  (define-key menu-key-map (kbd "<left>") 'previous-buffer)
+  (define-key menu-key-map (kbd "<right>") 'next-buffer)
 
   (define-key menu-key-map (kbd "W") 'eval-last-sexp)
   (define-key menu-key-map (kbd "w") 'eval-defun)
@@ -269,7 +287,13 @@
   (define-key menu-key-map (kbd "k") '(lambda () (interactive) (kill-buffer (current-buffer))))
   ;; Applicable to html, xml
   ;(define-key menu-key-map (kbd "e") 'sgml-close-tag)
-  
+
+  (define-key menu-key-map (kbd "d") 'dired)
+  (define-key menu-key-map (kbd "r") '(lambda ()
+                                        "Revert buffer without prompting YES"
+                                        (interactive)
+                                        (revert-buffer t t)))
+
 )
 
 (global-set-key (kbd "<menu>") 'menu-key-map)

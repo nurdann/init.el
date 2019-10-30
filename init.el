@@ -129,6 +129,19 @@
 ;; Navigating
 ;;;;;;;;;;;;;;;;;;;;
 
+(use-package use-package-chords
+  :ensure t
+  :config (key-chord-mode 1)
+  ;;(setq key-chord-two-keys-delay .020
+;;	key-chord-one-key-delay .020)
+
+  ;; Add key-chord-mode to minor-mode-alist
+  (if (not (assq 'key-chord-mode minor-mode-alist))
+      (setq minor-mode-alist
+	    (cons '(key-chord-mode " Chord ")
+		  minor-mode-alist)))
+  )
+
 ;; Least frequent bigram combinations
 ;;      fb
 ;;      gb gp
@@ -141,24 +154,8 @@
 ;;  yy
 ;;      zb zd zf zg zk zm zp zs zw zx
 (use-package use-package-chords
-  :ensure t
-  :config (key-chord-mode 1)
-  ;;(setq key-chord-two-keys-delay .020
-;;	key-chord-one-key-delay .020)
-
-  ;; Add key-chord-mode to minor-mode-alist
-  (if (not (assq 'key-chord-mode minor-mode-alist))
-      (setq minor-mode-alist
-	    (cons '(key-chord-mode " Chord ")
-		  minor-mode-alist)))
-  ;;:chords (("qq" . (kbd "C-g"))
-  )
-
-
-;(use-package evil
-;  :init
-;  (evil-mode t))
-
+  :chords ((
+	   ))
 
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
 
@@ -167,22 +164,18 @@
 
 (use-package ace-jump-mode
   :ensure t
-  :bind (("S-SPC" . ace-jump-word-mode))
-  :chords (("jw" . ace-jump-mode)
-           ("qq" . (lambda () (interactive)
-                     (progn
-                     (kbd "C-g"))))))
+  :chords (("jw" . ace-jump-mode)))
 
 (use-package ace-window
   :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?w ?e)) ;; limit characters
-  :bind (("M-a" . ace-window)))
+  (setq aw-keys '(?a ?s ?d ?f ?g ?q ?w ?e ?r ?t ?z ?x ?c ?v)) ;; limit characters
+  :chords (("jf" . ace-window)))
 
 (use-package ido
   :config (ido-mode 1)
-  (setq ido-enable-flex-matching t)
-  (setq ido-everywhere t)
-)
+  (setq ido-enable-flex-matching t
+	ido-everywhere t
+	ido-auto-merge-work-directories-length -1))
 
 
 ;;;;;;;;;;;;;;;;;;;;

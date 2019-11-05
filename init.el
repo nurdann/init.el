@@ -1,3 +1,4 @@
+
 ;; C-h c <command> to get output of command sequence
 
 (require 'package)
@@ -34,13 +35,13 @@
 
 (setq indent-tabs-mode nil)
 
-
 ;(infer-indentation-style)
 (menu-bar-mode 1)
 (size-indication-mode 1)
 (tool-bar-mode -1)
 (add-hook 'find-file-hook 'linum-mode)
-(add-hook 'find-file-hook 'linum-relative-mode)
+;;(add-hook 'find-file-hook 'linum-relative-mode)
+
 (auto-fill-mode -1)
 
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
@@ -111,10 +112,27 @@
 ;;  (add-to-list 'ac-modes 'markdown-mode))
 
 (use-package company
-  :config (company-mode t)
-  (add-hook 'after-init-hook 'global-company-mode))
+  :config 
+  (add-hook 'after-init-hook 'global-company-mode)
+  (add-to-list 'company-backends 'company-dabbrev-code) 
+  (add-to-list 'company-backends 'company-yasnippet)
+  (add-to-list 'company-backends 'company-files)
+  (add-to-list 'company-backends 'company-capf)
+  (company-tng-configure-default)
 
-(global-set-key (kbd "TAB") 'company-complete-common)
+  (setq completion-auto-help 'lazy)
+  
+  :custom
+  (company-begin-commands '(self-insert-command))
+  (company-idle-delay  .1)
+  (company-minimum-prefix-legth 2)
+  (company-show-numbers t)
+  (company-tooltip-align-annotations 't)
+  (global-company-mode t)
+  (company-require-match nil)
+
+  :bind (("TAB" . 'company-complete-common))
+  )
 
 (use-package keyfreq
   :config
@@ -175,12 +193,12 @@
   (setq aw-keys '(?a ?s ?d ?f ?g ?q ?w ?e ?r ?t ?z ?x ?c ?v)) ;; limit characters
   :chords (("jf" . ace-window)))
 
-;(use-package ido
-;  :config (ido-mode 1)
-;  (setq ido-enable-flex-matching t
-;	ido-everywhere -1
-;	ido-auto-merge-work-directories-length -1))
-;
+(use-package ido
+  :config (ido-mode 1)
+  (setq ido-enable-flex-matching t
+	ido-everywhere t
+	ido-auto-merge-work-directories-length -1
+	))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -479,3 +497,4 @@
 ;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
 ;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
 ;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
+

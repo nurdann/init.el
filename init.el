@@ -2,15 +2,15 @@
 
 (require 'package)
 
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+
 (package-initialize)
 ;(package-refresh-contents)
 (setq package-check-signature  nil)
 
 (eval-when-compile (require 'use-package))
-;;(require 'diminish)                ;; if you use :diminish
-(require 'bind-key)                ;; if you use any :bind variant
+(require 'bind-key) ;; required for :bind 
 
 (use-package creamsody-theme :ensure :defer)
 (use-package parchment-theme :ensure :defer)
@@ -21,7 +21,6 @@
   (setq circadian-themes '(("8:00" . parchment)
                            ("19:00" . creamsody)))
   (circadian-setup))
-
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Misc
@@ -103,13 +102,19 @@
   (setq electric-pair-pairs '((?\" . ?\")
                               (?\{ . ?\}))))
 
-(use-package auto-complete
-  :init (auto-complete-mode t)
-  :config
-  (ac-set-trigger-key "<tab>")
-  (ac-config-default)
-  (setq ac-delay 0.02)
-  (add-to-list 'ac-modes 'markdown-mode))
+;;(use-package auto-complete
+;;  :init (auto-complete-mode t)
+;;  :config
+;;  (ac-set-trigger-key "<tab>")
+;;  (ac-config-default)
+;;  (setq ac-delay 0.02)
+;;  (add-to-list 'ac-modes 'markdown-mode))
+
+(use-package company
+  :config (company-mode t)
+  (add-hook 'after-init-hook 'global-company-mode))
+
+(global-set-key (kbd "TAB") 'company-complete-common)
 
 (use-package keyfreq
   :config
@@ -154,8 +159,7 @@
 ;;  yy
 ;;      zb zd zf zg zk zm zp zs zw zx
 (use-package use-package-chords
-  :chords ((
-	   ))
+  :chords (()))
 
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
 
@@ -171,12 +175,12 @@
   (setq aw-keys '(?a ?s ?d ?f ?g ?q ?w ?e ?r ?t ?z ?x ?c ?v)) ;; limit characters
   :chords (("jf" . ace-window)))
 
-(use-package ido
-  :config (ido-mode 1)
-  (setq ido-enable-flex-matching t
-	ido-everywhere t
-	ido-auto-merge-work-directories-length -1))
-
+;(use-package ido
+;  :config (ido-mode 1)
+;  (setq ido-enable-flex-matching t
+;	ido-everywhere -1
+;	ido-auto-merge-work-directories-length -1))
+;
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -246,13 +250,13 @@
             (define-key map (kbd "d") 'delete-forward-char)
             (define-key map (kbd "i") 'yank)
 
-
             map))
 
 ;(global-unset-key (kbd "S-SPC"))
 (global-set-key (kbd "S-<return>") 'navi-mode)
 (global-set-key (kbd "M-'") 'navi-mode)
 
+;;;;;;;;;;;;;;;;;;;;
 ;; <menu> mode
 
 (progn
@@ -282,7 +286,8 @@
   ;(define-key menu-key-map (kbd "e") 'sgml-close-tag)
 
   (define-key menu-key-map (kbd "d") 'dired)
-  (define-key menu-key-map (kbd "r") '(lambda ()
+  (define-key menu-key-map (kbd "r") 'revert-visible-windows)
+  (define-key menu-key-map (kbd "R") '(lambda ()
                                         "Revert buffer without prompting YES"
                                         (interactive)
                                         (revert-buffer t t)))
@@ -404,8 +409,62 @@
                                (local-set-key (kbd "C-a")
                                               'eshell-bol-maybe-my)))
 
+(defun revert-visible-windows ()
+  "Revert visible unmodified windows"
+  (interactive)
+  (dolist (buf (buffer-list))
+    (let ((filename (buffer-file-name buf)))
+      ;;(message "file %s buffer %s" filename buf)
+      (if (and filename (file-readable-p filename) (not (buffer-modified-p buf))
+	       (get-buffer-window buf))
+	  (progn (with-current-buffer buf
+		   (revert-buffer :ignore-auto :nonconfirm :preserve-modes))
+		 (message "Updated buffer %s" buf))
+	;;(message "No visible window to update")
+	))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Allow buffer reverts to be undone
+
+(defun my-revert-buffer (&optional ignore-auto noconfirm preserve-modes)
+  "Revert buffer from file in an undo-able manner."
+  (interactive)
+  (when (buffer-file-name)
+    ;; Based upon `delphi-save-state':
+    ;; Ensure that any buffer modifications do not have any side
+    ;; effects beyond the actual content changes.
+    (let ((buffer-read-only nil)
+          (inhibit-read-only t)
+          (before-change-functions nil)
+          (after-change-functions nil))
+      (unwind-protect
+          (progn
+            ;; Prevent triggering `ask-user-about-supersession-threat'
+            (set-visited-file-modtime)
+            ;; Kill buffer contents and insert from associated file.
+            (widen)
+            (kill-region (point-min) (point-max))
+            (insert-file-contents (buffer-file-name))
+            ;; Mark buffer as unmodified.
+            (set-buffer-modified-p nil))))))
+
+(defadvice ask-user-about-supersession-threat
+  (around my-supersession-revert-buffer)
+  "Use my-revert-buffer in place of revert-buffer."
+  (let ((real-revert-buffer (symbol-function 'revert-buffer)))
+    (fset 'revert-buffer 'my-revert-buffer)
+    ;; Note that `ask-user-about-supersession-threat' calls
+    ;; (signal 'file-supersession ...), so we need to handle
+    ;; the error in order to restore revert-buffer.
+    (unwind-protect
+        ad-do-it
+      (fset 'revert-buffer real-revert-buffer))))
+
+(ad-activate 'ask-user-about-supersession-threat)
+
+
 ;;;;;;;;;;;;;;;;;;;;
-;; Extentions
+;; EXTENTIONS
 ;;;;;;;;;;;;;;;;;;;;
 
 ;; Matlab

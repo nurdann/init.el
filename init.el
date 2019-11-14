@@ -3,12 +3,12 @@
 
 (require 'package)
 
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
 (package-initialize)
-;(package-refresh-contents)
-(setq package-check-signature  nil)
+;;(package-refresh-contents)
+;;(setq package-check-signature  nil)
 
 (eval-when-compile (require 'use-package))
 (require 'bind-key) ;; required for :bind 
@@ -28,6 +28,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (setq ring-bell-function 'ignore)
+
 ;(setq completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
 (setq read-file-name-completion-ignore-case t)
@@ -35,12 +36,11 @@
 
 (setq indent-tabs-mode nil)
 
-;(infer-indentation-style)
+
 (menu-bar-mode 1)
 (size-indication-mode 1)
 (tool-bar-mode -1)
 (add-hook 'find-file-hook 'linum-mode)
-;;(add-hook 'find-file-hook 'linum-relative-mode)
 
 (auto-fill-mode -1)
 
@@ -55,10 +55,6 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (if (file-exists-p custom-file)
     (load custom-file))
-
-;(global-unset-key (kbd "C-z"))
-;(global-set-key (kbd "C-z C-z") 'my-suspend-frame)
-
 
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)
@@ -76,25 +72,23 @@
 (add-to-list 'display-buffer-alist
              '("^\\*.*\\*$" . (display-buffer-same-window)))
 
-(use-package keyfreq
-  :ensure t
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1)
-  ;;:bind ("C-x C-p" . keyfreq-show)
-  )
-
-;;;;;;;;;;;;;;;;;;;;
-;; Editing
-;;;;;;;;;;;;;;;;;;;;
-
-(show-paren-mode 1)
-
 (use-package winner
   :ensure t
   :config (winner-mode 1)
   :bind (("C-c <left>" . winner-undo)
          ("C-c <right>" . winner-redo)))
+
+;;;;;;;;;;;;;;;;;;;;
+;; Editing
+;;;;;;;;;;;;;;;;;;;;
+
+(use-package keyfreq
+  :ensure t
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1))
+
+(show-paren-mode 1)
 
 (use-package electric
   :ensure t
@@ -103,17 +97,10 @@
   (setq electric-pair-pairs '((?\" . ?\")
                               (?\{ . ?\}))))
 
-;;(use-package auto-complete
-;;  :init (auto-complete-mode t)
-;;  :config
-;;  (ac-set-trigger-key "<tab>")
-;;  (ac-config-default)
-;;  (setq ac-delay 0.02)
-;;  (add-to-list 'ac-modes 'markdown-mode))
-
 (use-package company
   :config 
   (add-hook 'after-init-hook 'global-company-mode)
+
   (add-to-list 'company-backends 'company-dabbrev-code) 
   (add-to-list 'company-backends 'company-yasnippet)
   (add-to-list 'company-backends 'company-files)
@@ -124,26 +111,23 @@
   
   :custom
   (company-begin-commands '(self-insert-command))
-  (company-idle-delay  .1)
+  (company-idle-delay  .2)
   (company-minimum-prefix-legth 2)
   (company-show-numbers t)
   (company-tooltip-align-annotations 't)
   (global-company-mode t)
   (company-require-match nil)
 
-  :bind (("TAB" . 'company-complete-common))
-  )
-
-(use-package keyfreq
-  :config
-  (keyfreq-mode t)
-  (keyfreq-autosave-mode t))
 
 (use-package undo-tree
   :ensure t
-  :init (global-undo-tree-mode)
-  :bind (("C-?" . undo-tree-redo)
-         ("C-/" . undo-tree-undo)))
+  :config (global-undo-tree-mode)
+  (progn (if (display-graphic-p)
+             ;; C-z is bound to suspend-frame which only minimizes Emacs window in GUI
+             (progn
+               (global-unset-key (kbd "C-z"))
+               (global-set-key (kbd "C-z") 'undo-tree-undo)
+               (global-set-key (kbd "C-S-z") 'undo-tree-redo)))))
 
 (global-set-key (kbd "C-x s") 'save-buffer) ;; same as C-x C-s
 
@@ -176,8 +160,8 @@
 ;;      xb xd xg xk xm xs xw
 ;;  yy
 ;;      zb zd zf zg zk zm zp zs zw zx
-(use-package use-package-chords
-  :chords (()))
+
+;;(key-chord-define-global k c)
 
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
 
@@ -197,8 +181,7 @@
   :config (ido-mode 1)
   (setq ido-enable-flex-matching t
 	ido-everywhere t
-	ido-auto-merge-work-directories-length -1
-	))
+	ido-auto-merge-work-directories-length -1))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -227,8 +210,14 @@
 
 	    ;; NAVIGATE
 	    (setq scroll-preserve-screen-position t)
-	    (define-key map (kbd "p") 'scroll-down-line)
-	    (define-key map (kbd "n") 'scroll-up-line)
+	    (define-key map (kbd "p") '(lambda ()
+                                         (interactive)
+                                         (scroll-down-line 2)))
+	    (define-key map (kbd "n") '(lambda ()
+                                         (interactive)
+                                         (scroll-up-line 2)))
+
+
             (define-key map (kbd "h") (kbd "<left>"))
             (define-key map (kbd "j") (kbd "<down>"))
             (define-key map (kbd "k") (kbd "<up>"))
@@ -253,8 +242,8 @@
             (define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
 
             ;; EDIT
-            (define-key map (kbd "/") 'undo)
-            (define-key map (kbd "?") 'redo)
+            (define-key map (kbd "z") 'undo)
+            (define-key map (kbd "Z") 'redo)
 	    (define-key map (kbd "r") 'string-rectangle)
 	    (define-key map (kbd "t") 'transpose-words)
 	    
@@ -262,11 +251,11 @@
 	    ;; C-u C-SPC jump to mark
 	    ;; C-x C-x exchange point and mark
 	    (define-key map (kbd "SPC") 'set-mark-command)
-            (define-key map (kbd "w") 'kill-region)
-	    (define-key map (kbd "W") 'kill-ring-save)
+            (define-key map (kbd "x") 'kill-region)
+	    (define-key map (kbd "c") 'kill-ring-save)
+            (define-key map (kbd "v") 'yank)
             (define-key map (kbd "D") 'delete-backward-char)
             (define-key map (kbd "d") 'delete-forward-char)
-            (define-key map (kbd "i") 'yank)
 
             map))
 
@@ -286,10 +275,19 @@
 
   (define-key menu-key-map (kbd "f") 'ido-find-file)
   (define-key menu-key-map (kbd "b") 'ido-switch-buffer)
+
   (define-key menu-key-map (kbd "a") 'mark-whole-buffer)
   (define-key menu-key-map (kbd "x") 'kill-region)
   (define-key menu-key-map (kbd "c") 'kill-ring-save)
   (define-key menu-key-map (kbd "v") 'yank)
+
+  (define-key menu-key-map (kbd "a") '(lambda ()
+					(interactive)
+					(point-to-register 'm)
+					 (mark-whole-buffer)))
+  (setq set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
+	mark-ring-max 16) 
+
   (define-key menu-key-map (kbd "s") 'save-buffer)
   (define-key menu-key-map (kbd "<left>") 'previous-buffer)
   (define-key menu-key-map (kbd "<right>") 'next-buffer)
@@ -298,23 +296,17 @@
   (define-key menu-key-map (kbd "w") 'eval-defun)
 
   ;; EDITING
-  (define-key menu-key-map (kbd "SPC") 'just-one-space)
   (define-key menu-key-map (kbd "k") '(lambda () (interactive) (kill-buffer (current-buffer))))
-  ;; Applicable to html, xml
-  ;(define-key menu-key-map (kbd "e") 'sgml-close-tag)
 
   (define-key menu-key-map (kbd "d") 'dired)
   (define-key menu-key-map (kbd "r") 'revert-visible-windows)
   (define-key menu-key-map (kbd "R") '(lambda ()
                                         "Revert buffer without prompting YES"
                                         (interactive)
-                                        (revert-buffer t t)))
-
-)
+                                        (revert-buffer t t))))
 
 (global-set-key (kbd "<menu>") 'menu-key-map)
 (global-set-key (kbd "C-]") 'menu-key-map)
-
 
 ;; <space> mode
 

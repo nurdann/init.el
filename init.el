@@ -101,7 +101,9 @@
   :config 
   (add-hook 'after-init-hook 'global-company-mode)
 
-  (add-to-list 'company-backends 'company-dabbrev-code) 
+  (add-to-list 'company-backends 'company-dabbrev-code)
+  (setq company-dabbrev-ignore-case 1)
+  
   (add-to-list 'company-backends 'company-yasnippet)
   (add-to-list 'company-backends 'company-files)
   (add-to-list 'company-backends 'company-capf)
@@ -117,6 +119,10 @@
   (company-tooltip-align-annotations 't)
   (global-company-mode t)
   (company-require-match nil)
+
+  :bind (
+         :map company-mode-map
+        ))
 
 
 (use-package undo-tree
@@ -182,6 +188,29 @@
   (setq ido-enable-flex-matching t
 	ido-everywhere t
 	ido-auto-merge-work-directories-length -1))
+
+(use-package dired
+  :delight "Dired "
+  :custom
+  (dired-auto-revert-buffer t)
+  (dired-hide-details-hide-symlink-targets nil)
+  (dired-listing-switches "-alh")
+  (dired-ls-F-marks-symlinks nil)
+  (dired-recursive-copies 'always))
+
+(use-package ivy
+  :bind (:map menu-key-map
+         ("b" . ivy-switch-buffer)))
+
+(use-package counsel
+  :config
+  (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
+  :bind (("M-x" . counsel-M-x)
+         :map menu-key-map
+         ("f" . counsel-find-file)))
+
+(use-package swiper
+  :bind (("C-s" . swiper)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -273,8 +302,8 @@
   (define-key menu-key-map (kbd "3") 'split-window-right)
   (define-key menu-key-map (kbd "4") 'delete-window)
 
-  (define-key menu-key-map (kbd "f") 'ido-find-file)
-  (define-key menu-key-map (kbd "b") 'ido-switch-buffer)
+  ;;(define-key menu-key-map (kbd "f") 'ido-find-file)
+  ;;(define-key menu-key-map (kbd "b") 'ido-switch-buffer)
 
   (define-key menu-key-map (kbd "a") 'mark-whole-buffer)
   (define-key menu-key-map (kbd "x") 'kill-region)
@@ -292,8 +321,8 @@
   (define-key menu-key-map (kbd "<left>") 'previous-buffer)
   (define-key menu-key-map (kbd "<right>") 'next-buffer)
 
-  (define-key menu-key-map (kbd "W") 'eval-last-sexp)
-  (define-key menu-key-map (kbd "w") 'eval-defun)
+  (define-key menu-key-map (kbd "E") 'eval-last-sexp)
+  (define-key menu-key-map (kbd "e") 'eval-defun)
 
   ;; EDITING
   (define-key menu-key-map (kbd "k") '(lambda () (interactive) (kill-buffer (current-buffer))))

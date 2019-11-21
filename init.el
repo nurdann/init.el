@@ -1,6 +1,10 @@
 
 ;; C-h c <command> to get output of command sequence
 
+;; TODO
+;; Go outside brackets C-M-u C-M-n
+;; 
+
 (require 'package)
 
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
@@ -56,6 +60,8 @@
 (if (file-exists-p custom-file)
     (load custom-file))
 
+(setq x-select-enable-clipboard t)
+
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)
       (eq 'pc frame)
@@ -78,16 +84,6 @@
   :group 'navi
   :keymap (let ((map (make-sparse-keymap)))
             (suppress-keymap map)
-
-            ;;(define-key map (kbd "1") (kbd "C-u 1"))
-            ;;(define-key map (kbd "2") (kbd "C-u 2"))
-            ;;(define-key map (kbd "3") (kbd "C-u 3"))
-            ;;(define-key map (kbd "4") (kbd "C-u 4"))
-            ;;(define-key map (kbd "5") (kbd "C-u 5"))
-            ;;(define-key map (kbd "6") (kbd "C-u 6"))
-            ;;(define-key map (kbd "7") (kbd "C-u 7"))
-            ;;(define-key map (kbd "8") (kbd "C-u 8"))
-            ;;(define-key map (kbd "9") (kbd "C-u 9"))
 
 	    ;; NAVIGATE
 	    (setq scroll-preserve-screen-position t)
@@ -146,7 +142,7 @@
             (define-key map (kbd "d") 'delete-forward-char)
 
             ;; INSERT
-            (define-key map (kbd "i") '(navi-mode))
+            (define-key map (kbd "i") 'navi-mode)
             (define-key map (kbd "s") '(lambda ()
                                          (interactive)
                                          (navi-mode -1)
@@ -181,7 +177,9 @@
 					(point-to-register 'm)
 					 (mark-whole-buffer)))
   (setq set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-	mark-ring-max 16) 
+	mark-ring-max 16)
+  (define-key menu-key-map (kbd "f") 'ido-find-file)
+  (define-key menu-key-map (kbd "b") 'ido-switch-buffer)  
 
   (define-key menu-key-map (kbd "s") 'save-buffer)
   (define-key menu-key-map (kbd "<left>") 'previous-buffer)
@@ -204,22 +202,7 @@
 )
 
 (global-set-key (kbd "<menu>") 'menu-key-map)
-(global-set-key (kbd "C-]") 'menu-key-map)
-
-;; <space> mode
-
-(define-minor-mode space-mode
-  "Toggle Space Mode"
-  :init-value nil
-  :lighter " Space"
-  :keymap '()
-  :group 'space)
-
-;;(define-key space-mode [remap self-insert-command] 'ignore)
-;;(define-key space-mode (kbd "t") 'space-mode)
-
-;(global-set-key (kbd "C-'") 'space-mode)
-
+(global-set-key (kbd "M-]") 'menu-key-map)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -354,16 +337,16 @@
   (dired-ls-F-marks-symlinks nil)
   (dired-recursive-copies 'always))
 
-(use-package ivy
-  :bind (:map menu-key-map
-         ("b" . ivy-switch-buffer)))
-
 (use-package counsel
   :config
   (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
+  (setq ivy-sort-matches-functions-alist '((t . nil)
+                                        (ivy-switch-buffer . ivy-sort-function-buffer)
+                                        (counsel-find-file . my-greedy-sort)))
   :bind (("M-x" . counsel-M-x)
          :map menu-key-map
-         ("f" . counsel-find-file)))
+         ;;("f" . counsel-find-file)
+         ))
 
 (use-package swiper
   :bind (("C-s" . swiper)))
@@ -657,6 +640,10 @@
 
 (ad-activate 'ask-user-about-supersession-threat)
 
+
+(defun my-greedy-sort (arg)
+  (interactive)
+  (message "Sorting %s" arg))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; EXTENTIONS

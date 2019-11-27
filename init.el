@@ -8,7 +8,7 @@
 (require 'package)
 
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+;;(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
 (package-initialize)
 ;;(package-refresh-contents)
@@ -94,16 +94,19 @@
                                          (interactive)
                                          (scroll-up-line 2)))
 
-            (define-key map (kbd "h") (kbd "<left>"))
-            (define-key map (kbd "j") (kbd "<down>"))
-            (define-key map (kbd "k") (kbd "<up>"))
-            (define-key map (kbd "l") (kbd "<right>"))
+            (define-key map (kbd "N") 'scroll-up-command)
+            (define-key map (kbd "P") 'scroll-down-command)
+            
+            (define-key map (kbd "h") 'left-char)
+            (define-key map (kbd "j") 'next-line)
+            (define-key map (kbd "k") 'previous-line)
+            (define-key map (kbd "l") 'right-char)
+
 
             (define-key map (kbd "H") (kbd "S-<left>"))
             (define-key map (kbd "J") (kbd "S-<down>"))
             (define-key map (kbd "K") (kbd "S-<up>"))
             (define-key map (kbd "L") (kbd "S-<right>"))
-
 
             (define-key map (kbd "e") (kbd "<end>"))
             (define-key map (kbd "a") (kbd "<home>"))
@@ -326,7 +329,8 @@
   :config (ido-mode 1)
   (setq ido-enable-flex-matching t
 	ido-everywhere t
-	ido-auto-merge-work-directories-length -1))
+	ido-auto-merge-work-directories-length -1
+        ido-use-virtual-buffers t))
 
 (use-package dired
   :delight "Dired "
@@ -350,6 +354,16 @@
 
 (use-package swiper
   :bind (("C-s" . swiper)))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; Files
+
+(add-to-list
+ 'directory-abbrev-alist
+ '("^/jou" . "/mnt/mdbackup/journal"))
+
+(recentf-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -661,4 +675,3 @@
 ;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
 ;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
 ;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
-

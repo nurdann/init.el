@@ -3,7 +3,6 @@
 
 ;; TODO
 ;; Go outside brackets C-M-u C-M-n
-;; 
 
 (require 'package)
 
@@ -14,12 +13,14 @@
 ;;(package-refresh-contents)
 ;;(setq package-check-signature  nil)
 
-(eval-when-compile (require 'use-package))
-(require 'bind-key) ;; required for :bind 
+(progn
+  (eval-when-compile (require 'use-package))
+  (require 'bind-key) ;; required for :bind
+  )
+
 
 (use-package creamsody-theme :ensure :defer)
 (use-package parchment-theme :ensure :defer)
-
 (use-package circadian
   :ensure t
   :config
@@ -175,14 +176,20 @@
   (define-key menu-key-map (kbd "3") 'split-window-right)
   (define-key menu-key-map (kbd "4") 'delete-window)
 
+  ;;(define-key menu-key-map (kbd "f") 'ido-find-file)
+  ;;(define-key menu-key-map (kbd "b") 'ido-switch-buffer)
+
+  (define-key menu-key-map (kbd "a") 'mark-whole-buffer)
+  (define-key menu-key-map (kbd "x") 'my-cut)
+  (define-key menu-key-map (kbd "c") 'my-copy)
+  (define-key menu-key-map (kbd "v") 'yank)
+
   (define-key menu-key-map (kbd "a") '(lambda ()
 					(interactive)
 					(point-to-register 'm)
 					 (mark-whole-buffer)))
   (setq set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-	mark-ring-max 16)
-  (define-key menu-key-map (kbd "f") 'ido-find-file)
-  (define-key menu-key-map (kbd "b") 'ido-switch-buffer)  
+	mark-ring-max 16) 
 
   (define-key menu-key-map (kbd "s") 'save-buffer)
   (define-key menu-key-map (kbd "<left>") 'previous-buffer)
@@ -199,13 +206,10 @@
   (define-key menu-key-map (kbd "R") '(lambda ()
                                         "Revert buffer without prompting YES"
                                         (interactive)
-                                        (revert-buffer t t)))
-
-
-)
+                                        (revert-buffer t t))))
 
 (global-set-key (kbd "<menu>") 'menu-key-map)
-(global-set-key (kbd "M-]") 'menu-key-map)
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -366,175 +370,23 @@
 (recentf-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;
-;; CUSTOM MODES
-;;;;;;;;;;;;;;;;;;;;
-
-;; navigation mode
-
-(define-minor-mode navi-mode
-  "Toggle Navi Mode"
-  :init-value nil
-  :lighter " Navi"
-  :group 'navi
-  :keymap (let ((map (make-sparse-keymap)))
-            (suppress-keymap map)
-
-	    ;; treat initial number as prefix
-            (define-key map (kbd "1") (kbd "C-u 1"))
-            (define-key map (kbd "2") (kbd "C-u 2"))
-            (define-key map (kbd "3") (kbd "C-u 3"))
-            (define-key map (kbd "4") (kbd "C-u 4"))
-            (define-key map (kbd "5") (kbd "C-u 5"))
-            (define-key map (kbd "6") (kbd "C-u 6"))
-            (define-key map (kbd "7") (kbd "C-u 7"))
-            (define-key map (kbd "8") (kbd "C-u 8"))
-            (define-key map (kbd "9") (kbd "C-u 9"))
-
-	    ;; NAVIGATE
-	    (setq scroll-preserve-screen-position t)
-	    (define-key map (kbd "p") '(lambda ()
-                                         (interactive)
-                                         (scroll-down-line 2)))
-	    (define-key map (kbd "n") '(lambda ()
-                                         (interactive)
-                                         (scroll-up-line 2)))
-
-
-            (define-key map (kbd "h") (kbd "<left>"))
-            (define-key map (kbd "j") (kbd "<down>"))
-            (define-key map (kbd "k") (kbd "<up>"))
-            (define-key map (kbd "l") (kbd "<right>"))
-            (define-key map (kbd "e") (kbd "<end>"))
-            (define-key map (kbd "a") (kbd "<home>"))
-            (define-key map (kbd "f") 'search-next-char)
-            (define-key map (kbd "F") 'search-previous-char)
-            (define-key map (kbd "u") 'backward-word)
-            (define-key map (kbd "o") 'forward-word)
-	    (define-key map (kbd "[") 'backward-paragraph)
-	    (define-key map (kbd "]") 'forward-paragraph)
-
-	    ;; Parenthesis movement
-	    ;; C-M-u go up level
-	    ;; C-M-n/p go next/previous paren on the same level
-	    ;; C-M-e go to the end of defun
-	    ;; C-M-a go to the start of defun
-	    ;; C-m-f forward sexp
-	    
-            (define-key map (kbd "s") 'set-goal-column)
-            (define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
-
-            ;; EDIT
-            (define-key map (kbd "z") 'undo)
-            (define-key map (kbd "Z") 'redo)
-	    (define-key map (kbd "r") 'string-rectangle)
-	    (define-key map (kbd "t") 'transpose-words)
-	    
-            ;; KILL
-	    ;; C-u C-SPC jump to mark
-	    ;; C-x C-x exchange point and mark
-	    (define-key map (kbd "SPC") 'set-mark-command)
-            (define-key map (kbd "x") 'kill-region)
-	    (define-key map (kbd "c") 'kill-ring-save)
-            (define-key map (kbd "v") 'yank)
-            (define-key map (kbd "D") 'delete-backward-char)
-            (define-key map (kbd "d") 'delete-forward-char)
-
-            map))
-
-;(global-unset-key (kbd "S-SPC"))
-(global-set-key (kbd "S-<return>") 'navi-mode)
-(global-set-key (kbd "M-'") 'navi-mode)
-
-;;;;;;;;;;;;;;;;;;;;
-;; <menu> mode
-
-(progn
-  (define-prefix-command 'menu-key-map)
-  (define-key menu-key-map (kbd "1") 'delete-other-windows)
-  (define-key menu-key-map (kbd "2") 'split-window-below)
-  (define-key menu-key-map (kbd "3") 'split-window-right)
-  (define-key menu-key-map (kbd "4") 'delete-window)
-
-  ;;(define-key menu-key-map (kbd "f") 'ido-find-file)
-  ;;(define-key menu-key-map (kbd "b") 'ido-switch-buffer)
-
-  (define-key menu-key-map (kbd "a") 'mark-whole-buffer)
-  (define-key menu-key-map (kbd "x") 'kill-region)
-  (define-key menu-key-map (kbd "c") 'kill-ring-save)
-  (define-key menu-key-map (kbd "v") 'yank)
-
-  (define-key menu-key-map (kbd "a") '(lambda ()
-					(interactive)
-					(point-to-register 'm)
-					 (mark-whole-buffer)))
-  (setq set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-	mark-ring-max 16) 
-
-  (define-key menu-key-map (kbd "s") 'save-buffer)
-  (define-key menu-key-map (kbd "<left>") 'previous-buffer)
-  (define-key menu-key-map (kbd "<right>") 'next-buffer)
-
-  (define-key menu-key-map (kbd "E") 'eval-last-sexp)
-  (define-key menu-key-map (kbd "e") 'eval-defun)
-
-  ;; EDITING
-  (define-key menu-key-map (kbd "k") '(lambda () (interactive) (kill-buffer (current-buffer))))
-
-  (define-key menu-key-map (kbd "d") 'dired)
-  (define-key menu-key-map (kbd "r") 'revert-visible-windows)
-  (define-key menu-key-map (kbd "R") '(lambda ()
-                                        "Revert buffer without prompting YES"
-                                        (interactive)
-                                        (revert-buffer t t))))
-
-(global-set-key (kbd "<menu>") 'menu-key-map)
-(global-set-key (kbd "C-]") 'menu-key-map)
-
-;; <space> mode
-
-(define-minor-mode space-mode
-  "Toggle Space Mode"
-  :init-value nil
-  :lighter " Space"
-  :keymap '()
-  :group 'space)
-
-;;(define-key space-mode [remap self-insert-command] 'ignore)
-;;(define-key space-mode (kbd "t") 'space-mode)
-
-;(global-set-key (kbd "C-'") 'space-mode)
-
-;;;;;;;;;;;;;;;;;;;;
 ;; Functions
 ;;;;;;;;;;;;;;;;;;;;
 
 
-(defun slick-cut (start end)
+(defun my-cut ()
   "Cut the region, if no region cut current line"
-  (interactive
-   (if mark-active
-       (progn
-         (message "Cut the current line")
-         (list (region-beginning) (region-end)))
-     (progn
-       ;;(list (line-beginning-position) (line-beginning-position 2))
-       (message "Cut the region")
-       (list (line-beginning-position) (line-end-position)))
-     )))
+  (interactive)
+  (if (use-region-p)
+      (kill-region 1 1 t)
+    (kill-region (line-beginning-position) (line-end-position))))
 
-(advice-add 'kill-region :before #'slick-cut)
-
-(defun slick-copy (start end)
+(defun my-copy ()
   "Copy the region, if no region copy current line"
-  (interactive
-   (if mark-active
-       (list (region-beginning) (region-end))
-     (message "Copied current line")
-     ;;(list (line-beginning-position) (line-beginning-position 2))
-     (list (line-beginning-position) (line-end-position))
-     )))
-
-(advice-add 'kill-ring-save :before #'slick-copy)
+  (interactive)
+  (if (use-region-p)
+      (copy-region-as-kill 1 1 t)
+    (copy-region-as-kill (line-beginning-position) (line-end-position))))
 
 (defun my-suspend-frame ()
   "Suspend only in non-GUI environment"
@@ -582,7 +434,7 @@
     (write-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
 ;; https://www.emacswiki.org/emacs/EshellNavigation
- (defun bol-maybe-general-my (prompt &optional alt-bol-fcn)
+(defun bol-maybe-general-my (prompt &optional alt-bol-fcn)
   ""
   (interactive)
   (if (and (string-match (concat "^" (regexp-quote prompt)
@@ -653,11 +505,6 @@
       (fset 'revert-buffer real-revert-buffer))))
 
 (ad-activate 'ask-user-about-supersession-threat)
-
-
-(defun my-greedy-sort (arg)
-  (interactive)
-  (message "Sorting %s" arg))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; EXTENTIONS

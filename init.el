@@ -1,4 +1,3 @@
-
 ;; C-h c <command> to get output of command sequence
 
 ;; TODO
@@ -19,6 +18,8 @@
   )
 
 
+;; Theme
+
 (use-package creamsody-theme :ensure :defer)
 (use-package parchment-theme :ensure :defer)
 (use-package circadian
@@ -32,24 +33,17 @@
 ;; Misc
 ;;;;;;;;;;;;;;;;;;;;
 
-(setq ring-bell-function 'ignore)
+(setq ring-bell-function 'ignore ;; disable sound bell on error
+      read-buffer-completion-ignore-case t
+      read-file-name-completion-ignore-case t 
+      ;;emacs26 display-line-numbers relative
+      indent-tabs-mode nil
+      x-select-enable-clipboard t ;; copy/cut kill-ring to clipboard
 
-;(setq completion-ignore-case t)
-(setq read-buffer-completion-ignore-case t)
-(setq read-file-name-completion-ignore-case t)
-;(setq display-line-numbers relative)
+      set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
+      mark-ring-max 16 
 
-(setq indent-tabs-mode nil)
-
-
-(menu-bar-mode 1)
-(size-indication-mode 1)
-(tool-bar-mode -1)
-(add-hook 'find-file-hook 'linum-mode)
-
-(auto-fill-mode -1)
-
-(put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
+      )
 
 (setq backup-by-copying t
       backup-directory-alist '(("." . "~/.emacs.d/backup/"))
@@ -61,7 +55,15 @@
 (if (file-exists-p custom-file)
     (load custom-file))
 
-(setq x-select-enable-clipboard t)
+;; GUI
+(menu-bar-mode 1)
+(tool-bar-mode -1)
+(size-indication-mode 1)
+(add-hook 'find-file-hook 'linum-mode) ;; add line numbers to opened files
+(auto-fill-mode -1)
+(put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
+
+
 
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)
@@ -71,6 +73,17 @@
       (define-key input-decode-map "\C-m" [C-m])
       (define-key input-decode-map "\C-j" [C-j])
      ))
+
+
+;; remap default keys
+
+(global-set-key (kbd "<menu>") ctl-x-map)
+(define-key ctl-x-map (kbd "f") 'find-file)
+(define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
+(define-key ctl-x-map (kbd "w") '(lambda ()
+				   (interactive)
+				   (kill-buffer (buffer-name))))
+(define-key ctl-x-map (kbd "W") 'kill-buffer-and-window)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -147,17 +160,14 @@
 
             ;; INSERT
             (define-key map (kbd "i") 'navi-mode)
-            (define-key map (kbd "s") '(lambda ()
-                                         (interactive)
-                                         (navi-mode -1)
-                                         (move-end-of-line 1)
-                                         (electric-newline-and-maybe-indent)))
+
             (define-key map (kbd "w") '(lambda ()
                                          (interactive)
                                          (navi-mode -1)
                                          (move-end-of-line -1)
                                          (electric-newline-and-maybe-indent)))
 
+            (define-key map (kbd "s") 'swiper-isearch)
 
             map))
 
@@ -171,45 +181,12 @@
 
 (progn
   (define-prefix-command 'menu-key-map)
-  (define-key menu-key-map (kbd "1") 'delete-other-windows)
-  (define-key menu-key-map (kbd "2") 'split-window-below)
-  (define-key menu-key-map (kbd "3") 'split-window-right)
-  (define-key menu-key-map (kbd "4") 'delete-window)
 
-  ;;(define-key menu-key-map (kbd "f") 'ido-find-file)
-  ;;(define-key menu-key-map (kbd "b") 'ido-switch-buffer)
-
-  (define-key menu-key-map (kbd "a") 'mark-whole-buffer)
-  (define-key menu-key-map (kbd "x") 'my-cut)
-  (define-key menu-key-map (kbd "c") 'my-copy)
-  (define-key menu-key-map (kbd "v") 'yank)
-
-  (define-key menu-key-map (kbd "a") '(lambda ()
-					(interactive)
-					(point-to-register 'm)
-					 (mark-whole-buffer)))
-  (setq set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-	mark-ring-max 16) 
-
-  (define-key menu-key-map (kbd "s") 'save-buffer)
-  (define-key menu-key-map (kbd "<left>") 'previous-buffer)
-  (define-key menu-key-map (kbd "<right>") 'next-buffer)
-
-  (define-key menu-key-map (kbd "E") 'eval-last-sexp)
-  (define-key menu-key-map (kbd "e") 'eval-defun)
-
-  ;; EDITING
-  (define-key menu-key-map (kbd "k") '(lambda () (interactive) (kill-buffer (current-buffer))))
-
-  (define-key menu-key-map (kbd "d") 'dired)
   (define-key menu-key-map (kbd "r") 'revert-visible-windows)
   (define-key menu-key-map (kbd "R") '(lambda ()
                                         "Revert buffer without prompting YES"
                                         (interactive)
                                         (revert-buffer t t))))
-
-(global-set-key (kbd "<menu>") 'menu-key-map)
-
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -243,21 +220,29 @@
   (setq electric-pair-pairs '((?\" . ?\")
                               (?\{ . ?\}))))
 
+# https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
+(defmacro alma/add-mode-pairs (hook pairs)
+  `(add-hook ,hook
+	     (lambda ()
+	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
+	       (setq-local electric--text-pairs electric-pair-pairs))))
+
+(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\')))
+
 (use-package company
   :config 
   (add-hook 'after-init-hook 'global-company-mode)
 
   (add-to-list 'company-backends 'company-dabbrev-code)
-  (setq company-dabbrev-ignore-case 1)
+  ;;(setq company-dabbrev-ignore-case 1)
   
   (add-to-list 'company-backends 'company-yasnippet)
   (add-to-list 'company-backends 'company-files)
   (add-to-list 'company-backends 'company-capf)
   (company-tng-configure-default)
 
-  (setq completion-auto-help 'lazy)
-  
   :custom
+  (completion-auto-help 'lazy)
   (company-begin-commands '(self-insert-command))
   (company-idle-delay  .2)
   (company-minimum-prefix-legth 2)
@@ -281,9 +266,6 @@
                (global-set-key (kbd "C-z") 'undo-tree-undo)
                (global-set-key (kbd "C-S-z") 'undo-tree-redo)))))
 
-(global-set-key (kbd "C-x s") 'save-buffer) ;; same as C-x C-s
-
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
 ;;;;;;;;;;;;;;;;;;;;
@@ -302,10 +284,8 @@
   )
 
 ;; Least frequent bigram combinations
-;;      fb
 ;;      gb gp
 ;;  jj  jc jf jg jh jk jl jm jp jq js jt jv jw jx jy jz
-;;  kk
 ;;  qq  qb qf qg qh qk ql qm qp qt qv qw qx qy qz
 ;;  vv  vc vf vg vh vk vm vp vw vz
 ;;  ww
@@ -319,10 +299,6 @@
 
 (global-set-key (kbd "M-[") 'backward-paragraph)
 (global-set-key (kbd "M-]") 'forward-paragraph)
-
-(use-package ace-jump-mode
-  :ensure t
-  :chords (("jw" . ace-jump-mode)))
 
 (use-package ace-window
   :init (ace-window t)
@@ -345,19 +321,23 @@
   (dired-ls-F-marks-symlinks nil)
   (dired-recursive-copies 'always))
 
-(use-package counsel
-  :config
-  (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
-  (setq ivy-sort-matches-functions-alist '((t . nil)
-                                        (ivy-switch-buffer . ivy-sort-function-buffer)
-                                        (counsel-find-file . my-greedy-sort)))
-  :bind (("M-x" . counsel-M-x)
-         :map menu-key-map
-         ;;("f" . counsel-find-file)
-         ))
+(use-package smex
+  :init (smex-initialize)
+  :bind (("M-x" . 'smex)
+	 ("M-X" . 'smex-major-mode-commands)))
 
 (use-package swiper
-  :bind (("C-s" . swiper)))
+  :bind (("C-s" . swiper-isearch)
+	 :map isearch-mode-map
+	 ("C-'" . 'avy-resume)))
+
+(use-package avy
+  :ensure
+  :custom
+  (avy-time-out-seconds 0.7)
+  :bind (("C-'" . avy-goto-char-timer)
+	 ("C-;" . avy-goto-word-1)
+	 ("C-:" . avy-goto-line)))
 
 
 ;;;;;;;;;;;;;;;;;;;;

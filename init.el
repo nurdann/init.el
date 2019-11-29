@@ -84,6 +84,7 @@
 				   (interactive)
 				   (kill-buffer (buffer-name))))
 (define-key ctl-x-map (kbd "W") 'kill-buffer-and-window)
+(define-key ctl-x-map (kbd "x") 'smex)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -220,7 +221,7 @@
   (setq electric-pair-pairs '((?\" . ?\")
                               (?\{ . ?\}))))
 
-# https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
+;; https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
 (defmacro alma/add-mode-pairs (hook pairs)
   `(add-hook ,hook
 	     (lambda ()
@@ -266,6 +267,12 @@
                (global-set-key (kbd "C-z") 'undo-tree-undo)
                (global-set-key (kbd "C-S-z") 'undo-tree-redo)))))
 
+(use-package shell
+  ;; (require 'shell) ;; when not using use-package to initialize shell-mode-map
+  :bind (:map shell-mode-map
+              ("<up>" . 'comint-previous-input)
+              ("<down>" . 'comint-next-input)))
+ 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
 ;;;;;;;;;;;;;;;;;;;;
@@ -485,6 +492,20 @@
       (fset 'revert-buffer real-revert-buffer))))
 
 (ad-activate 'ask-user-about-supersession-threat)
+
+
+;; dired reuse buffer
+(eval-after-load "dired"
+  '(progn
+     (defadvice dired-advertised-find-file (around dired-subst-directory activate)
+       "Replace current buffer if file is a directory"
+       (interactive)
+       (let* ((orig (current-buffer))
+              (filename (dired-get-filename t t))
+              (bye-p (file-directory-p filename)))
+         ad-do-it
+         (when (and bye-p (not (string-match "[/\\\\]\\.$" filename)))
+           (kill-buffer orig))))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; EXTENTIONS

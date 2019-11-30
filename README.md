@@ -3,7 +3,7 @@
 
 # Install
 
-Download Emacs tarball from `https://ftp.gnu.org/gnu/emacs/`
+Download Emacs tarball from https://ftp.gnu.org/gnu/emacs/
 
 Extract with
 ```

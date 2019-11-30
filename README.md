@@ -1,6 +1,44 @@
 # Emacs
 
+
+# Install
+
+Download Emacs tarball from `https://ftp.gnu.org/gnu/emacs/`
+
+Extract with
+```
+tar zxvf emacs-<version>.tar.gz
+```
+
+Set up install location, the default is `/usr/local/`
+```
+./configure --prefix=/usr/local
+```
+
+Then install with
+```
+make && make install
+```
+
+## Install errors
+
+Gnutls not found
+```
+apt-cache search libgnutls.*-dev
+apt-get install libgnutls.<version>-dev
+```
+
+In case your Emacs icon is missing
+```
+sudo gtk-update-icon-cache /usr/share/icons/hicolor
+```
+
+
+
 # Basics
+
+Emacs looks for an init file `~/.emacs`, `~/.emacs.el` and `~/.emacs.d/init.el` in that order.
+
 
 ## Notation
 
@@ -90,5 +128,22 @@ Then type `C-x C-f /ssh:goo:/` to get password prompt
 
 Type `C-x C-f /sudo:user@localhost:`
 
+
+
+# Troubleshooting
+
+## Cannot install packages
+
+if your package expires either disable signature checking
+```
+(setq package-check-signature nil)
+```
+
+or install it manually
+```
+gpg --homedir ~/.emacs.d/elpa/gnupg --receive-keys 066DAFCB81E42C40
+```
+
+*source*: http://elpa.gnu.org/packages/gnu-elpa-keyring-update.html
 
 

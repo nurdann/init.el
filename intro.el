@@ -30,10 +30,6 @@
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       read-buffer-completion-ignore-case t
       read-file-name-completion-ignore-case t 
-      indent-tabs-mode nil
-      tab-width 4
-      set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-      mark-ring-max 16 
       window-combination-resize t
 )
 
@@ -65,7 +61,7 @@
 (global-set-key (kbd "C-x f") 'find-file)
 
 ;; sudo
-;; `C-x C-f /sudo::/` press <tab> to get prompt
+;; `C-x C-f /sudo::/` press <tab> or a character to get prompt
 ;; `C-x C-f /ssh:user@host:/`
 
 ;; IDO mode
@@ -77,16 +73,15 @@
       ido-use-virtual-buffers t)
 
 
-
 ;; Dired
 (setq dired-listing-switches "-alh")
 (setq dired-auto-revert-buffer t)
 ;; Go to Dired with `C-x d`
 
 ;; Find file C
-(ido-mode 1)
 
 ;; CUA mode
+
 
 ;; Evil mode
 

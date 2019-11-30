@@ -38,11 +38,13 @@
       read-file-name-completion-ignore-case t 
       ;;emacs26 display-line-numbers relative
       indent-tabs-mode nil
-      x-select-enable-clipboard t ;; copy/cut kill-ring to clipboard
-
+      select-enable-clipboard t ;; copy/cut kill-ring to clipboard
+      tab-width 4
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
       mark-ring-max 16 
-
+      window-combination-resize t
+      ;;global-subword-mode 1 ;; Iterat through CamelCase words
+      
       )
 
 (setq backup-by-copying t
@@ -228,7 +230,8 @@
 	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
 	       (setq-local electric--text-pairs electric-pair-pairs))))
 
-(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\')))
+(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ? \`)))
+(alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
 
 (use-package company
   :config 
@@ -317,7 +320,7 @@
   (setq ido-enable-flex-matching t
 	ido-everywhere t
 	ido-auto-merge-work-directories-length -1
-        ido-use-virtual-buffers t))
+    ido-use-virtual-buffers t))
 
 (use-package dired
   :delight "Dired "

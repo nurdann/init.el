@@ -60,6 +60,8 @@ Note that Emacs will try to map shifted keys to regular keys if they are not bou
 
 ## Movement
 
+cheat sheet at https://www.gnu.org/software/emacs/refcards/pdf/refcard.pdf
+
 - `C-n` move down a line
 - `C-p` move up a line
 - `C-f` move forward a character

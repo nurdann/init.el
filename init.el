@@ -5,13 +5,14 @@
 
 (require 'package)
 
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-;;(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
 (package-initialize)
-;;(package-refresh-contents)
+(package-refresh-contents)
 ;;(setq package-check-signature  nil)
 
+;; Download use-package beforehand
 (progn
   (eval-when-compile (require 'use-package))
   (require 'bind-key) ;; required for :bind
@@ -86,7 +87,7 @@
 				   (interactive)
 				   (kill-buffer (buffer-name))))
 (define-key ctl-x-map (kbd "W") 'kill-buffer-and-window)
-(define-key ctl-x-map (kbd "x") 'smex)
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -132,8 +133,8 @@
 
             (define-key map (kbd "f") 'search-next-char)
             (define-key map (kbd "F") 'search-previous-char)
-	    (define-key map (kbd "[") 'backward-paragraph)
-	    (define-key map (kbd "]") 'forward-paragraph)
+            (define-key map (kbd "[") 'backward-paragraph)
+            (define-key map (kbd "]") 'forward-paragraph)
 
 	    ;; Parenthesis movement
 	    ;; C-M-u go up level
@@ -148,30 +149,21 @@
             ;; EDIT
             (define-key map (kbd "z") 'undo)
             (define-key map (kbd "Z") 'redo)
-	    (define-key map (kbd "r") 'string-rectangle)
-	    (define-key map (kbd "t") 'transpose-words)
-	    
+            (define-key map (kbd "r") 'string-rectangle)
+            (define-key map (kbd "t") 'transpose-words)
+            
             ;; KILL
-	    ;; C-u C-SPC jump to mark
-	    ;; C-x C-x exchange point and mark
-	    (define-key map (kbd "SPC") 'set-mark-command)
+            ;; C-u C-SPC jump to mark
+            ;; C-x C-x exchange point and mark
+            (define-key map (kbd "SPC") 'set-mark-command)
             (define-key map (kbd "x") 'kill-region)
-	    (define-key map (kbd "c") 'kill-ring-save)
+            (define-key map (kbd "c") 'kill-ring-save)
             (define-key map (kbd "v") 'yank)
             (define-key map (kbd "D") 'delete-backward-char)
             (define-key map (kbd "d") 'delete-forward-char)
 
             ;; INSERT
             (define-key map (kbd "i") 'navi-mode)
-
-            (define-key map (kbd "w") '(lambda ()
-                                         (interactive)
-                                         (navi-mode -1)
-                                         (move-end-of-line -1)
-                                         (electric-newline-and-maybe-indent)))
-
-            (define-key map (kbd "s") 'swiper-isearch)
-
             map))
 
 
@@ -230,51 +222,51 @@
 	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
 	       (setq-local electric--text-pairs electric-pair-pairs))))
 
-(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ? \`)))
-(alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
+;;(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ? \`)))
+;;(alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
 
-(use-package company
-  :config 
-  (add-hook 'after-init-hook 'global-company-mode)
-
-  (add-to-list 'company-backends 'company-dabbrev-code)
-  ;;(setq company-dabbrev-ignore-case 1)
-  
-  (add-to-list 'company-backends 'company-yasnippet)
-  (add-to-list 'company-backends 'company-files)
-  (add-to-list 'company-backends 'company-capf)
-  (company-tng-configure-default)
-
-  :custom
-  (completion-auto-help 'lazy)
-  (company-begin-commands '(self-insert-command))
-  (company-idle-delay  .2)
-  (company-minimum-prefix-legth 2)
-  (company-show-numbers t)
-  (company-tooltip-align-annotations 't)
-  (global-company-mode t)
-  (company-require-match nil)
-
-  :bind (
-         :map company-mode-map
-        ))
-
-
-(use-package undo-tree
-  :ensure t
-  :config (global-undo-tree-mode)
-  (progn (if (display-graphic-p)
-             ;; C-z is bound to suspend-frame which only minimizes Emacs window in GUI
-             (progn
-               (global-unset-key (kbd "C-z"))
-               (global-set-key (kbd "C-z") 'undo-tree-undo)
-               (global-set-key (kbd "C-S-z") 'undo-tree-redo)))))
-
+;;(use-package company
+;;  :config 
+;;  (add-hook 'after-init-hook 'global-company-mode)
+;;
+;;  (add-to-list 'company-backends 'company-dabbrev-code)
+;;  ;;(setq company-dabbrev-ignore-case 1)
+;;  
+;;  (add-to-list 'company-backends 'company-yasnippet)
+;;  (add-to-list 'company-backends 'company-files)
+;;  (add-to-list 'company-backends 'company-capf)
+;;  (company-tng-configure-default)
+;;
+;;  :custom
+;;  (completion-auto-help 'lazy)
+;;  (company-begin-commands '(self-insert-command))
+;;  (company-idle-delay  0.2)
+;;  (company-minimum-prefix-legth 2)
+;;  (company-show-numbers t)
+;;  (company-tooltip-align-annotations t)
+;;  (global-company-mode t)
+;;  (company-require-match nil)
+;;
+;;  :bind (
+;;         :map company-mode-map
+;;        ))
+;;
+;;
+;;(use-package undo-tree
+;;  :ensure t
+;;  :config (global-undo-tree-mode)
+;;  (progn (if (display-graphic-p)
+;;             ;; C-z is bound to suspend-frame which only minimizes Emacs window in GUI
+;;             (progn
+;;               (global-unset-key (kbd "C-z"))
+;;               (global-set-key (kbd "C-z") 'undo-tree-undo)
+;;               (global-set-key (kbd "C-S-z") 'undo-tree-redo)))))
+;;
 (use-package shell
   ;; (require 'shell) ;; when not using use-package to initialize shell-mode-map
   :bind (:map shell-mode-map
-              ("<up>" . 'comint-previous-input)
-              ("<down>" . 'comint-next-input)))
+              ("<up>" . comint-previous-input)
+              ("<down>" . comint-next-input)))
  
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
@@ -311,6 +303,7 @@
 (global-set-key (kbd "M-]") 'forward-paragraph)
 
 (use-package ace-window
+  :ensure t
   :init (ace-window t)
   (setq aw-keys '(?a ?s ?d ?f ?g ?q ?w ?e ?r ?t ?z ?x ?c ?v)) ;; limit characters
   :chords (("jf" . ace-window)))
@@ -332,14 +325,16 @@
   (dired-recursive-copies 'always))
 
 (use-package smex
+  :ensure t
   :init (smex-initialize)
-  :bind (("M-x" . 'smex)
-	 ("M-X" . 'smex-major-mode-commands)))
+  :bind (("M-x" . smex)
+	 ("M-X" . smex-major-mode-commands)))
 
 (use-package swiper
+  :ensure t
   :bind (("C-s" . swiper-isearch)
 	 :map isearch-mode-map
-	 ("C-'" . 'avy-resume)))
+	 ("C-'" . avy-resume)))
 
 (use-package avy
   :ensure

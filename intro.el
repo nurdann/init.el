@@ -36,14 +36,14 @@
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       read-buffer-completion-ignore-case t
       read-file-name-completion-ignore-case t 
-      window-combination-resize t
-)
+      window-combination-resize t)
 
 ;; save customization done via Emacs interface to different
 ;; folder, otherwise Emacs will append to init file 
 (setq custom-file "~/.emacs.d/custom.el")
 (if (file-exists-p custom-file)
     (load custom-file))
+
 ;; Use `C-h` prefix to get help
 ;; `C-h f` describe function
 ;; `C-h v` describe variable
@@ -53,6 +53,7 @@
 (tool-bar-mode -1)
 ;; you can set fill-column value with `C-x f`
 (auto-fill-mode -1)
+
 (show-paren-mode 1)
 (electric-pair-mode 1)
 ;; add additional pairs for quotation and curly braces
@@ -66,9 +67,11 @@
 ;; OR 
 (global-set-key (kbd "C-x f") 'find-file)
 
+;; Find file
+
 ;; sudo
 ;; `C-x C-f /sudo::/` press <tab> or a character to get prompt
-;; `C-x C-f /ssh:user@host:/`
+;; `C-x C-f /ssh:user@host:/`;; 
 
 ;; IDO mode
 ;; enhances behaviour of find-file and switch-buffer
@@ -79,15 +82,15 @@
       ido-use-virtual-buffers t)
 
 
-;; Dired
+;; Dired `C-x d'
 (setq dired-listing-switches "-alh")
 (setq dired-auto-revert-buffer t)
-;; Go to Dired with `C-x d`
 
-;; Find file C
-
-
-
+;; Terminal options
+;; `eshell' written in elisp
+;; `shell' uses dumb shell
+;; `term' mimics closest usual terminal emulator; note that all `C-x' become `C-c' while `term' buffer is focused, so if you map it to something like `<menu>' you don't have to worry about it
+;; Launch with `M-x' and type one of above names
 
 ;; Evil mode
 

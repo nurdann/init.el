@@ -37,15 +37,12 @@
 (setq ring-bell-function 'ignore ;; disable sound bell on error
       read-buffer-completion-ignore-case t
       read-file-name-completion-ignore-case t 
-      ;;emacs26 display-line-numbers relative
-      indent-tabs-mode nil
+      ;;indent-tabs-mode nil
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       tab-width 4
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
       mark-ring-max 16 
       window-combination-resize t
-      ;;global-subword-mode 1 ;; Iterat through CamelCase words
-      
       )
 
 (setq backup-by-copying t
@@ -87,6 +84,8 @@
 				   (interactive)
 				   (kill-buffer (buffer-name))))
 (define-key ctl-x-map (kbd "W") 'kill-buffer-and-window)
+
+;; MS Keyboard specific
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -252,22 +251,26 @@
 ;;        ))
 ;;
 ;;
-;;(use-package undo-tree
-;;  :ensure t
-;;  :config (global-undo-tree-mode)
-;;  (progn (if (display-graphic-p)
-;;             ;; C-z is bound to suspend-frame which only minimizes Emacs window in GUI
-;;             (progn
-;;               (global-unset-key (kbd "C-z"))
-;;               (global-set-key (kbd "C-z") 'undo-tree-undo)
-;;               (global-set-key (kbd "C-S-z") 'undo-tree-redo)))))
-;;
+
+(use-package undo-tree
+  :ensure t
+  :config
+  (global-undo-tree-mode)
+  (progn (if (display-graphic-p)
+             ;; C-z is bound to suspend-frame which only minimizes Emacs window in GUI
+             (progn
+               (global-unset-key (kbd "C-z"))
+               (global-set-key (kbd "<redo>") 'undo-tree-redo)
+	       (global-set-key (kbd "<undo>") 'undo-tree-undo)
+               (global-set-key (kbd "C-z") 'undo-tree-undo)
+               (global-set-key (kbd "C-S-z") 'undo-tree-redo)))))
+
 (use-package shell
   ;; (require 'shell) ;; when not using use-package to initialize shell-mode-map
   :bind (:map shell-mode-map
               ("<up>" . comint-previous-input)
               ("<down>" . comint-next-input)))
- 
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
 ;;;;;;;;;;;;;;;;;;;;

@@ -20,10 +20,16 @@
 ;; and press `C-M-x` to evaluate lisp function; or move cursor the end of parenthesis and evaluate last expression with `C-x C-e`
 ;; then go to command menu `M-x` and type `list-packages` now you will see all available packages for download
 
+;; CUA mode
+;; default C-z undo, C-x cut, C-c copy, C-v paste
+;; C-<enter> for rectangle edit; press <enter> to cycle through corners of selection
+;; C-<number> use universal argument to save region to register <number>
+(setq cua-delete-selection nil) 	
+(cua-mode t)
+
 ;; `S-<arrow-key>`, Shift <arrow-key> to move around windows
 ;; Some terminology: frame contains windows, so window is the buffer window in Emacs 
-(windmove-default-keybindings) 
-;; If you don't want to use them, then use default `C-x o` to cycle through windows
+(windmove-default-keybindings)
 
 ;; change default behaviour
 (setq ring-bell-function 'ignore ;; disable sound bell on error
@@ -80,7 +86,7 @@
 
 ;; Find file C
 
-;; CUA mode
+
 
 
 ;; Evil mode

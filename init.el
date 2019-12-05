@@ -5,8 +5,8 @@
 
 (require 'package)
 
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
-;;(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
 (package-initialize)
 (package-refresh-contents)
@@ -17,7 +17,6 @@
   (eval-when-compile (require 'use-package))
   (require 'bind-key) ;; required for :bind
   )
-
 
 ;; Theme
 
@@ -270,6 +269,19 @@
   :bind (:map shell-mode-map
               ("<up>" . comint-previous-input)
               ("<down>" . comint-next-input)))
+
+(use-package browse-kill-ring
+  :ensure t
+  :config
+  (setq browse-kill-ring-show-preview t)
+  :bind (("M-y" . browse-kill-ring)))
+
+(add-to-list 'load-path "~/.emacs.d/packages/kill-ring-ido")
+(add-to-list 'load-path "~/.emacs.d/packages/noflet")
+(require 'noflet)
+(require 'kill-ring-ido)
+(global-set-key (kbd "M-y") 'kill-ring-ido)
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating

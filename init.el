@@ -42,6 +42,7 @@
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
       mark-ring-max 16 
       window-combination-resize t
+      shift-select-mode nil
       )
 
 (setq backup-by-copying t
@@ -73,9 +74,7 @@
       (define-key input-decode-map "\C-j" [C-j])
      ))
 
-
-;; remap default keys
-
+;; remap ctl-x-map keys
 (global-set-key (kbd "<menu>") ctl-x-map)
 (define-key ctl-x-map (kbd "f") 'find-file)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
@@ -83,6 +82,10 @@
 				   (interactive)
 				   (kill-buffer (buffer-name))))
 (define-key ctl-x-map (kbd "W") 'kill-buffer-and-window)
+(define-key ctl-x-map (kbd "x") 'revert-visible-windows)
+(define-key ctl-x-map (kbd "X") '(lambda ()
+				   (interactive)
+				   (revert-buffer t t)))
 
 ;; MS Keyboard specific
 
@@ -164,22 +167,7 @@
             (define-key map (kbd "i") 'navi-mode)
             map))
 
-
-
-(global-set-key (kbd "<kp-home>") 'navi-mode)
 (global-set-key (kbd "S-<return>") 'navi-mode)
-
-;;;;;;;;;;;;;;;;;;;;
-;; <menu> mode
-
-(progn
-  (define-prefix-command 'menu-key-map)
-
-  (define-key menu-key-map (kbd "r") 'revert-visible-windows)
-  (define-key menu-key-map (kbd "R") '(lambda ()
-                                        "Revert buffer without prompting YES"
-                                        (interactive)
-                                        (revert-buffer t t))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -220,36 +208,36 @@
 	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
 	       (setq-local electric--text-pairs electric-pair-pairs))))
 
-;;(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ? \`)))
-;;(alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
+(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ? \`)))
+(alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
 
-;;(use-package company
-;;  :config 
-;;  (add-hook 'after-init-hook 'global-company-mode)
+(use-package company
+  :ensure t
+  :config 
+  (add-hook 'after-init-hook 'global-company-mode)
 ;;
 ;;  (add-to-list 'company-backends 'company-dabbrev-code)
 ;;  ;;(setq company-dabbrev-ignore-case 1)
 ;;  
 ;;  (add-to-list 'company-backends 'company-yasnippet)
-;;  (add-to-list 'company-backends 'company-files)
+  (add-to-list 'company-backends 'company-files)
 ;;  (add-to-list 'company-backends 'company-capf)
 ;;  (company-tng-configure-default)
 ;;
 ;;  :custom
-;;  (completion-auto-help 'lazy)
-;;  (company-begin-commands '(self-insert-command))
-;;  (company-idle-delay  0.2)
-;;  (company-minimum-prefix-legth 2)
-;;  (company-show-numbers t)
+  (completion-auto-help 'lazy)
+  (company-begin-commands '(self-insert-command))
+  (company-idle-delay  0.2)
+  (company-minimum-prefix-legth 2)
+  (company-show-numbers t)
 ;;  (company-tooltip-align-annotations t)
 ;;  (global-company-mode t)
-;;  (company-require-match nil)
+  (company-require-match nil)
 ;;
 ;;  :bind (
 ;;         :map company-mode-map
 ;;        ))
-;;
-;;
+)
 
 (use-package undo-tree
   :ensure t
@@ -321,7 +309,7 @@
   :ensure t
   :init (ace-window t)
   (setq aw-keys '(?a ?s ?d ?f ?g ?q ?w ?e ?r ?t ?z ?x ?c ?v)) ;; limit characters
-  :chords (("jf" . ace-window)))
+  :bind (("C-x o" . ace-window)))
 
 (use-package ido
   :config (ido-mode 1)

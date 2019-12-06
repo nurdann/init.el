@@ -64,7 +64,7 @@
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
 
-
+;; terminal interface
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)
       (eq 'pc frame)
@@ -73,6 +73,11 @@
       (define-key input-decode-map "\C-m" [C-m])
       (define-key input-decode-map "\C-j" [C-j])
      ))
+
+(if (display-graphic-p)
+    ;; C-z is bound to suspend-frame which only minimizes Emacs window in GUI
+    (progn
+      (global-unset-key (kbd "C-z"))))
 
 ;; remap ctl-x-map keys
 (global-set-key (kbd "<menu>") ctl-x-map)
@@ -179,8 +184,9 @@
 (use-package winner
   :ensure t
   :config (winner-mode 1)
-  :bind (("C-c <left>" . winner-undo)
-         ("C-c <right>" . winner-redo)))
+  :bind (:map ctl-x-map
+	 ("/" . winner-undo)
+         ("?" . winner-redo)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
@@ -208,7 +214,7 @@
 	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
 	       (setq-local electric--text-pairs electric-pair-pairs))))
 
-(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ? \`)))
+(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
 (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
 
 (use-package company
@@ -224,33 +230,29 @@
 ;;  (add-to-list 'company-backends 'company-capf)
 ;;  (company-tng-configure-default)
 ;;
-;;  :custom
+  :custom
   (completion-auto-help 'lazy)
   (company-begin-commands '(self-insert-command))
   (company-idle-delay  0.2)
   (company-minimum-prefix-legth 2)
   (company-show-numbers t)
 ;;  (company-tooltip-align-annotations t)
-;;  (global-company-mode t)
+  (global-company-mode t)
   (company-require-match nil)
 ;;
 ;;  :bind (
 ;;         :map company-mode-map
 ;;        ))
-)
+  )
 
 (use-package undo-tree
   :ensure t
   :config
   (global-undo-tree-mode)
-  (progn (if (display-graphic-p)
-             ;; C-z is bound to suspend-frame which only minimizes Emacs window in GUI
-             (progn
-               (global-unset-key (kbd "C-z"))
-               (global-set-key (kbd "<redo>") 'undo-tree-redo)
-	       (global-set-key (kbd "<undo>") 'undo-tree-undo)
-               (global-set-key (kbd "C-z") 'undo-tree-undo)
-               (global-set-key (kbd "C-S-z") 'undo-tree-redo)))))
+  :bind (("<redo>" . undo-tree-redo)
+	 ("<undo>" . undo-tree-undo)
+	 ("C-/" . undo-tree-undo)
+	 ("C-?" . undo-tree-redo)))
 
 (use-package shell
   ;; (require 'shell) ;; when not using use-package to initialize shell-mode-map
@@ -308,15 +310,19 @@
 (use-package ace-window
   :ensure t
   :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?f ?g ?q ?w ?e ?r ?t ?z ?x ?c ?v)) ;; limit characters
-  :bind (("C-x o" . ace-window)))
+  (setq aw-keys '(?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0)) ;; limit characters
+  :bind (:map ctl-x-map
+	 ("o" . ace-window)))
 
 (use-package ido
   :config (ido-mode 1)
   (setq ido-enable-flex-matching t
 	ido-everywhere t
 	ido-auto-merge-work-directories-length -1
-    ido-use-virtual-buffers t))
+    ido-use-virtual-buffers t)
+  :bind (:map ctl-x-map
+			  ("f" . ido-find-file)
+			  ("b" . ido-switch-buffer)))
 
 (use-package dired
   :delight "Dired "

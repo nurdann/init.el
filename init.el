@@ -2,14 +2,18 @@
 
 ;; TODO
 ;; Go outside brackets C-M-u C-M-n
+;; map:
+;; M-x flush-lines
+;; M-x load-file
+;; M-x revert-buffer
 
 (require 'package)
 
-;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
 (package-initialize)
-(package-refresh-contents)
+;;(package-refresh-contents)
 ;;(setq package-check-signature  nil)
 
 ;; Download use-package beforehand
@@ -221,13 +225,13 @@
   :ensure t
   :config 
   (add-hook 'after-init-hook 'global-company-mode)
-;;
-;;  (add-to-list 'company-backends 'company-dabbrev-code)
-;;  ;;(setq company-dabbrev-ignore-case 1)
-;;  
-;;  (add-to-list 'company-backends 'company-yasnippet)
+
+  (add-to-list 'company-backends 'company-dabbrev-code)
+  ;;(setq company-dabbrev-ignore-case 1)
+  (add-to-list 'company-backends 'company-yasnippet)
   (add-to-list 'company-backends 'company-files)
-;;  (add-to-list 'company-backends 'company-capf)
+  (add-to-list 'company-backends 'company-capf)
+  (add-to-list 'company-backends 'company-keywords)
 ;;  (company-tng-configure-default)
 ;;
   :custom
@@ -266,11 +270,11 @@
   (setq browse-kill-ring-show-preview t)
   :bind (("M-y" . browse-kill-ring)))
 
-(add-to-list 'load-path "~/.emacs.d/packages/kill-ring-ido")
-(add-to-list 'load-path "~/.emacs.d/packages/noflet")
-(require 'noflet)
-(require 'kill-ring-ido)
-(global-set-key (kbd "M-y") 'kill-ring-ido)
+;;(add-to-list 'load-path "~/.emacs.d/packages/kill-ring-ido")
+;;(add-to-list 'load-path "~/.emacs.d/packages/noflet")
+;;(require 'noflet)
+;;(require 'kill-ring-ido)
+;;(global-set-key (kbd "M-y") 'kill-ring-ido)
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -310,7 +314,7 @@
 (use-package ace-window
   :ensure t
   :init (ace-window t)
-  (setq aw-keys '(?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0)) ;; limit characters
+  (setq aw-keys '(?a ?s ?d ?f ?g ?w ?e ?r ?t)) ;; limit characters
   :bind (:map ctl-x-map
 	 ("o" . ace-window)))
 
@@ -341,18 +345,24 @@
 
 (use-package swiper
   :ensure t
-  :bind (("C-s" . swiper-isearch)
+  :bind (("C-'" . swiper-isearch)
 	 :map isearch-mode-map
-	 ("C-'" . avy-resume)))
+	 ("C-\"" . avy-resume)))
 
 (use-package avy
   :ensure
   :custom
   (avy-time-out-seconds 0.7)
-  :bind (("C-'" . avy-goto-char-timer)
-	 ("C-;" . avy-goto-word-1)
-	 ("C-:" . avy-goto-line)))
+  :bind (("C-z" . avy-goto-char-timer)
+		 :map ctl-x-map
+		 ("j t" . avy-goto-char-timer)
+		 ("j w" . avy-goto-word-1)
+		 ("j e" . avy-goto-line)))
 
+(use-package direx
+  :bind (
+		 :map ctl-x-map
+			  ("j d" . direx:jump-to-directory)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files

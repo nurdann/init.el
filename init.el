@@ -63,7 +63,6 @@
 (auto-fill-mode -1)
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
-
 ;; terminal interface
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)
@@ -94,6 +93,10 @@
 
 ;; MS Keyboard specific
 
+;; Start up
+
+(setq inhibit-startup-screen t
+      initial-buffer-choice "~/Desktop/notes.org")
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES

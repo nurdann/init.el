@@ -90,6 +90,7 @@
 				   (interactive)
 				   (kill-buffer (buffer-name))))
 (define-key ctl-x-map (kbd "W") 'kill-buffer-and-window)
+(define-key ctl-x-map (kbd "<XF86Close>") 'kill-buffer-and-window)
 (define-key ctl-x-map (kbd "x") 'revert-visible-windows)
 (define-key ctl-x-map (kbd "X") '(lambda ()
 				   (interactive)
@@ -330,6 +331,14 @@
   :bind (:map ctl-x-map
 			  ("f" . ido-find-file)
 			  ("b" . ido-switch-buffer)))
+
+(use-package direx
+  :bind ("<XF86Open>" . direx:jump-to-directory-other-window))
+
+(use-package popwin
+  :config
+  (push '(direx:direx-mode :position left :width 25 :dedicated t)
+      popwin:special-display-config))
 
 (use-package dired
   :delight "Dired "

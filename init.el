@@ -103,6 +103,15 @@
 (setq inhibit-startup-screen t
       initial-buffer-choice "~/Desktop/notes.org")
 
+;; setup prefix
+(define-prefix-command 'jump-map)
+(let ((map 'jump-map))
+  (suppress-keymap map)
+  (define-key map (kbd "w") 'avy-goto-char-timer)
+  map)
+
+(bind-key (kbd "<XF86New>") 'jump-map)
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
 ;;;;;;;;;;;;;;;;;;;;
@@ -223,6 +232,7 @@
 	       (setq-local electric--text-pairs electric-pair-pairs))))
 
 (alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
+(alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
 (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
 
 (use-package company
@@ -237,7 +247,7 @@
   (add-to-list 'company-backends 'company-capf)
   (add-to-list 'company-backends 'company-keywords)
 ;;  (company-tng-configure-default)
-;;
+
   :custom
   (completion-auto-help 'lazy)
   (company-begin-commands '(self-insert-command))
@@ -273,12 +283,6 @@
   :config
   (setq browse-kill-ring-show-preview t)
   :bind (("M-y" . browse-kill-ring)))
-
-;;(add-to-list 'load-path "~/.emacs.d/packages/kill-ring-ido")
-;;(add-to-list 'load-path "~/.emacs.d/packages/noflet")
-;;(require 'noflet)
-;;(require 'kill-ring-ido)
-;;(global-set-key (kbd "M-y") 'kill-ring-ido)
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -335,10 +339,23 @@
 (use-package direx
   :bind ("<XF86Open>" . direx:jump-to-directory-other-window))
 
+;; https://github.com/m2ym/popwin-el
 (use-package popwin
-  :config
-  (push '(direx:direx-mode :position left :width 25 :dedicated t)
-      popwin:special-display-config))
+  :config (popwin-mode 1)
+  
+  ;; setup kill-ring window
+  (defun popwin-bkr:update-window-reference ()
+  (popwin:update-window-reference 'browse-kill-ring-original-window :safe t))
+
+  (add-hook 'popwin:after-popup-hook 'popwin-bkr:update-window-reference)
+  (push '("*Kill Ring*" :position bottom :height 20) popwin:special-display-config)
+
+  ;; direx
+  (push '(direx:direx-mode :position left :width 35 :dedicated t)
+	popwin:special-display-config)
+  
+)
+
 
 (use-package dired
   :delight "Dired "
@@ -359,7 +376,7 @@
   :ensure t
   :bind (("C-'" . swiper-isearch)
 	 :map isearch-mode-map
-	 ("C-\"" . avy-resume)))
+	 ("C-'" . avy-resume)))
 
 (use-package avy
   :ensure
@@ -373,8 +390,8 @@
 
 (use-package direx
   :bind (
-		 :map ctl-x-map
-			  ("j d" . direx:jump-to-directory)))
+	 :map ctl-x-map
+	      ("j d" . direx:jump-to-directory)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files

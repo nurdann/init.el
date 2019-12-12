@@ -112,7 +112,9 @@
 
 (bind-key (kbd "<XF86New>") 'jump-map)
 
-;; mode line
+;;;;;;;;;;;;;;;;;;;;
+;; MODE LINE
+
 ;; Defaults:
 ;; ("^~/\\.emacs\\.d/" ":ED:")
 ;; ("^/sudo:.*:" ":SU:")
@@ -213,8 +215,8 @@
   :ensure t
   :config (winner-mode 1)
   :bind (:map ctl-x-map
-	 ("/" . winner-undo)
-         ("?" . winner-redo)))
+			  ("<up>" . winner-undo)
+			  ("<down>" . winner-redo)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
@@ -257,7 +259,8 @@
   (add-to-list 'company-backends 'company-files)
   (add-to-list 'company-backends 'company-capf)
   (add-to-list 'company-backends 'company-keywords)
-;;  (company-tng-configure-default)
+  ;;(company-tng-configure-default)
+  (setq company-selection-wrap-around t)
 
   :custom
   (completion-auto-help 'lazy)
@@ -265,10 +268,9 @@
   (company-idle-delay  0.2)
   (company-minimum-prefix-legth 2)
   (company-show-numbers t)
-;;  (company-tooltip-align-annotations t)
+  (company-tooltip-align-annotations t)
   (global-company-mode t)
   (company-require-match nil)
-;;
 ;;  :bind (
 ;;         :map company-mode-map
 ;;        ))
@@ -337,6 +339,24 @@
   :bind (:map ctl-x-map
 	 ("o" . ace-window)))
 
+
+;;;;;;;;;;;;;;;;;;;;
+;; Files
+
+;; view same buffer with two windows
+;; C-x 3 M-x follow-mode
+
+
+
+;; Default C-c C-v prefix map for vlf-mode
+(require 'vlf-setup) ;; prompt when opening large files
+
+(use-package logview
+  :config
+  ;;(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
+  (add-hook 'logview-mode-hook 'auto-revert-tail-mode))
+
+
 (use-package ido
   :config (ido-mode 1)
   (setq ido-enable-flex-matching t
@@ -348,7 +368,9 @@
 			  ("b" . ido-switch-buffer)))
 
 (use-package direx
-  :bind ("<XF86Open>" . direx:jump-to-directory-other-window))
+  :bind (("<XF86Open>" . direx:jump-to-directory-other-window)
+	 :map ctl-x-map
+	 ("t" . direx:jump-to-directory-other-window)))
 
 ;; https://github.com/m2ym/popwin-el
 (use-package popwin
@@ -617,3 +639,4 @@ Version 2019-11-04"
         (mapc
          (lambda ($fpath) (let ((process-connection-type nil))
                             (start-process "" nil "xdg-open" $fpath))) $file-list))))))
+                                                                             

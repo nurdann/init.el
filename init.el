@@ -352,9 +352,14 @@
 
 
 ;; Default C-c C-v prefix map for vlf-mode
-(require 'vlf-setup) ;; prompt when opening large files
+;; prompt when opening large files
+(use-package vlf
+  :ensure t
+  :config
+  (require 'vlf-setup))
 
 (use-package logview
+  :ensure t
   :config
   ;;(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
   (add-hook 'logview-mode-hook 'auto-revert-tail-mode))

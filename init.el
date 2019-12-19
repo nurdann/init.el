@@ -96,8 +96,6 @@
 				   (interactive)
 				   (revert-buffer t t)))
 
-;; MS Keyboard specific
-
 ;; Start up
 
 (setq inhibit-startup-screen t
@@ -124,6 +122,34 @@
 (setq sml/theme 'light) ;; 'light, 'dark, 'respectful
 (setq sml/no-confirm-load-theme t)
 (add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
+
+;;;;;;;;;;;;;;;;;;;;
+;; MODES
+;;;;;;;;;;;;;;;;;;;;
+
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :config
+  (setq markdown-command "markdown")
+  (setq markdown-indent-on-enter 'indent-and-new-item)
+  :bind (:map markdown-mode-map
+	      ("C-`" . markdown-insert-gfm-code-block)))
+
+(use-package dockerfile-mode
+  :ensure t
+  :mode (("Dockerfile\\'" . dockerfile-mode))
+  :bind (:map dockerfile-mode-map
+			  ("<XF86Reply>" . dockerfile-build-buffer))
+  :config
+  (put 'dockerfile-image-name 'safe-local-variable #'stringp)
+  (setq dockerfile-mode-command "docker"))
+
+(use-package docker
+  :ensure t
+  :bind (("C-c d" . docker)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -346,15 +372,15 @@
 ;; view same buffer with two windows
 ;; C-x 3 M-x follow-mode
 
-
-
 ;; Default C-c C-v prefix map for vlf-mode
 (require 'vlf-setup) ;; prompt when opening large files
 
-(use-package logview
-  :config
-  ;;(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
-  (add-hook 'logview-mode-hook 'auto-revert-tail-mode))
+;; Log files
+
+(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
+;;(add-hook 'auto-revert-tail-mode 'read-only-mode)
+;;(use-package logview
+;;  :config  (add-hook 'logview-mode-hook 'auto-revert-tail-mode))
 
 
 (use-package ido

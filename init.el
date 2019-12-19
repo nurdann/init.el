@@ -120,10 +120,13 @@
 ;; ("^/sudo:.*:" ":SU:")
 ;; ("^~/Documents/" ":Doc:")
 ;; ("^~/Dropbox/" ":DB:")
-(sml/setup)
-(setq sml/theme 'light) ;; 'light, 'dark, 'respectful
-(setq sml/no-confirm-load-theme t)
-(add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
+(use-package smart-mode-line
+  :ensure t
+  :config 
+  (sml/setup)
+  (setq sml/theme 'light) ;; 'light, 'dark, 'respectful
+  (setq sml/no-confirm-load-theme t)
+  (add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:")))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES

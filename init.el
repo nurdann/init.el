@@ -13,17 +13,16 @@
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
 (package-initialize)
-;;(package-refresh-contents)
 ;;(setq package-check-signature  nil)
 
-;; Download use-package beforehand
-(progn
-  (eval-when-compile (require 'use-package))
-  (require 'bind-key) ;; required for :bind
-  )
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile (require 'use-package))
+(require 'bind-key) ;; required for :bind
 
 ;; Theme
-
 (use-package creamsody-theme :ensure :defer)
 (use-package parchment-theme :ensure :defer)
 (use-package circadian
@@ -58,6 +57,10 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (if (file-exists-p custom-file)
     (load custom-file))
+
+(use-package no-littering
+  :ensure t
+  :demand t)
 
 ;; GUI
 (menu-bar-mode 1)
@@ -96,8 +99,7 @@
 				   (interactive)
 				   (revert-buffer t t)))
 
-;; MS Keyboard specific
-
+;;;;;;;;;;;;;;;;;;;;
 ;; Start up
 
 (setq inhibit-startup-screen t
@@ -110,10 +112,10 @@
   (define-key map (kbd "w") 'avy-goto-char-timer)
   map)
 
-(bind-key (kbd "<XF86New>") 'jump-map)
+;;(bind-key (kbd "<XF86New>") 'jump-map)
 
 ;;;;;;;;;;;;;;;;;;;;
-;; MODE LINE
+;; Speciality Modes
 
 ;; Defaults:
 ;; ("^~/\\.emacs\\.d/" ":ED:")
@@ -127,6 +129,7 @@
   (setq sml/theme 'light) ;; 'light, 'dark, 'respectful
   (setq sml/no-confirm-load-theme t)
   (add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:")))
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -274,22 +277,20 @@
   (company-tooltip-align-annotations t)
   (global-company-mode t)
   (company-require-match nil)
-;;  :bind (
-;;         :map company-mode-map
-;;        ))
   )
 
 (use-package undo-tree
   :ensure t
-  :config
-  (global-undo-tree-mode)
+  :config (global-undo-tree-mode)
+  (custom-set-variables
+   '(undo-tree-visualizer-timestamps t)
+   '(undo-tree-visualizer-diff t))
   :bind (("<redo>" . undo-tree-redo)
 	 ("<undo>" . undo-tree-undo)
 	 ("C-/" . undo-tree-undo)
 	 ("C-?" . undo-tree-redo)))
 
 (use-package shell
-  ;; (require 'shell) ;; when not using use-package to initialize shell-mode-map
   :bind (:map shell-mode-map
               ("<up>" . comint-previous-input)
               ("<down>" . comint-next-input)))
@@ -300,7 +301,6 @@
   (setq browse-kill-ring-show-preview t)
   :bind (("M-y" . browse-kill-ring)))
 
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
 ;;;;;;;;;;;;;;;;;;;;
@@ -309,7 +309,7 @@
   :ensure t
   :config (key-chord-mode 1)
   ;;(setq key-chord-two-keys-delay .020
-;;	key-chord-one-key-delay .020)
+  ;;	key-chord-one-key-delay .020)
 
   ;; Add key-chord-mode to minor-mode-alist
   (if (not (assq 'key-chord-mode minor-mode-alist))
@@ -323,10 +323,8 @@
 ;;  jj  jc jf jg jh jk jl jm jp jq js jt jv jw jx jy jz
 ;;  qq  qb qf qg qh qk ql qm qp qt qv qw qx qy qz
 ;;  vv  vc vf vg vh vk vm vp vw vz
-;;  ww
-;;      xb xd xg xk xm xs xw
-;;  yy
-;;      zb zd zf zg zk zm zp zs zw zx
+;;  ww  xb xd xg xk xm xs xw
+;;  yy  zb zd zf zg zk zm zp zs zw zx
 
 ;;(key-chord-define-global k c)
 
@@ -376,12 +374,13 @@
 			  ("b" . ido-switch-buffer)))
 
 (use-package direx
-  :bind (("<XF86Open>" . direx:jump-to-directory-other-window)
+  :ensure t
+  :bind (("<f5>" . direx:jump-to-directory-other-window)
 	 :map ctl-x-map
 	 ("t" . direx:jump-to-directory-other-window)))
 
-;; https://github.com/m2ym/popwin-el
 (use-package popwin
+  :ensure t
   :config (popwin-mode 1)
   
   ;; setup kill-ring window
@@ -441,7 +440,7 @@
  'directory-abbrev-alist
  '("^/jou" . "/mnt/mdbackup/journal"))
 
-(recentf-mode 1)
+;;(recentf-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Functions

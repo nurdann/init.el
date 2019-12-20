@@ -685,11 +685,11 @@ Version 2019-11-04"
 		(list-text-pos (nth 3 (markdown-cur-list-item-bounds))))
     (if (and
 		 (> indent 0)
-	     ;;(= list-end-pos (+ list-begin-pos list-end-pos))
+	     (= list-end-pos (+ list-begin-pos list-text-pos))
 		 )
 		(progn
-		  (message "promote list item")
+		  ;;(message "promote list item")
 		  (markdown-promote-list-item))
 	  (progn
-		(message "regular markdown enter key")
+		;;(message "regular markdown enter key: line-end(%s)" (= list-end-pos (+ list-begin-pos list-end-pos)))
 		(markdown-enter-key))))))

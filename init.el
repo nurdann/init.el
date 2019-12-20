@@ -101,7 +101,7 @@
 
 ;; Start up
 (setq inhibit-startup-screen t
-      initial-buffer-choice "~/Desktop/notes.org")
+      initial-buffer-choice "~/Desktop/notes.md")
 
 ;; setup prefix
 (define-prefix-command 'jump-map)
@@ -112,9 +112,7 @@
 
 ;;(bind-key (kbd "<XF86New>") 'jump-map)
 
-;;;;;;;;;;;;;;;;;;;;
-;; Speciality Modes
-
+;; Mode line
 ;; Defaults:
 ;; ("^~/\\.emacs\\.d/" ":ED:")
 ;; ("^/sudo:.*:" ":SU:")
@@ -142,7 +140,8 @@
   (setq markdown-command "markdown")
   (setq markdown-indent-on-enter 'indent-and-new-item)
   :bind (:map markdown-mode-map
-	      ("C-`" . markdown-insert-gfm-code-block)))
+	      ("C-`" . markdown-insert-gfm-code-block)
+	      ("<S-iso-lefttab>" . markdown-promote-list-item)))
 
 (use-package dockerfile-mode
   :ensure t
@@ -462,6 +461,29 @@
 ;;(recentf-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;
+;; Language modes
+;;;;;;;;;;;;;;;;;;;;
+
+;; Matlab
+;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
+;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
+;(setq matlab-indent-function t)
+;(setq matlab-shell-command "matlab")
+;
+;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
+;(load-library "matlab")
+;
+;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
+;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
+;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
+
+;; Haskell
+(use-package haskell-mode
+  :config
+  ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+  (setq haskell-process-type 'cabal-repl))
+
+;;;;;;;;;;;;;;;;;;;;
 ;; Functions
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -611,23 +633,6 @@
          ad-do-it
          (when (and bye-p (not (string-match "[/\\\\]\\.$" filename)))
            (kill-buffer orig))))))
-
-;;;;;;;;;;;;;;;;;;;;
-;; EXTENTIONS
-;;;;;;;;;;;;;;;;;;;;
-
-;; Matlab
-;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
-;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
-;(setq matlab-indent-function t)
-;(setq matlab-shell-command "matlab")
-;
-;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
-;(load-library "matlab")
-;
-;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
-;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
-;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
 
 
 ;; Open certain files in different applications

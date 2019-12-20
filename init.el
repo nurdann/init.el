@@ -140,6 +140,7 @@
   (setq markdown-command "markdown")
   (setq markdown-indent-on-enter 'indent-and-new-item)
   :bind (:map markdown-mode-map
+	      ("<return>" . markdown-custom-enter)
 	      ("C-`" . markdown-insert-gfm-code-block)
 	      ("<S-iso-lefttab>" . markdown-promote-list-item)))
 
@@ -671,3 +672,24 @@ Version 2019-11-04"
          (lambda ($fpath) (let ((process-connection-type nil))
                             (start-process "" nil "xdg-open" $fpath))) $file-list))))))
                                                                              
+
+ 
+(defun markdown-custom-enter ()
+  "Markdown <enter> to promote list item if it is sub-list"
+  (interactive)
+  (if (null (markdown-cur-list-item-bounds))
+	  (markdown-enter-key)
+  (let ((indent (nth 2 (markdown-cur-list-item-bounds)))
+		(list-end-pos (nth 1 (markdown-cur-list-item-bounds)))
+		(list-begin-pos (nth 0 (markdown-cur-list-item-bounds)))
+		(list-text-pos (nth 3 (markdown-cur-list-item-bounds))))
+    (if (and
+		 (> indent 0)
+	     ;;(= list-end-pos (+ list-begin-pos list-end-pos))
+		 )
+		(progn
+		  (message "promote list item")
+		  (markdown-promote-list-item))
+	  (progn
+		(message "regular markdown enter key")
+		(markdown-enter-key))))))

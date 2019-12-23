@@ -45,7 +45,7 @@
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
       mark-ring-max 16 
       window-combination-resize t
-      shift-select-mode nil
+      shift-select-mode t
       )
 
 (setq backup-by-copying t
@@ -126,6 +126,10 @@
   (setq sml/no-confirm-load-theme t)
   (add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:")))
 
+
+;; https://github.com/lewang/command-log-mode
+(add-to-list 'load-path "~/.emacs.d/packages/command-log-mode")
+(load-library "command-log-mode")
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; MODES

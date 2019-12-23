@@ -218,11 +218,6 @@
             ;;(define-key map (kbd "s") 'set-goal-column)
             ;;(define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
 
-            ;; EDIT
-            (define-key map (kbd "z") 'undo)
-            (define-key map (kbd "Z") 'redo)
-            (define-key map (kbd "r") 'string-rectangle)
-            (define-key map (kbd "t") 'transpose-words)
             
             ;; KILL
             ;; C-u C-SPC jump to mark
@@ -249,10 +244,8 @@
 
 (use-package winner
   :ensure t
-  :config (winner-mode 1)
-  :bind (:map ctl-x-map
-			  ("<up>" . winner-undo)
-			  ("<down>" . winner-redo)))
+  ;; default keys C-c <arrow-key>
+  :config (winner-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
@@ -309,16 +302,14 @@
   (company-require-match nil)
   )
 
-(use-package undo-tree
-  :ensure t
-  :config (global-undo-tree-mode)
-  (custom-set-variables
-   '(undo-tree-visualizer-timestamps t)
-   '(undo-tree-visualizer-diff t))
-  :bind (("<redo>" . undo-tree-redo)
-	 ("<undo>" . undo-tree-undo)
-	 ("C-/" . undo-tree-undo)
-	 ("C-?" . undo-tree-redo)))
+(add-to-list 'load-path "~/.emacs.d/packages/undo-fu")
+(load-library "undo-fu")
+
+(use-package undo-fu
+  :config
+  :bind (("C-z" . undo-fu-only-undo)
+		 ("C-S-z" . undo-fu-only-redo)
+		 ("C-M-z" . undo-fu-only-redo-all)))
 
 (use-package shell
   :bind (:map shell-mode-map

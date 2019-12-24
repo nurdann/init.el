@@ -142,8 +142,7 @@
   (setq markdown-indent-on-enter 'indent-and-new-item)
   :bind (:map markdown-mode-map
 	      ("<return>" . markdown-custom-enter)
-	      ("C-`" . markdown-insert-gfm-code-block)
-	      ("<S-iso-lefttab>" . markdown-promote-list-item)))
+	      ("C-`" . markdown-insert-gfm-code-block)))
 
 (use-package dockerfile-mode
   :ensure t
@@ -493,70 +492,17 @@
       (copy-region-as-kill 1 1 t)
     (copy-region-as-kill (line-beginning-position) (line-end-position))))
 
-(defun my-suspend-frame ()
-  "Suspend only in non-GUI environment"
-  (interactive)
-  (if (display-graphic-p)
-      (message "suspend-frame disabled for graphical interface")
-    (suspend-frame)))
-
 (defun search-next-char (c)
   "Move cursor to the next character matched"
   (interactive "c")
   ;;(if (char-equal ?char-after ?c))
   (search-forward (char-to-string c) nil nil 1))
 
-(defun search-previous-char (c)
-  "Move cursor to the previous character matched"
-  (interactive "c")
-  (search-forward (char-to-string c) nil nil -1))
-
-(defun bind-key-to-map (map keyout)
-  (interactive)
-  (let ((key (car keyout))
-        (out (nth 1 keyout)))
-    (define-key map (kbd key) out)
-    (message "Bound %s to %s in %s" key out map)))
-
-
-(defun bind-keys-to-map (map keys)
-  (interactive)
-  (let ((xs keys)
-        (n 0))
-    (while(not(null xs))
-      (let ((x (car xs)))
-        (bind-key-to-map map x)
-        (message "Bound %s to %s" (car x) (nth 1 x) x))
-      (setq n (+ 1 n)
-            xs (cdr xs))
-      )
-    (message "Bound %d commands to %s" n map)))
-
 (defun sudo-save-buffer ()
   (interactive)
   (if (not buffer-file-name)
       (write-file (concat "/sudo:root@localhost:" (read-file-name "File:")))
     (write-file (concat "/sudo:root@localhost:" buffer-file-name))))
-
-;; https://www.emacswiki.org/emacs/EshellNavigation
-(defun bol-maybe-general-my (prompt &optional alt-bol-fcn)
-  ""
-  (interactive)
-  (if (and (string-match (concat "^" (regexp-quote prompt)
-                                 " *$")
-                         (buffer-substring-no-properties
-                          (line-beginning-position)
-                          (point)))
-           (not (bolp)))
-      (beginning-of-line)
-    (if alt-bol-fcn
-        (funcall alt-bol-fcn)
-      (beginning-of-line)
-      (search-forward-regexp prompt))))
-
- (add-hook 'eshell-mode-hook '(lambda ()
-                               (local-set-key (kbd "C-a")
-                                              'eshell-bol-maybe-my)))
 
 (defun revert-visible-windows ()
   "Revert visible unmodified windows"
@@ -661,9 +607,8 @@ Version 2019-11-04"
         (mapc
          (lambda ($fpath) (let ((process-connection-type nil))
                             (start-process "" nil "xdg-open" $fpath))) $file-list))))))
-                                                                             
 
- 
+;; Markdown enter behaviour 
 (defun markdown-custom-enter ()
   "Markdown <enter> to promote list item if it is sub-list"
   (interactive)
@@ -683,3 +628,31 @@ Version 2019-11-04"
 	  (progn
 		;;(message "regular markdown enter key: line-end(%s)" (= list-end-pos (+ list-begin-pos list-end-pos)))
 		(markdown-enter-key))))))
+
+
+;; apt load bar
+;; https://oremacs.com/2019/03/24/shell-apt/
+(advice-add
+ 'ansi-color-apply-on-region
+ :before 'ora-ansi-color-apply-on-region)
+
+(defun ora-ansi-color-apply-on-region (begin end)
+  "Fix progress bars for e.g. apt(8).
+Display progress in the mode line instead."
+  (let ((end-marker (copy-marker end))
+        mb)
+    (save-excursion
+      (goto-char (copy-marker begin))
+      (while (re-search-forward "\0337" end-marker t)
+        (setq mb (match-beginning 0))
+        (when (re-search-forward "\0338" end-marker t)
+          (let ((progress (buffer-substring-no-properties
+                           (+ mb 2) (- (point) 2))))
+            (delete-region mb (point))
+            (ora-apt-progress-message progress)))))))
+;; output in Echo Area
+(defun ora-apt-progress-message (progress)
+  (message
+   (replace-regexp-in-string
+    "%" "%%"
+    (ansi-color-apply progress))))

@@ -100,33 +100,30 @@
 (setq inhibit-startup-screen t
       initial-buffer-choice "~/Desktop/notes.md")
 
-;; setup prefix
-(define-prefix-command 'jump-map)
-(let ((map 'jump-map))
-  (suppress-keymap map)
-  (define-key map (kbd "w") 'avy-goto-char-timer)
-  map)
-
-;;(bind-key (kbd "<XF86New>") 'jump-map)
-
 ;; Mode line
-;; Defaults:
-;; ("^~/\\.emacs\\.d/" ":ED:")
-;; ("^/sudo:.*:" ":SU:")
-;; ("^~/Documents/" ":Doc:")
-;; ("^~/Dropbox/" ":DB:")
 (use-package smart-mode-line
   :ensure t
   :config 
   (sml/setup)
   (setq sml/theme 'light) ;; 'light, 'dark, 'respectful
   (setq sml/no-confirm-load-theme t)
-  (add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:")))
+  (setq sml/replacer-regexp-list nil)
+  ;;(add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
+  )
 
 (use-package command-log-mode
   ;; (command-log-mode)
   ;; (clm/open-command-log-buffer)
   :ensure t)
+
+;; scroll behaviour
+(setq scroll-preserve-screen-position t)
+(bind-key (kbd "<prior>") '(lambda ()
+							 (interactive)
+							 (scroll-down-line 2)))
+(bind-key (kbd "<next>") '(lambda ()
+							 (interactive)
+							 (scroll-up-line 2)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; MODES
@@ -172,13 +169,7 @@
             (suppress-keymap map)
 
 	    ;; NAVIGATE
-	    (setq scroll-preserve-screen-position t)
-	    (define-key map (kbd "p") '(lambda ()
-                                         (interactive)
-                                         (scroll-down-line 2)))
-	    (define-key map (kbd "n") '(lambda ()
-                                         (interactive)
-                                         (scroll-up-line 2)))
+
 
             (define-key map (kbd "N") 'scroll-up-command)
             (define-key map (kbd "P") 'scroll-down-command)
@@ -434,7 +425,7 @@
 	      ("<menu>" . avy-goto-char-timer)
 	      ;;("" . avy-goto-word-1)
 	      ;;("j e" . avy-goto-line))
-	      )
+	      ))
 
 (use-package direx
   :bind (

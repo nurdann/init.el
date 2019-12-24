@@ -118,12 +118,8 @@
 
 ;; scroll behaviour
 (setq scroll-preserve-screen-position t)
-(bind-key (kbd "<prior>") '(lambda ()
-							 (interactive)
-							 (scroll-down-line 2)))
-(bind-key (kbd "<next>") '(lambda ()
-							 (interactive)
-							 (scroll-up-line 2)))
+(bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 2)))
+(bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 2)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; MODES
@@ -362,21 +358,30 @@
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
 
-(use-package ido
-  :config (ido-mode 1)
-  (setq ido-enable-flex-matching t
-	ido-everywhere t
-	ido-auto-merge-work-directories-length -1
-    ido-use-virtual-buffers t)
-  :bind (:map ctl-x-map
-			  ("f" . ido-find-file)
-			  ("b" . ido-switch-buffer)))
-
 (use-package direx
-  :ensure t
-  :bind (("<f5>" . direx:jump-to-directory-other-window)
-	 :map ctl-x-map
-	 ("t" . direx:jump-to-directory-other-window)))
+  :bind (
+	 ("C-j" . direx:jump-to-directory)))
+
+(add-to-list
+ 'directory-abbrev-alist
+ '("^/jou" . "/mnt/mdbackup/journal"))
+
+(require 'recentf)
+(setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
+(recentf-mode 1)
+(setq recentf-max-menu-items 25
+      recentf-max-saved-items 25)
+
+;;(use-package ido
+;;  :config (ido-mode 1)
+;;  (setq ido-enable-flex-matching t
+;;	ido-everywhere t
+;;	ido-auto-merge-work-directories-length -1
+;;    ido-use-virtual-buffers t)
+;;  :bind (:map ctl-x-map
+;;			  ("f" . ido-find-file)
+;;			  ("b" . ido-switch-buffer)))
+
 
 (use-package popwin
   :ensure t
@@ -403,7 +408,14 @@
   (dired-hide-details-hide-symlink-targets nil)
   (dired-listing-switches "-alh")
   (dired-ls-F-marks-symlinks nil)
-  (dired-recursive-copies 'always))
+  (dired-recursive-copies 'always)
+  (delete-by-moving-to-trash t)
+  :config
+  (put 'dired-find-alternate-file 'disabled nil)
+  :bind (:map dired-mode-map
+	      ("RET" . dired-find-alternate-file)
+	      ("z" . open-in-external-app)
+	      ("b" . (lambda () (interactive) (find-alternate-file "..")))))
 
 (use-package smex
   :ensure t
@@ -427,18 +439,6 @@
 	      ;;("j e" . avy-goto-line))
 	      ))
 
-(use-package direx
-  :bind (
-	 ("C-j" . direx:jump-to-directory)))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Files
-
-(add-to-list
- 'directory-abbrev-alist
- '("^/jou" . "/mnt/mdbackup/journal"))
-
-(recentf-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes
@@ -464,7 +464,7 @@
   (setq haskell-process-type 'cabal-repl))
 
 ;;;;;;;;;;;;;;;;;;;;
-;; Functions
+;; FUNCTIONS
 ;;;;;;;;;;;;;;;;;;;;
 
 
@@ -508,6 +508,7 @@
 	;;(message "No visible window to update")
 	))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Allow buffer reverts to be undone
 
@@ -548,21 +549,9 @@
 (ad-activate 'ask-user-about-supersession-threat)
 
 
-;; dired reuse buffer
-(eval-after-load "dired"
-  '(progn
-     (defadvice dired-advertised-find-file (around dired-subst-directory activate)
-       "Replace current buffer if file is a directory"
-       (interactive)
-       (let* ((orig (current-buffer))
-              (filename (dired-get-filename t t))
-              (bye-p (file-directory-p filename)))
-         ad-do-it
-         (when (and bye-p (not (string-match "[/\\\\]\\.$" filename)))
-           (kill-buffer orig))))))
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Open certain files in different applications
+
 (defun open-in-external-app (&optional @fname)
   "Open the current file or dired marked files in external app.
 The app is chosen from your OS's preference.
@@ -598,7 +587,10 @@ Version 2019-11-04"
          (lambda ($fpath) (let ((process-connection-type nil))
                             (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 
-;; Markdown enter behaviour 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Markdown enter behaviour
+
 (defun markdown-custom-enter ()
   "Markdown <enter> to promote list item if it is sub-list"
   (interactive)
@@ -620,8 +612,10 @@ Version 2019-11-04"
 		(markdown-enter-key))))))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; apt load bar
-;; https://oremacs.com/2019/03/24/shell-apt/
+;; source: https://oremacs.com/2019/03/24/shell-apt/
+
 (advice-add
  'ansi-color-apply-on-region
  :before 'ora-ansi-color-apply-on-region)

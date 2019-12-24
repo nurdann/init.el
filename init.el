@@ -422,24 +422,23 @@
 
 (use-package swiper
   :ensure t
-  :bind (("C-'" . swiper-isearch)
+  :bind (("M-'" . swiper-isearch)
 	 :map isearch-mode-map
-	 ("C-'" . avy-resume)))
+	 ("M-'" . avy-resume)))
 
 (use-package avy
   :ensure
   :custom
   (avy-time-out-seconds 0.7)
-  :bind (("C-z" . avy-goto-char-timer)
-		 :map ctl-x-map
-		 ("j t" . avy-goto-char-timer)
-		 ("j w" . avy-goto-word-1)
-		 ("j e" . avy-goto-line)))
+  :bind (:map ctl-x-map
+	      ("<menu>" . avy-goto-char-timer)
+	      ;;("" . avy-goto-word-1)
+	      ;;("j e" . avy-goto-line))
+	      )
 
 (use-package direx
   :bind (
-	 :map ctl-x-map
-	      ("j d" . direx:jump-to-directory)))
+	 ("C-j" . direx:jump-to-directory)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files
@@ -448,7 +447,7 @@
  'directory-abbrev-alist
  '("^/jou" . "/mnt/mdbackup/journal"))
 
-;;(recentf-mode 1)
+(recentf-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes

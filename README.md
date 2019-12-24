@@ -20,6 +20,16 @@ Then install with
 make && make install
 ```
 
+## Using PPA (Personal Package Archive)
+
+``` bash
+sudo add-apt-repository ppa:kelleyk/emacs
+sudo apt-get update
+sudo apt install emacs26
+```
+
+Then delete the repository from `/etc/apt/sources.list.d`, if you do not trust it.
+
 ## Install errors
 
 Gnutls not found
@@ -38,6 +48,12 @@ sudo gtk-update-icon-cache /usr/share/icons/hicolor
 # Basics
 
 Emacs looks for an init file `~/.emacs`, `~/.emacs.el` and `~/.emacs.d/init.el` in that order.
+
+## Emacs vs Vim
+
+`vi` is archaic version of Vim. With Vim you usually edit files and go back to terminal but with Emacs you try to do everything inside it.
+
+There is a compromise called `evil-mode` which let's you use Vim keybinding.
 
 
 ## Notation
@@ -58,6 +74,17 @@ Note that Emacs will try to map shifted keys to regular keys if they are not bou
 `C-x C-f` is two combinations is sequence, so press `C-x` first (you will see it minibuffer as `C-x-`) and then press `C-f`. 
 **DO NOT** try to hold Control while trying to press `x` and `f` in sequence because it puts too much strain on your fingers and can result in RSI (Repetitive-Strain-Injury) Syndrom. Or even better is to remap frequent keys into dedicated keys or use fewer key strokes.
 
+### Grammar
+
+```EBNF
+<key-sequence> 		:== <key-combination>+
+<key-combination> 	:== <modifier> { '-' <modifier> } <key>
+<modifier> 			:== [CSsM]
+<key> 				:== [a-zA-Z] | <special-key>
+<special-key> 		:== '<return>' | 'RET' | ...
+```
+e.g. `C-n`, `C-x C-f`, `<return>`, `RET`, etc.
+
 ## Movement
 
 cheat sheet at https://www.gnu.org/software/emacs/refcards/pdf/refcard.pdf
@@ -66,43 +93,38 @@ cheat sheet at https://www.gnu.org/software/emacs/refcards/pdf/refcard.pdf
 - `C-p` move up a line
 - `C-f` move forward a character
 - `C-b` move backward a character
-- `M-f` move forward a word (alphanumeric sequence)
-- `M-b` move backward a word
 - `C-x C-f` find file and open
 - `C-x d` dired or show directory
 - `C-x b` show buffers which are usually currently opened files
 - `C-x C-c` exit emacs
 - `C-x C-s` save file
-
-- `C-a` move beginning of line
-- `C-e` move end of line
-- `C-s` search forward, keep pressing `C-s` to go to next match
-  - you can either press `<enter>` to stay on highlighted match or press `C-g` to back to original position
-- `C-r` search backward, same as above but use `C-r` to go previous match
-- `C-w` cut or in Emacs lingo "kill region"
-- `M-w` copy to kill ring
-- `C-y` paste from kill ring
-  - `M-y` cycle paste from kill ring
 - `M-x` execute command
-  - search for either dumb terminal `shell` or `term` which behaves same as regular terminal
-  - Note: inside `term`, the prefix command `C-x` switches to `C-c`, so to send an actual `C-c` to the terminal type it twice, i.e. `C-c C-c`.
 
 
-## Emacs vs Vim
+## Learn Emacs using Emacs
 
-`vi` is archaic version of Vim. With Vim you usually edit files and go back to terminal but with Emacs you try to do everything inside it.
+- `C-h k` describe key pressed
+- `C-h c` describe key briefly
+- `C-h f` describe function name
+- `C-h v` describe variable name
+- `C-h m` describe current modes used
 
-There is a compromise called `evil-mode` which let's you use Vim keybinding.
 
-## key bindings
--
-`C`
-`C-h c` describe key
+## Command line interface
 
-## Files or Dired
+Type either `shell` for dumb terminal or `term` which behaves same as regular terminal
+**Note**: inside `term`, the prefix command `C-x` switches to `C-c`, so to send an actual `C-c` to the terminal type it twice, i.e. `C-c C-c`.
 
-### abbrev(iation)
+Shell mode commands
+- `M-n` and `M-p` to cycle next and previous commands
+- `C-a` and `C-e` go to beggining and end of line
+- `M-x send-invisible` to hide typed text
 
+## Editing files
+
+`M-x align-regexp` to align columns based on a regex separator
+
+### Create shortcut
 ```
 (add-to-list
     'directory-abbrev-alist
@@ -113,6 +135,11 @@ Then type `C-x C-f /jou <RET>`
 ### Bookmark files
 `C-x r m` mark for bookmark
 `C-x r b` prompt for saved bookmarks
+
+## Dired (Directory Editor)
+
+Type `C-x d` to open `dired`.
+
 
 
 ### ssh

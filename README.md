@@ -95,7 +95,8 @@ cheat sheet at https://www.gnu.org/software/emacs/refcards/pdf/refcard.pdf
 - `C-b` move backward a character
 - `C-x C-f` find file and open
 - `C-x d` dired or show directory
-- `C-x b` show buffers which are usually currently opened files
+- `C-x b` switch buffer in minibuffer
+- `C-x C-b` show buffers
 - `C-x C-c` exit emacs
 - `C-x C-s` save file
 - `M-x` execute command
@@ -109,6 +110,9 @@ cheat sheet at https://www.gnu.org/software/emacs/refcards/pdf/refcard.pdf
 - `C-h v` describe variable name
 - `C-h m` describe current modes used
 
+Modes to help
+- `(which-key)` show commands for a prefix after a delay
+
 
 ## Command line interface
 
@@ -119,6 +123,10 @@ Shell mode commands
 - `M-n` and `M-p` to cycle next and previous commands
 - `C-a` and `C-e` go to beggining and end of line
 - `M-x send-invisible` to hide typed text
+
+Anywhere in Emacs
+- `M-!` to execute single shell command
+- `C-u M-!` same as `M-!` but insert command output at the mark point
 
 ## Editing files
 
@@ -138,7 +146,21 @@ Then type `C-x C-f /jou <RET>`
 
 ## Dired (Directory Editor)
 
-Type `C-x d` to open `dired`.
+Type `C-x d` to open `dired`
+
+- `d` mark for deletion
+- `x` delete all `d`-marked files and folders
+- `m` mark for copy, move
+- `u` unmark file or folder
+- `U` unmark all
+- `C` copy a file and prompt for new file name
+- `R` rename a file or folder
+- `+` create folder
+- `Z` compress files using `gzip`; note the old file is renamed to `*.gz`
+- `g` revert buffer
+- `<` previous directory in a current dired buffer
+- `>` next directory in dired buffer
+- `^` go to parent directory
 
 
 

@@ -62,10 +62,6 @@
 (if (file-exists-p custom-file)
     (load custom-file))
 
-(use-package no-littering
-  :ensure t
-  :demand t)
-
 ;; GUI
 (menu-bar-mode 1)
 (tool-bar-mode -1)
@@ -84,17 +80,15 @@
       (define-key input-decode-map "\C-j" [C-j])
      ))
 
+;; remap defaults
 (global-unset-key (kbd "C-z"))
-
 ;; remap ctl-x-map keys
 (global-set-key (kbd "<menu>") ctl-x-map)
 (define-key ctl-x-map (kbd "f") 'find-file)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
 (define-key ctl-x-map (kbd "w") 'kill-buffer-and-window)
 (define-key ctl-x-map (kbd "x") 'revert-visible-windows)
-(define-key ctl-x-map (kbd "<menu>") '(lambda ()
-				   (interactive)
-				   (revert-buffer t t)))
+(define-key ctl-x-map (kbd "<menu>") '(lambda () (interactive) (revert-buffer t t)))
 
 ;; Start up
 (setq inhibit-startup-screen t
@@ -125,18 +119,6 @@
 ;; MODES
 ;;;;;;;;;;;;;;;;;;;;
 
-(use-package markdown-mode
-  :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode))
-  :config
-  (setq markdown-command "markdown")
-  (setq markdown-indent-on-enter 'indent-and-new-item)
-  :bind (:map markdown-mode-map
-	      ("<return>" . markdown-custom-enter)
-	      ("C-`" . markdown-insert-gfm-code-block)))
-
 (use-package dockerfile-mode
   :ensure t
   :mode (("Dockerfile\\'" . dockerfile-mode))
@@ -164,33 +146,6 @@
   :keymap (let ((map (make-sparse-keymap)))
             (suppress-keymap map)
 
-	    ;; NAVIGATE
-
-
-            (define-key map (kbd "N") 'scroll-up-command)
-            (define-key map (kbd "P") 'scroll-down-command)
-            
-            (define-key map (kbd "h") 'left-char)
-            (define-key map (kbd "j") 'next-line)
-            (define-key map (kbd "k") 'previous-line)
-            (define-key map (kbd "l") 'right-char)
-
-
-            (define-key map (kbd "H") (kbd "S-<left>"))
-            (define-key map (kbd "J") (kbd "S-<down>"))
-            (define-key map (kbd "K") (kbd "S-<up>"))
-            (define-key map (kbd "L") (kbd "S-<right>"))
-
-            (define-key map (kbd "e") (kbd "<end>"))
-            (define-key map (kbd "a") (kbd "<home>"))
-            (define-key map (kbd "u") 'backward-word)
-            (define-key map (kbd "o") 'forward-word)
-
-            (define-key map (kbd "f") 'search-next-char)
-            (define-key map (kbd "F") 'search-previous-char)
-            (define-key map (kbd "[") 'backward-paragraph)
-            (define-key map (kbd "]") 'forward-paragraph)
-
 	    ;; Parenthesis movement
 	    ;; C-M-u go up level
 	    ;; C-M-n/p go next/previous paren on the same level
@@ -200,17 +155,6 @@
 	    
             ;;(define-key map (kbd "s") 'set-goal-column)
             ;;(define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
-
-            
-            ;; KILL
-            ;; C-u C-SPC jump to mark
-            ;; C-x C-x exchange point and mark
-            (define-key map (kbd "SPC") 'set-mark-command)
-            (define-key map (kbd "x") 'kill-region)
-            (define-key map (kbd "c") 'kill-ring-save)
-            (define-key map (kbd "v") 'yank)
-            (define-key map (kbd "D") 'delete-backward-char)
-            (define-key map (kbd "d") 'delete-forward-char)
 
             ;; INSERT
             (define-key map (kbd "i") 'navi-mode)
@@ -400,11 +344,10 @@
   
 )
 
-
 (use-package dired
   :delight "Dired "
   :custom
-  (dired-auto-revert-buffer t)
+  (dired-auto-revert-buffer t) ;; reverts buffer on visit
   (dired-hide-details-hide-symlink-targets nil)
   (dired-listing-switches "-alh")
   (dired-ls-F-marks-symlinks nil)
@@ -420,8 +363,7 @@
 (use-package smex
   :ensure t
   :init (smex-initialize)
-  :bind (("M-x" . smex)
-	 ("M-X" . smex-major-mode-commands)))
+  :bind (("M-x" . smex)))
 
 (use-package swiper
   :ensure t
@@ -438,6 +380,7 @@
 	      ;;("" . avy-goto-word-1)
 	      ;;("j e" . avy-goto-line))
 	      ))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -462,6 +405,20 @@
   :config
   ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
   (setq haskell-process-type 'cabal-repl))
+
+
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :config
+  (setq markdown-command "markdown")
+  (setq markdown-indent-on-enter 'indent-and-new-item)
+  :bind (:map markdown-mode-map
+	      ("<return>" . markdown-custom-enter)
+	      ("C-`" . markdown-insert-gfm-code-block)))
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; FUNCTIONS

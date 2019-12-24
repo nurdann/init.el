@@ -11,22 +11,21 @@
 
 (setq package-archives
 	  '(("gnu" . "https://elpa.gnu.org/packages/")
-		("melpa-stable" . "https://stable.melpa.org/packages/")
-		("melpa" . "https://melpa.org/packages/"))
+	    ("melpa-stable" . "https://stable.melpa.org/packages/")
+	    ("melpa" . "https://melpa.org/packages/"))
 	  package-archive-priorities
 	  '(("melpa-stable" . 10)
-		("gnu" . 5)
-		("melpa" . 0)))
+	    ("gnu" . 5)
+	    ("melpa" . 0)))
 
 (package-initialize)
 ;;(setq package-check-signature  nil)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
-  (package-install 'use-package))
-
-(eval-when-compile (require 'use-package))
-(require 'bind-key) ;; required for :bind
+  (package-install 'use-package)
+  (eval-when-compile (require 'use-package))
+  (require 'bind-key)) ;; required for :bind
 
 ;; Theme
 (use-package creamsody-theme :ensure :defer)
@@ -51,8 +50,7 @@
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
       mark-ring-max 16 
       window-combination-resize t
-      shift-select-mode t
-      )
+      shift-select-mode t)
 
 (setq backup-by-copying t
       backup-directory-alist '(("." . "~/.emacs.d/backup/"))
@@ -76,7 +74,7 @@
 (auto-fill-mode -1)
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
-;; terminal interface
+;; Terminal
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)
       (eq 'pc frame)
@@ -86,22 +84,15 @@
       (define-key input-decode-map "\C-j" [C-j])
      ))
 
-(if (display-graphic-p)
-    ;; C-z is bound to suspend-frame which only minimizes Emacs window in GUI
-    (progn
-      (global-unset-key (kbd "C-z"))))
+(global-unset-key (kbd "C-z"))
 
 ;; remap ctl-x-map keys
 (global-set-key (kbd "<menu>") ctl-x-map)
 (define-key ctl-x-map (kbd "f") 'find-file)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
-(define-key ctl-x-map (kbd "w") '(lambda ()
-				   (interactive)
-				   (kill-buffer (buffer-name))))
-(define-key ctl-x-map (kbd "W") 'kill-buffer-and-window)
-(define-key ctl-x-map (kbd "<XF86Close>") 'kill-buffer-and-window)
+(define-key ctl-x-map (kbd "w") 'kill-buffer-and-window)
 (define-key ctl-x-map (kbd "x") 'revert-visible-windows)
-(define-key ctl-x-map (kbd "X") '(lambda ()
+(define-key ctl-x-map (kbd "<menu>") '(lambda ()
 				   (interactive)
 				   (revert-buffer t t)))
 
@@ -132,10 +123,10 @@
   (setq sml/no-confirm-load-theme t)
   (add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:")))
 
-
-;; https://github.com/lewang/command-log-mode
-(add-to-list 'load-path "~/.emacs.d/packages/command-log-mode")
-(load-library "command-log-mode")
+(use-package command-log-mode
+  ;; (command-log-mode)
+  ;; (clm/open-command-log-buffer)
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; MODES
@@ -308,14 +299,12 @@
   (company-require-match nil)
   )
 
-(add-to-list 'load-path "~/.emacs.d/packages/undo-fu")
-(load-library "undo-fu")
-
 (use-package undo-fu
+  :ensure t
   :config
   :bind (("C-z" . undo-fu-only-undo)
-		 ("C-S-z" . undo-fu-only-redo)
-		 ("C-M-z" . undo-fu-only-redo-all)))
+	 ("C-S-z" . undo-fu-only-redo)
+	 ("C-M-z" . undo-fu-only-redo-all)))
 
 (use-package shell
   :bind (:map shell-mode-map

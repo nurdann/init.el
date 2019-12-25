@@ -87,12 +87,21 @@
 (define-key ctl-x-map (kbd "f") 'find-file)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
 (define-key ctl-x-map (kbd "w") 'kill-buffer-and-window)
-(define-key ctl-x-map (kbd "x") 'revert-visible-windows)
-(define-key ctl-x-map (kbd "<menu>") '(lambda () (interactive) (revert-buffer t t)))
+(define-key ctl-x-map (kbd "g") '(lambda () (interactive) (revert-buffer t t)))
 
 ;; Start up
 (setq inhibit-startup-screen t
       initial-buffer-choice "~/Desktop/notes.md")
+
+;; scroll behaviour
+(setq scroll-preserve-screen-position t)
+(bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 2)))
+(bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 2)))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; Utilities
+
 
 ;; Mode line
 (use-package smart-mode-line
@@ -110,10 +119,15 @@
   ;; (clm/open-command-log-buffer)
   :ensure t)
 
-;; scroll behaviour
-(setq scroll-preserve-screen-position t)
-(bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 2)))
-(bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 2)))
+(use-package keyfreq
+  :ensure t
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1))
+
+(use-package which-key
+  :ensure t
+  :config (which-key-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; MODES
@@ -166,6 +180,7 @@
 ;; Buffer
 ;;;;;;;;;;;;;;;;;;;;
 
+;; display buffer
 (add-to-list 'display-buffer-alist
              '("^\\*.*\\*$" . (display-buffer-same-window)))
 
@@ -174,15 +189,10 @@
   ;; default keys C-c <arrow-key>
   :config (winner-mode 1))
 
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
-
-(use-package keyfreq
-  :ensure t
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1))
 
 (show-paren-mode 1)
 
@@ -204,30 +214,30 @@
 (alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
 (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
 
-(use-package company
-  :ensure t
-  :config 
-  (add-hook 'after-init-hook 'global-company-mode)
-
-  (add-to-list 'company-backends 'company-dabbrev-code)
-  ;;(setq company-dabbrev-ignore-case 1)
-  (add-to-list 'company-backends 'company-yasnippet)
-  (add-to-list 'company-backends 'company-files)
-  (add-to-list 'company-backends 'company-capf)
-  (add-to-list 'company-backends 'company-keywords)
-  ;;(company-tng-configure-default)
-  (setq company-selection-wrap-around t)
-
-  :custom
-  (completion-auto-help 'lazy)
-  (company-begin-commands '(self-insert-command))
-  (company-idle-delay  0.2)
-  (company-minimum-prefix-legth 2)
-  (company-show-numbers t)
-  (company-tooltip-align-annotations t)
-  (global-company-mode t)
-  (company-require-match nil)
-  )
+;;(use-package company
+;;  :ensure t
+;;  :config 
+;;  (add-hook 'after-init-hook 'global-company-mode)
+;;
+;;  (add-to-list 'company-backends 'company-dabbrev-code)
+;;  ;;(setq company-dabbrev-ignore-case 1)
+;;  (add-to-list 'company-backends 'company-yasnippet)
+;;  (add-to-list 'company-backends 'company-files)
+;;  (add-to-list 'company-backends 'company-capf)
+;;  (add-to-list 'company-backends 'company-keywords)
+;;  ;;(company-tng-configure-default)
+;;  (setq company-selection-wrap-around t)
+;;
+;;  :custom
+;;  (completion-auto-help 'lazy)
+;;  (company-begin-commands '(self-insert-command))
+;;  (company-idle-delay  0.2)
+;;  (company-minimum-prefix-legth 2)
+;;  (company-show-numbers t)
+;;  (company-tooltip-align-annotations t)
+;;  (global-company-mode t)
+;;  (company-require-match nil)
+;;  )
 
 (use-package undo-fu
   :ensure t
@@ -241,11 +251,12 @@
               ("<up>" . comint-previous-input)
               ("<down>" . comint-next-input)))
 
-(use-package browse-kill-ring
-  :ensure t
-  :config
-  (setq browse-kill-ring-show-preview t)
-  :bind (("M-y" . browse-kill-ring)))
+;;(use-package browse-kill-ring
+;;  :ensure t
+;;  :config
+;;  (setq browse-kill-ring-show-preview t)
+;;  (setq kill-ring-max 100)
+;;  :bind (("M-y" . browse-kill-ring)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
@@ -313,8 +324,8 @@
 (require 'recentf)
 (setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
 (recentf-mode 1)
-(setq recentf-max-menu-items 25
-      recentf-max-saved-items 25)
+(setq recentf-max-menu-items 50
+      recentf-max-saved-items 50)
 
 ;;(use-package ido
 ;;  :config (ido-mode 1)
@@ -325,7 +336,7 @@
 ;;  :bind (:map ctl-x-map
 ;;			  ("f" . ido-find-file)
 ;;			  ("b" . ido-switch-buffer)))
-
+;;
 
 (use-package popwin
   :ensure t
@@ -336,7 +347,7 @@
   (popwin:update-window-reference 'browse-kill-ring-original-window :safe t))
 
   (add-hook 'popwin:after-popup-hook 'popwin-bkr:update-window-reference)
-  (push '("*Kill Ring*" :position bottom :height 20) popwin:special-display-config)
+  (push '("*Kill Ring*" :position right :width 20) popwin:special-display-config)
 
   ;; direx
   (push '(direx:direx-mode :position left :width 35 :dedicated t)
@@ -360,16 +371,13 @@
 	      ("z" . open-in-external-app)
 	      ("b" . (lambda () (interactive) (find-alternate-file "..")))))
 
-(use-package smex
-  :ensure t
-  :init (smex-initialize)
-  :bind (("M-x" . smex)))
 
 (use-package swiper
   :ensure t
   :bind (("M-'" . swiper-isearch)
-	 :map isearch-mode-map
-	 ("M-'" . avy-resume)))
+	 ;;:map isearch-mode-map
+	 ;;("C-'" . avy-resume))
+  )
 
 (use-package avy
   :ensure
@@ -381,7 +389,26 @@
 	      ;;("j e" . avy-goto-line))
 	      ))
 
+;;;;;;;;;;;;;;;;;;;;
+;; ICICLES
 
+
+(add-to-list 'load-path "~/.emacs.d/packages/icicles")
+(require 'icicles)
+(icy-mode 1)
+
+;; icompletion+
+
+
+;; menu bar completion
+
+(require 'lacarte)
+(bind-key (kbd "C-(") 'lacarte-execute-command)
+
+;; search synonyms
+(setq synonyms-file "~/.emacs.d/packages/dictionary/mthesaur.txt"
+      synonyms-cache-file "~/.emacs.d/packages/dictionary/mthesaur.txt")
+(require 'synonyms)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes

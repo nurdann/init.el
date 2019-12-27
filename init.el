@@ -46,8 +46,8 @@
       read-file-name-completion-ignore-case t 
       ;;indent-tabs-mode nil
       tab-width 4
-	  tab-always-indent nil
-      electric-indent-mode nil
+      tab-always-indent nil
+      electric-indent-mode 1
 
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
@@ -103,6 +103,7 @@
 ;; Start up
 (setq inhibit-startup-screen t
       initial-buffer-choice "~/Desktop/notes.md")
+(kill-buffer "*scratch*")
 
 ;; scroll behaviour
 (setq scroll-preserve-screen-position t)
@@ -113,6 +114,14 @@
 ;; Utilities
 
 (use-package diminish :ensure t)
+
+(use-package use-package-chords
+  :ensure t
+  :diminish key-chord-mode "Chord"
+  :config (key-chord-mode 1)
+  (setq key-chord-two-keys-delay .020
+  	key-chord-one-key-delay .020))
+
 
 ;; Mode line
 (use-package smart-mode-line
@@ -231,38 +240,26 @@
 (alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
 (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
 
-;;(use-package company
-;;  :ensure t
-;;  :config 
-;;  (add-hook 'after-init-hook 'global-company-mode)
-;;
-;;  ;; Backends
-;;  ;; company-dabbrev
-;;  company-backends: (company-bbdb company-eclim company-semantic
-;;	      company-clang company-xcode company-cmake company-capf
-;;	      company-files (company-dabbrev-code company-gtags
-;;	      company-etags company-keywords) company-oddmuse
-;;	      company-dabbrev)
+(use-package company
+  :ensure t
+  :config ;;(add-hook 'after-init-hook 'global-company-mode)
+  (global-company-mode 1)
 
-;;  (add-to-list 'company-backends 'company-dabbrev-code)
-;;  ;;(setq company-dabbrev-ignore-case 1)
-;;  (add-to-list 'company-backends 'company-yasnippet)
-;;  (add-to-list 'company-backends 'company-files)
-;;  (add-to-list 'company-backends 'company-capf)
-;;  (add-to-list 'company-backends 'company-keywords)
-;;  ;;(company-tng-configure-default)
-;;  (setq company-selection-wrap-around t)
-;;
-;;  :custom
-;;  (completion-auto-help 'lazy)
-;;  (company-begin-commands '(self-insert-command))
-;;  (company-idle-delay  0.2)
-;;  (company-minimum-prefix-legth 2)
-;;  (company-show-numbers t)
-;;  (company-tooltip-align-annotations t)
-;;  (global-company-mode t)
-;;  (company-require-match nil)
-;;  )
+  (add-to-list 'company-backends '(company-capf company-dabbrev-code))
+  (add-to-list 'company-backends 'company-files)	
+  (add-to-list 'company-backends 'company-keywords)
+  (add-to-list 'company-backends 'company-yasnippet)
+  (add-to-list 'company-backends 'company-abbrev)
+  ;;(company-tng-configure-default)
+
+  :custom
+  (company-selection-wrap-around t)
+  (company-begin-commands '(self-insert-command))
+  (company-idle-delay  0.2)
+  (company-minimum-prefix-legth 2)
+  (company-show-numbers t)
+  (company-tooltip-align-annotations t)
+  (company-require-match nil))
 
 (use-package undo-fu
   :ensure t
@@ -277,32 +274,20 @@
               ("<down>" . comint-next-input)))
 
 (use-package yasnippet
-  :init (use-package yasnippet-snippets :after yasnippet)
-  :hook ((prog-mode LaTex-mode org-mode) . yas-minor-from-trigger-key)
+  :ensure t
+  :init (use-package yasnippet-snippets :after yasnippet :ensure t)
+;;  :hook ((prog-mode LaTex-mode org-mode) . yas-minor-from-trigger-key)
   :bind (
-	 :map yas-minor-mode-map
-	      ("C-c C-n" . yas-expand-from-trigger-key)
-	 :map yas-key-map
-	 	  ("TAB" . smarter-yas-expand-next-field)
-	 )
-  :)
+;;	 :map yas-minor-mode-map
+;;	      ("C-c C-n" . yas-expand-from-trigger-key)
+;;	 :map yas-key-map
+;;	 	  ("TAB" . yas-expand)
+;;	 )
+  ))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
 ;;;;;;;;;;;;;;;;;;;;
-
-(use-package use-package-chords
-  :ensure t
-  :config (key-chord-mode 1)
-  ;;(setq key-chord-two-keys-delay .020
-  ;;	key-chord-one-key-delay .020)
-
-  ;; Add key-chord-mode to minor-mode-alist
-  (if (not (assq 'key-chord-mode minor-mode-alist))
-      (setq minor-mode-alist
-	    (cons '(key-chord-mode " Chord ")
-		  minor-mode-alist)))
-  )
 
 ;; Least frequent bigram combinations
 ;;      gb gp
@@ -363,17 +348,17 @@
 (recentf-mode 1)
 (setq recentf-max-menu-items 50
       recentf-max-saved-items 50)
+(bind-key (kbd "C-x M-f") 'recentf-open-files)
 
-;;(use-package ido
-;;  :config (ido-mode 1)
-;;  (setq ido-enable-flex-matching t
-;;	ido-everywhere t
-;;	ido-auto-merge-work-directories-length -1
-;;    ido-use-virtual-buffers t)
-;;  :bind (:map ctl-x-map
-;;			  ("f" . ido-find-file)
-;;			  ("b" . ido-switch-buffer)))
-;;
+(use-package ido
+  :config (ido-mode 1)
+  (setq ido-enable-flex-matching t
+	ido-everywhere t
+	ido-auto-merge-work-directories-length -1
+    ido-use-virtual-buffers t)
+  :bind (:map ctl-x-map
+			  ("f" . ido-find-file)
+			  ("b" . ido-switch-buffer)))
 
 (use-package popwin
   :ensure t
@@ -384,8 +369,7 @@
   (popwin:update-window-reference 'browse-kill-ring-original-window :safe t))
 
   (add-hook 'popwin:after-popup-hook 'popwin-bkr:update-window-reference)
-  (push '("*Kill Ring*" :position right :width 20) popwin:special-display-config)
-)
+  (push '("*Kill Ring*" :position right :width 20) popwin:special-display-config))
 
 (use-package dired
   :delight "Dired "
@@ -416,10 +400,8 @@
   :custom
   (avy-time-out-seconds 0.7)
   :bind (:map ctl-x-map
-	      ("<menu>" . avy-goto-char-timer)
-	      ;;("" . avy-goto-word-1)
-	      ;;("j e" . avy-goto-line))
-	      ))
+	      ("C-'" . avy-goto-char-timer)
+	      ("C-\"" . avy-goto-line)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; ICICLES
@@ -430,6 +412,7 @@
 (icy-mode 1)
 
 (bind-key (kbd "M-y") 'icicle-completing-yank)
+
 ;; icompletion+
 
 
@@ -467,7 +450,7 @@
   ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
   (setq haskell-process-type 'cabal-repl))
 
-
+;; Markdown
 (use-package markdown-mode
   :ensure t
   :commands (markdown-mode gfm-mode)
@@ -479,6 +462,16 @@
   :bind (:map markdown-mode-map
 	      ("<return>" . markdown-custom-enter)
 	      ("C-`" . markdown-insert-gfm-code-block)))
+
+;; C++
+(use-package company-c-headers :ensure t)
+
+(add-hook 'c++-mode-hook '(lambda () 
+   (add-to-list (make-local-variable 'company-backends) 'company-clang)
+   ;;(setq (make-local-variable 'company-backends) (delete 'company-semantic 'company-backends))
+   ))
+
+(bind-key (kbd "<tab>") 'company-complete 'c++-mode-map)
 
 
 ;;;;;;;;;;;;;;;;;;;;

@@ -45,12 +45,17 @@
       read-buffer-completion-ignore-case t
       read-file-name-completion-ignore-case t 
       ;;indent-tabs-mode nil
-      select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       tab-width 4
+	  tab-always-indent nil
+      electric-indent-mode nil
+
+      select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
       mark-ring-max 50
+
       window-combination-resize t
-      shift-select-mode t)
+      shift-select-mode t
+	  auto-compression-mode t)
 
 (setq backup-by-copying t
       backup-directory-alist '(("." . "~/.emacs.d/backup/"))
@@ -269,6 +274,15 @@
   :bind (:map shell-mode-map
               ("<up>" . comint-previous-input)
               ("<down>" . comint-next-input)))
+
+(use-package yasnippet
+  :init (use-package yasnippet-snippets :after yasnippet)
+  :hook ((prog-mode LaTex-mode org-mode) . yas-minor-from-trigger-key)
+  :bind (
+	 :map yas-minor-mode-map
+	      ("C-c C-n" . yas-expand-from-trigger-key)
+	 :map yas-key-map
+	 ))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating

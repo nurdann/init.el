@@ -48,7 +48,7 @@
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       tab-width 4
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-      mark-ring-max 16 
+      mark-ring-max 50
       window-combination-resize t
       shift-select-mode t)
 
@@ -72,7 +72,6 @@
   (add-hook 'prog-mode-hook #'display-line-numbers-mode))
 (column-number-mode 1) ;; show column position in mode line
 
-
 (auto-fill-mode -1)
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
@@ -89,7 +88,7 @@
 ;; remap defaults
 (global-unset-key (kbd "C-z"))
 ;; remap ctl-x-map keys
-(global-set-key (kbd "<menu>") ctl-x-map)
+;;(global-set-key (kbd "<menu>") ctl-x-map)
 (define-key ctl-x-map (kbd "f") 'find-file)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
 (define-key ctl-x-map (kbd "w") 'kill-buffer-and-window)
@@ -101,13 +100,13 @@
 
 ;; scroll behaviour
 (setq scroll-preserve-screen-position t)
-(bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 2)))
-(bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 2)))
-
+(bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 5)))
+(bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 5)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Utilities
 
+(use-package diminish :ensure t)
 
 ;; Mode line
 (use-package smart-mode-line
@@ -204,6 +203,8 @@
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
 
+(bind-key (kbd "C-c C-k") 'alma/copy)
+
 (show-paren-mode 1)
 
 (use-package electric
@@ -268,13 +269,6 @@
   :bind (:map shell-mode-map
               ("<up>" . comint-previous-input)
               ("<down>" . comint-next-input)))
-
-;;(use-package browse-kill-ring
-;;  :ensure t
-;;  :config
-;;  (setq browse-kill-ring-show-preview t)
-;;  (setq kill-ring-max 100)
-;;  :bind (("M-y" . browse-kill-ring)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
@@ -427,17 +421,19 @@
 (require 'icicles)
 (icy-mode 1)
 
+(bind-key (kbd "M-y") 'icicle-completing-yank)
 ;; icompletion+
 
 
 ;; menu bar completion
-;; https://www.emacswiki.org/emacs/lacarte.el
+;; https://www.emacswiki.org/emacs/download/lacarte.el
 (require 'lacarte)
 (bind-key (kbd "C-(") 'lacarte-execute-command)
 
 ;; search synonyms
+;; https://www.emacswiki.org/emacs/download/synonyms.el
 (setq synonyms-file "~/.emacs.d/packages/dictionary/mthesaur.txt"
-      synonyms-cache-file "~/.emacs.d/packages/dictionary/mthesaur.txt")
+      synonyms-cache-file "~/.emacs.d/packages/dictionary/mthesaur.cache.txt")
 (require 'synonyms)
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -482,14 +478,14 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 
-(defun my-cut ()
+(defun alma/cut ()
   "Cut the region, if no region cut current line"
   (interactive)
   (if (use-region-p)
       (kill-region 1 1 t)
     (kill-region (line-beginning-position) (line-end-position))))
 
-(defun my-copy ()
+(defun alma/copy ()
   "Copy the region, if no region copy current line"
   (interactive)
   (if (use-region-p)

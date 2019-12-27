@@ -71,6 +71,7 @@
 (menu-bar-mode 1)
 (tool-bar-mode -1)
 (size-indication-mode 1)
+
 (if (version< emacs-version "26")
     (add-hook 'find-file-hook 'linum-mode) ;; add line numbers to opened files
   (add-hook 'text-mode-hook #'display-line-numbers-mode)
@@ -282,7 +283,9 @@
 	 :map yas-minor-mode-map
 	      ("C-c C-n" . yas-expand-from-trigger-key)
 	 :map yas-key-map
-	 ))
+	 	  ("TAB" . smarter-yas-expand-next-field)
+	 )
+  :)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
@@ -351,10 +354,6 @@
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
 
-(use-package direx
-  :bind (
-	 ("C-j" . direx:jump-to-directory)))
-
 (add-to-list
  'directory-abbrev-alist
  '("^/jou" . "/mnt/mdbackup/journal"))
@@ -386,11 +385,6 @@
 
   (add-hook 'popwin:after-popup-hook 'popwin-bkr:update-window-reference)
   (push '("*Kill Ring*" :position right :width 20) popwin:special-display-config)
-
-  ;; direx
-  (push '(direx:direx-mode :position left :width 35 :dedicated t)
-	popwin:special-display-config)
-  
 )
 
 (use-package dired

@@ -376,8 +376,8 @@
   :ensure t
   :bind (("M-'" . swiper-isearch)
 	 ;;:map isearch-mode-map
-	 ;;("C-'" . avy-resume))
-  )
+	 ;;("C-'" . avy-resume)
+	 ))
 
 (use-package avy
   :ensure

@@ -181,6 +181,19 @@ Type `C-x C-f /sudo:user@localhost:`
 
 
 
+# ICICLES
+
+Download required libraries
+
+```
+wget https://www.emacswiki.org/emacs/download/icicles{,-chg,-cmd1,-cmd2,-doc1,-doc2,-face,-fn,-mac,-mcmd,-mode,-opt,-var}.el
+```
+
+```
+https://www.emacswiki.org/emacs/download/bookmark%2b-mac.el
+```
+
+
 # Troubleshooting
 
 ## Cannot install packages
@@ -198,12 +211,3 @@ gpg --homedir ~/.emacs.d/elpa/gnupg --receive-keys 066DAFCB81E42C40
 *source*: http://elpa.gnu.org/packages/gnu-elpa-keyring-update.html
 
 
-# ICICLES
-
-Download required libraries
-
-```
-wget https://www.emacswiki.org/emacs/download/icicles{,-chg,-cmd1,-cmd2,-doc1,-doc2,-face,-fn,-mac,-mcmd,-mode,-opt,-var}.el
-
-https://www.emacswiki.org/emacs/download/bookmark%2b-mac.el
-```

@@ -66,7 +66,13 @@
 (menu-bar-mode 1)
 (tool-bar-mode -1)
 (size-indication-mode 1)
-(add-hook 'find-file-hook 'linum-mode) ;; add line numbers to opened files
+(if (version< emacs-version "26")
+    (add-hook 'find-file-hook 'linum-mode) ;; add line numbers to opened files
+  (add-hook 'text-mode-hook #'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode))
+(column-number-mode 1) ;; show column position in mode line
+
+
 (auto-fill-mode -1)
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
@@ -130,7 +136,7 @@
   :config (which-key-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;
-;; MODES
+;; Speciality MODES
 ;;;;;;;;;;;;;;;;;;;;
 
 (use-package dockerfile-mode
@@ -145,6 +151,10 @@
 (use-package docker
   :ensure t
   :bind (("C-c d" . docker)))
+
+(use-package magit
+  :ensure t
+  :chords (("gj" . magit-status)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -219,6 +229,14 @@
 ;;  :config 
 ;;  (add-hook 'after-init-hook 'global-company-mode)
 ;;
+;;  ;; Backends
+;;  ;; company-dabbrev
+;;  company-backends: (company-bbdb company-eclim company-semantic
+;;	      company-clang company-xcode company-cmake company-capf
+;;	      company-files (company-dabbrev-code company-gtags
+;;	      company-etags company-keywords) company-oddmuse
+;;	      company-dabbrev)
+
 ;;  (add-to-list 'company-backends 'company-dabbrev-code)
 ;;  ;;(setq company-dabbrev-ignore-case 1)
 ;;  (add-to-list 'company-backends 'company-yasnippet)
@@ -297,6 +315,18 @@
   :bind (:map ctl-x-map
 	 ("o" . ace-window)))
 
+(use-package treemacs
+  :ensure t
+  :custom
+  (treemacs-collapse-dirs 3)
+  (treemacs-follow-after-init)
+  (treemacs-persist-file (expand-file-name ".cache/treemacs-persist" user-emacs-directory))
+  (treemacs-width 35)
+  :config
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode t)
+  :chords (("tj" . treemacs-select-window)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files
@@ -392,7 +422,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 ;; ICICLES
 
-
+;; wget https://www.emacswiki.org/emacs/download/icicles{,-chg,-cmd1,-cmd2,-doc1,-doc2,-face,-fn,-mac,-mcmd,-mode,-opt,-var}.el
 (add-to-list 'load-path "~/.emacs.d/packages/icicles")
 (require 'icicles)
 (icy-mode 1)
@@ -401,7 +431,7 @@
 
 
 ;; menu bar completion
-
+;; https://www.emacswiki.org/emacs/lacarte.el
 (require 'lacarte)
 (bind-key (kbd "C-(") 'lacarte-execute-command)
 

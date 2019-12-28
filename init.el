@@ -55,7 +55,7 @@
 
       window-combination-resize t
       shift-select-mode t
-	  auto-compression-mode t)
+      auto-compression-mode t)
 
 (setq backup-by-copying t
       backup-directory-alist '(("." . "~/.emacs.d/backup/"))
@@ -229,27 +229,18 @@
   (setq electric-pair-pairs '((?\" . ?\")
                               (?\{ . ?\}))))
 
-;; https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
-(defmacro alma/add-mode-pairs (hook pairs)
-  `(add-hook ,hook
-	     (lambda ()
-	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
-	       (setq-local electric--text-pairs electric-pair-pairs))))
-
-(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
-(alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
-(alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
-
 (use-package company
   :ensure t
   :config ;;(add-hook 'after-init-hook 'global-company-mode)
   (global-company-mode 1)
 
-  (add-to-list 'company-backends '(company-capf company-dabbrev-code))
-  (add-to-list 'company-backends 'company-files)	
-  (add-to-list 'company-backends 'company-keywords)
-  (add-to-list 'company-backends 'company-yasnippet)
+  ;; company-capfs uses completion-at-point-functions
+  ;; company-dabbrev-code uses words from current buffer
   (add-to-list 'company-backends 'company-abbrev)
+  (add-to-list 'company-backends 'company-yasnippet)
+  (add-to-list 'company-backends 'company-keywords)
+  (add-to-list 'company-backends 'company-files)	
+  (add-to-list 'company-backends '(company-capf company-dabbrev-code))
   ;;(company-tng-configure-default)
 
   :custom
@@ -360,16 +351,6 @@
 			  ("f" . ido-find-file)
 			  ("b" . ido-switch-buffer)))
 
-(use-package popwin
-  :ensure t
-  :config (popwin-mode 1)
-  
-  ;; setup kill-ring window
-  (defun popwin-bkr:update-window-reference ()
-  (popwin:update-window-reference 'browse-kill-ring-original-window :safe t))
-
-  (add-hook 'popwin:after-popup-hook 'popwin-bkr:update-window-reference)
-  (push '("*Kill Ring*" :position right :width 20) popwin:special-display-config))
 
 (use-package dired
   :delight "Dired "
@@ -444,6 +425,22 @@
 ;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
 ;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
 
+;; BASH
+
+;;;;;;;;;;;;;;;;;;;;
+;; add custom pairs
+
+;; https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
+(defun alma/add-mode-pairs (hook pairs)
+  `(add-hook ,hook
+	     (lambda ()
+	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
+	       (setq-local electric-text-pairs electric-pair-pairs))))
+
+
+(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
+(alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
+
 ;; Haskell
 (use-package haskell-mode
   :config
@@ -459,6 +456,7 @@
   :config
   (setq markdown-command "markdown")
   (setq markdown-indent-on-enter 'indent-and-new-item)
+  (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
   :bind (:map markdown-mode-map
 	      ("<return>" . markdown-custom-enter)
 	      ("C-`" . markdown-insert-gfm-code-block)))
@@ -471,7 +469,28 @@
    ;;(setq (make-local-variable 'company-backends) (delete 'company-semantic 'company-backends))
    ))
 
-(bind-key (kbd "<tab>") 'company-complete 'c++-mode-map)
+(add-hook 'c++-mode-hook (lambda ()
+			  (local-set-key (kbd "C-j") 'company-complete)))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; Company backend
+
+(defconst sample-completions
+  '("abc" "alma" "fed" "four"))
+
+(defun company-sample-backend (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+  (case command
+    (interactive (company-begin-backend 'company-sample-backend))
+    (prefix (and (eq major-mode 'fundamental-mode)
+		 (company-grab-symbol)))
+    (candidates
+     (remove-if-not
+      (lambda (c) (string-prefix-p arg c))
+      sample-completions))))
+
+(add-to-list 'company-backends 'company-sample-backend)
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -651,3 +670,4 @@ Display progress in the mode line instead."
    (replace-regexp-in-string
     "%" "%%"
     (ansi-color-apply progress))))
+

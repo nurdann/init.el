@@ -247,7 +247,7 @@
   (company-selection-wrap-around t)
   (company-begin-commands '(self-insert-command))
   (company-idle-delay  0.2)
-  (company-minimum-prefix-legth 2)
+  (company-minimum-prefix-legth 1)
   (company-show-numbers t)
   (company-tooltip-align-annotations t)
   (company-require-match nil))
@@ -473,24 +473,29 @@
 			  (local-set-key (kbd "C-j") 'company-complete)))
 
 
-;;;;;;;;;;;;;;;;;;;;
-;; Company backend
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Company backend for IPA symbols
 
-(defconst sample-completions
-  '("abc" "alma" "fed" "four"))
+(let ((ipa-symbols "~/.emacs.d/dictionary/ipa-symbols.csv"))
+  (if (file-exists-p ipa-symbols)
+	  (defconst ipa-completions (parse-csv-file ipa-symbols))
+	(message "IPA table of symbols not found")))
 
-(defun company-sample-backend (command &optional arg &rest ignored)
+(defun company-ipa-backend (command &optional arg &rest ignored)
   (interactive (list 'interactive))
   (case command
-    (interactive (company-begin-backend 'company-sample-backend))
+    (interactive (company-begin-backend 'company-ipa-backend))
     (prefix (and (eq major-mode 'fundamental-mode)
 		 (company-grab-symbol)))
     (candidates
-     (remove-if-not
-      (lambda (c) (string-prefix-p arg c))
-      sample-completions))))
 
-(add-to-list 'company-backends 'company-sample-backend)
+	  (dolist (element ipa-completions)
+		(let ((head (car element)))
+		   (if (string= head arg)	
+			   (return (cdr element)))))
+	  )))
+
+(add-to-list 'company-backends 'company-ipa-backend)
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -671,3 +676,19 @@ Display progress in the mode line instead."
     "%" "%%"
     (ansi-color-apply progress))))
 
+;; PARSE CSV into list, e.g.
+;; a, b \n f, c, e -> ((a, b) (f c e))
+;; https://gist.github.com/syohex/5487731
+(defun parse-csv-file (file)
+  (interactive
+   (list (read-file-name "CSV file: ")))
+  (let ((buf (find-file-noselect file))
+        (result nil))
+    (with-current-buffer buf
+      (goto-char (point-min))
+      (while (not (eobp))
+        (let ((line (buffer-substring-no-properties
+                     (line-beginning-position) (line-end-position))))
+          (push (split-string line ",") result))
+        (forward-line 1)))
+    (reverse result)))

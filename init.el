@@ -463,6 +463,8 @@
 
 ;; C++
 (use-package company-c-headers :ensure t)
+;;(use-package company-irony :ensure t
+;;  :config (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
 
 (add-hook 'c++-mode-hook '(lambda () 
    (add-to-list (make-local-variable 'company-backends) 'company-clang)
@@ -470,8 +472,7 @@
    ))
 
 (add-hook 'c++-mode-hook (lambda ()
-			  (local-set-key (kbd "C-j") 'company-complete)))
-
+						   (local-set-key (kbd "<tab>") 'company-complete)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Company backend for IPA symbols
@@ -496,7 +497,6 @@
 	  )))
 
 (add-to-list 'company-backends 'company-ipa-backend)
-
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; FUNCTIONS

@@ -374,15 +374,16 @@
   :bind (("M-'" . swiper-isearch)
 	 ;;:map isearch-mode-map
 	 ;;("C-'" . avy-resume)
-	 ))
+	 )
+  :chords (("sj" . swiper-isearch)))
 
 (use-package avy
   :ensure
   :custom
   (avy-time-out-seconds 0.7)
-  :bind (:map ctl-x-map
-	      ("C-'" . avy-goto-char-timer)
-	      ("C-\"" . avy-goto-line)))
+  :bind (("C-'" . avy-goto-char-timer)
+	 ("C-\"" . avy-goto-line))
+  :chords (("jf" . avy-goto-char-timer)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; ICICLES
@@ -426,17 +427,6 @@
 ;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
 
 ;; BASH
-
-;;;;;;;;;;;;;;;;;;;;
-;; add custom pairs
-
-;; https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
-(defun alma/add-mode-pairs (hook pairs)
-  `(add-hook ,hook
-	     (lambda ()
-	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
-	       (setq-local electric-text-pairs electric-pair-pairs))))
-
 
 (alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
 (alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
@@ -670,4 +660,15 @@ Display progress in the mode line instead."
    (replace-regexp-in-string
     "%" "%%"
     (ansi-color-apply progress))))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; add custom pairs
+
+;; https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
+(defun alma/add-mode-pairs (hook pairs)
+  `(add-hook ,hook
+	     (lambda ()
+	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
+	       (setq-local electric-text-pairs electric-pair-pairs))))
 

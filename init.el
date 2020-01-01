@@ -236,11 +236,11 @@
 
   ;; company-capfs uses completion-at-point-functions
   ;; company-dabbrev-code uses words from current buffer
-  (add-to-list 'company-backends 'company-abbrev)
-  (add-to-list 'company-backends 'company-yasnippet)
-  (add-to-list 'company-backends 'company-keywords)
-  (add-to-list 'company-backends 'company-files)	
-  (add-to-list 'company-backends '(company-capf company-dabbrev-code))
+  ;; (add-to-list 'company-backends 'company-abbrev)
+  ;; (add-to-list 'company-backends 'company-yasnippet)
+  ;; (add-to-list 'company-backends 'company-keywords)
+  ;; (add-to-list 'company-backends 'company-files)	
+  ;; (add-to-list 'company-backends '(company-capf company-dabbrev-code))
   ;;(company-tng-configure-default)
 
   :custom
@@ -330,10 +330,6 @@
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
 
-(add-to-list
- 'directory-abbrev-alist
- '("^/jou" . "/mnt/mdbackup/journal"))
-
 (require 'recentf)
 (setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
 (recentf-mode 1)
@@ -346,7 +342,7 @@
   (setq ido-enable-flex-matching t
 	ido-everywhere t
 	ido-auto-merge-work-directories-length -1
-    ido-use-virtual-buffers t)
+	ido-use-virtual-buffers t)
   :bind (:map ctl-x-map
 			  ("f" . ido-find-file)
 			  ("b" . ido-switch-buffer)))
@@ -389,25 +385,26 @@
 ;; ICICLES
 
 ;; wget https://www.emacswiki.org/emacs/download/icicles{,-chg,-cmd1,-cmd2,-doc1,-doc2,-face,-fn,-mac,-mcmd,-mode,-opt,-var}.el
-(add-to-list 'load-path "~/.emacs.d/packages/icicles")
-(require 'icicles)
-(icy-mode 1)
+;; (add-to-list 'load-path "~/.emacs.d/packages/icicles")
+;; (require 'icicles)
+;; (icy-mode 1)
 
-(bind-key (kbd "M-y") 'icicle-completing-yank)
+;; (bind-key (kbd "M-y") 'icicle-completing-yank)
 
-;; icompletion+
+;; ;; icomplete+
+;; (require 'icomplete+)
+;; (icompletep-cycling-mode 1)
 
+;; ;; menu bar completion
+;; ;; https://www.emacswiki.org/emacs/download/lacarte.el
+;; (require 'lacarte)
+;; (bind-key (kbd "C-(") 'lacarte-execute-command)
 
-;; menu bar completion
-;; https://www.emacswiki.org/emacs/download/lacarte.el
-(require 'lacarte)
-(bind-key (kbd "C-(") 'lacarte-execute-command)
-
-;; search synonyms
-;; https://www.emacswiki.org/emacs/download/synonyms.el
-(setq synonyms-file "~/.emacs.d/packages/dictionary/mthesaur.txt"
-      synonyms-cache-file "~/.emacs.d/packages/dictionary/mthesaur.cache.txt")
-(require 'synonyms)
+;; ;; search synonyms
+;; ;; https://www.emacswiki.org/emacs/download/synonyms.el
+;; (setq synonyms-file "~/.emacs.d/packages/dictionary/mthesaur.txt"
+;;       synonyms-cache-file "~/.emacs.d/packages/dictionary/mthesaur.cache.txt")
+;; (require 'synonyms)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes
@@ -477,7 +474,7 @@
       (lambda (c) (string-prefix-p arg c))
       sample-completions))))
 
-(add-to-list 'company-backends 'company-sample-backend)
+;;(add-to-list 'company-backends 'company-sample-backend)
 
 
 ;;;;;;;;;;;;;;;;;;;;

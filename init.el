@@ -265,8 +265,8 @@
               ("<down>" . comint-next-input)))
 
 (use-package yasnippet
-  :ensure t
-  :init (use-package yasnippet-snippets :after yasnippet :ensure t)
+  ;;:ensure t
+  ;;:init (use-package yasnippet-snippets :after yasnippet :ensure t)
 ;;  :hook ((prog-mode LaTex-mode org-mode) . yas-minor-from-trigger-key)
   :bind (
 ;;	 :map yas-minor-mode-map
@@ -428,9 +428,6 @@
 
 ;; BASH
 
-(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
-(alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
-
 ;; Haskell
 (use-package haskell-mode
   :config
@@ -446,7 +443,7 @@
   :config
   (setq markdown-command "markdown")
   (setq markdown-indent-on-enter 'indent-and-new-item)
-  (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
+
   :bind (:map markdown-mode-map
 	      ("<return>" . markdown-custom-enter)
 	      ("C-`" . markdown-insert-gfm-code-block)))
@@ -672,3 +669,6 @@ Display progress in the mode line instead."
 	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
 	       (setq-local electric-text-pairs electric-pair-pairs))))
 
+(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
+(alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
+(alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))

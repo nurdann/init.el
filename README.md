@@ -179,19 +179,22 @@ Then type `C-x C-f /ssh:goo:/` to get password prompt
 
 Type `C-x C-f /sudo:user@localhost:`
 
-
-
-# ICICLES
-
-Download required libraries
+# MODE LINE - Emacs
 
 ```
-wget https://www.emacswiki.org/emacs/download/icicles{,-chg,-cmd1,-cmd2,-doc1,-doc2,-face,-fn,-mac,-mcmd,-mode,-opt,-var}.el
+cs:ch-fr buffer pos line (major minor)
 ```
 
-```
-https://www.emacswiki.org/emacs/download/bookmark%2b-mac.el
-```
+`cs` describes character set
+`ch` 
+1. `--` unmodified both locally and on disk
+2.  `**` buffer is modified
+3.  `%*` READ-ONLY file changed on disk
+4.  `%%` READ-ONLY file not changed
+
+# ELISP
+
+List is `'(a f b)`, without `'` an apostrophe the first atom (indivisible unit in elisp) is treated as a function.
 
 
 # Troubleshooting

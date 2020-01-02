@@ -1,486 +1,11 @@
+
 ;; C-h c <command> to get output of command sequence
 
 ;; TODO
-;; Go outside brackets C-M-u C-M-n
+
 ;; map:
 ;; M-x flush-lines
-;; M-x load-file
-;; M-x revert-buffer
 
-(require 'package)
-
-(setq package-archives
-	  '(("gnu" . "https://elpa.gnu.org/packages/")
-	    ("melpa-stable" . "https://stable.melpa.org/packages/")
-	    ("melpa" . "https://melpa.org/packages/"))
-	  package-archive-priorities
-	  '(("melpa-stable" . 10)
-	    ("gnu" . 5)
-	    ("melpa" . 0)))
-
-(package-initialize)
-;;(setq package-check-signature  nil)
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package)
-  (eval-when-compile (require 'use-package))
-  (require 'bind-key)) ;; required for :bind
-
-;; Theme
-(use-package creamsody-theme :ensure :defer)
-(use-package parchment-theme :ensure :defer)
-(use-package circadian
-  :ensure t
-  :config
-  (setq circadian-themes '(("8:00" . parchment)
-                           ("19:00" . creamsody)))
-  (circadian-setup))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Misc
-;;;;;;;;;;;;;;;;;;;;
-
-(setq ring-bell-function 'ignore ;; disable sound bell on error
-      read-buffer-completion-ignore-case t
-      read-file-name-completion-ignore-case t 
-      ;;indent-tabs-mode nil
-      tab-width 4
-      tab-always-indent nil
-      electric-indent-mode 1
-
-      select-enable-clipboard t ;; copy/cut kill-ring to clipboard
-      set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-      mark-ring-max 50
-
-      window-combination-resize t
-      shift-select-mode t
-      auto-compression-mode t)
-
-(setq backup-by-copying t
-      backup-directory-alist '(("." . "~/.emacs.d/backup/"))
-      delete-old-versions t
-      kept-new-versions 6
-      kept-old-versions 2)
-
-(setq custom-file "~/.emacs.d/custom.el")
-(if (file-exists-p custom-file)
-    (load custom-file))
-
-;; GUI
-(menu-bar-mode 1)
-(tool-bar-mode -1)
-(size-indication-mode 1)
-
-(if (version< emacs-version "26")
-    (add-hook 'find-file-hook 'linum-mode) ;; add line numbers to opened files
-  (add-hook 'text-mode-hook #'display-line-numbers-mode)
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode))
-(column-number-mode 1) ;; show column position in mode line
-
-(auto-fill-mode -1)
-(put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
-
-;; Terminal
-(let ((frame (framep (selected-frame))))
-  (or (eq  t  frame)
-      (eq 'pc frame)
-      (define-key input-decode-map (kbd "C-[") [C-\[])
-      (define-key input-decode-map "\C-i" [C-i])
-      (define-key input-decode-map "\C-m" [C-m])
-      (define-key input-decode-map "\C-j" [C-j])
-     ))
-
-;; remap defaults
-(global-unset-key (kbd "C-z"))
-;; remap ctl-x-map keys
-;;(global-set-key (kbd "<menu>") ctl-x-map)
-(define-key ctl-x-map (kbd "f") 'find-file)
-(define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
-(define-key ctl-x-map (kbd "w") 'kill-buffer-and-window)
-(define-key ctl-x-map (kbd "g") '(lambda () (interactive) (revert-buffer t t)))
-
-;; Start up
-(setq inhibit-startup-screen t
-      initial-buffer-choice "~/Desktop/notes.md")
-(kill-buffer "*scratch*")
-
-;; scroll behaviour
-(setq scroll-preserve-screen-position t)
-(bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 5)))
-(bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 5)))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Utilities
-
-(use-package diminish :ensure t)
-
-(use-package use-package-chords
-  :ensure t
-  :diminish key-chord-mode "Chord"
-  :config (key-chord-mode 1)
-  (setq key-chord-two-keys-delay .020
-  	key-chord-one-key-delay .020))
-
-
-;; Mode line
-(use-package smart-mode-line
-  :ensure t
-  :config 
-  (sml/setup)
-  (setq sml/theme 'light) ;; 'light, 'dark, 'respectful
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/replacer-regexp-list nil)
-  ;;(add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
-  )
-
-(use-package command-log-mode
-  ;; (command-log-mode)
-  ;; (clm/open-command-log-buffer)
-  :ensure t)
-
-(use-package keyfreq
-  :ensure t
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1))
-
-(use-package which-key
-  :ensure t
-  :config (which-key-mode 1))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Speciality MODES
-;;;;;;;;;;;;;;;;;;;;
-
-(use-package dockerfile-mode
-  :ensure t
-  :mode (("Dockerfile\\'" . dockerfile-mode))
-  :bind (:map dockerfile-mode-map
-			  ("<XF86Reply>" . dockerfile-build-buffer))
-  :config
-  (put 'dockerfile-image-name 'safe-local-variable #'stringp)
-  (setq dockerfile-mode-command "docker"))
-
-(use-package docker
-  :ensure t
-  :bind (("C-c d" . docker)))
-
-(use-package magit
-  :ensure t
-  :chords (("gj" . magit-status)))
-
-;;;;;;;;;;;;;;;;;;;;
-;; CUSTOM MODES
-;;;;;;;;;;;;;;;;;;;;
-
-;; navigation mode
-
-(define-minor-mode navi-mode
-  "Toggle Navi Mode"
-  :init-value nil
-  :lighter " Navi"
-  :group 'navi
-  :keymap (let ((map (make-sparse-keymap)))
-            (suppress-keymap map)
-
-	    ;; Parenthesis movement
-	    ;; C-M-u go up level
-	    ;; C-M-n/p go next/previous paren on the same level
-	    ;; C-M-e go to the end of defun
-	    ;; C-M-a go to the start of defun
-	    ;; C-m-f forward sexp
-	    
-            ;;(define-key map (kbd "s") 'set-goal-column)
-            ;;(define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
-
-            ;; INSERT
-            (define-key map (kbd "i") 'navi-mode)
-            map))
-
-(global-set-key (kbd "S-<return>") 'navi-mode)
-
-;;;;;;;;;;;;;;;;;;;;
-;; Buffer
-;;;;;;;;;;;;;;;;;;;;
-
-;; display buffer
-(add-to-list 'display-buffer-alist
-             '("^\\*.*\\*$" . (display-buffer-same-window)))
-
-(use-package winner
-  :ensure t
-  ;; default keys C-c <arrow-key>
-  :config (winner-mode 1))
-
-
-;;;;;;;;;;;;;;;;;;;;
-;; Editing
-;;;;;;;;;;;;;;;;;;;;
-
-(bind-key (kbd "C-c C-k") 'alma/copy)
-
-(show-paren-mode 1)
-
-(use-package electric
-  :ensure t
-  :config
-  (electric-pair-mode 1)
-  (setq electric-pair-pairs '((?\" . ?\")
-                              (?\{ . ?\}))))
-
-(use-package company
-  :ensure t
-  :config ;;(add-hook 'after-init-hook 'global-company-mode)
-  (global-company-mode 1)
-
-  ;; company-capfs uses completion-at-point-functions
-  ;; company-dabbrev-code uses words from current buffer
-  ;; (add-to-list 'company-backends 'company-abbrev)
-  ;; (add-to-list 'company-backends 'company-yasnippet)
-  ;; (add-to-list 'company-backends 'company-keywords)
-  ;; (add-to-list 'company-backends 'company-files)	
-  ;; (add-to-list 'company-backends '(company-capf company-dabbrev-code))
-  ;;(company-tng-configure-default)
-
-  :custom
-  (company-selection-wrap-around t)
-  (company-begin-commands '(self-insert-command))
-  (company-idle-delay  0.2)
-  (company-minimum-prefix-legth 1)
-  (company-show-numbers t)
-  (company-tooltip-align-annotations t)
-  (company-require-match nil))
-
-(use-package undo-fu
-  :ensure t
-  :config
-  :bind (("C-z" . undo-fu-only-undo)
-	 ("C-S-z" . undo-fu-only-redo)
-	 ("C-M-z" . undo-fu-only-redo-all)))
-
-(use-package shell
-  :bind (:map shell-mode-map
-              ("<up>" . comint-previous-input)
-              ("<down>" . comint-next-input)))
-
-(use-package yasnippet
-  ;;:ensure t
-  ;;:init (use-package yasnippet-snippets :after yasnippet :ensure t)
-;;  :hook ((prog-mode LaTex-mode org-mode) . yas-minor-from-trigger-key)
-  :bind (
-;;	 :map yas-minor-mode-map
-;;	      ("C-c C-n" . yas-expand-from-trigger-key)
-;;	 :map yas-key-map
-;;	 	  ("TAB" . yas-expand)
-;;	 )
-  ))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Navigating
-;;;;;;;;;;;;;;;;;;;;
-
-;; Least frequent bigram combinations
-;;      gb gp
-;;  jj  jc jf jg jh jk jl jm jp jq js jt jv jw jx jy jz
-;;  qq  qb qf qg qh qk ql qm qp qt qv qw qx qy qz
-;;  vv  vc vf vg vh vk vm vp vw vz
-;;  ww  xb xd xg xk xm xs xw
-;;  yy  zb zd zf zg zk zm zp zs zw zx
-
-;;(key-chord-define-global k c)
-
-(windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
-
-(global-set-key (kbd "M-[") 'backward-paragraph)
-(global-set-key (kbd "M-]") 'forward-paragraph)
-
-(use-package ace-window
-  :ensure t
-  :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?f ?g ?w ?e ?r ?t)) ;; limit characters
-  :bind (:map ctl-x-map
-	 ("o" . ace-window)))
-
-(use-package treemacs
-  :ensure t
-  :custom
-  (treemacs-collapse-dirs 3)
-  (treemacs-follow-after-init)
-  (treemacs-persist-file (expand-file-name ".cache/treemacs-persist" user-emacs-directory))
-  (treemacs-width 35)
-  :config
-  (treemacs-follow-mode t)
-  (treemacs-filewatch-mode t)
-  (treemacs-fringe-indicator-mode t)
-  :chords (("tj" . treemacs-select-window)))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Files
-
-;; view same buffer with two windows
-;; C-x 3 M-x follow-mode
-
-;; Default C-c C-v prefix map for vlf-mode
-;; prompt when opening large files
-(use-package vlf
-  :ensure t
-  :config
-  (require 'vlf-setup))
-
-(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
-
-(require 'recentf)
-(setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
-(recentf-mode 1)
-(setq recentf-max-menu-items 50
-      recentf-max-saved-items 50)
-(bind-key (kbd "C-x M-f") 'recentf-open-files)
-
-(use-package ido
-  :config (ido-mode 1)
-  (setq ido-enable-flex-matching t
-	ido-everywhere t
-	ido-auto-merge-work-directories-length -1
-	ido-use-virtual-buffers t)
-  :bind (:map ctl-x-map
-			  ("f" . ido-find-file)
-			  ("b" . ido-switch-buffer)))
-
-
-(use-package dired
-  :delight "Dired "
-  :custom
-  (dired-auto-revert-buffer t) ;; reverts buffer on visit
-  (dired-hide-details-hide-symlink-targets nil)
-  (dired-listing-switches "-alh")
-  (dired-ls-F-marks-symlinks nil)
-  (dired-recursive-copies 'always)
-  (delete-by-moving-to-trash t)
-  :config
-  (put 'dired-find-alternate-file 'disabled nil)
-  :bind (:map dired-mode-map
-	      ("RET" . dired-find-alternate-file)
-	      ("z" . open-in-external-app)
-	      ("b" . (lambda () (interactive) (find-alternate-file "..")))))
-
-
-(use-package swiper
-  :ensure t
-  :bind (("M-'" . swiper-isearch)
-	 ;;:map isearch-mode-map
-	 ;;("C-'" . avy-resume)
-	 )
-  :chords (("sj" . swiper-isearch)))
-
-(use-package avy
-  :ensure
-  :custom
-  (avy-time-out-seconds 0.7)
-  :bind (("C-'" . avy-goto-char-timer)
-	 ("C-\"" . avy-goto-line))
-  :chords (("jf" . avy-goto-char-timer)))
-
-;;;;;;;;;;;;;;;;;;;;
-;; ICICLES
-
-;; wget https://www.emacswiki.org/emacs/download/icicles{,-chg,-cmd1,-cmd2,-doc1,-doc2,-face,-fn,-mac,-mcmd,-mode,-opt,-var}.el
-;; (add-to-list 'load-path "~/.emacs.d/packages/icicles")
-;; (require 'icicles)
-;; (icy-mode 1)
-
-;; (bind-key (kbd "M-y") 'icicle-completing-yank)
-
-;; ;; icomplete+
-;; (require 'icomplete+)
-;; (icompletep-cycling-mode 1)
-
-;; ;; menu bar completion
-;; ;; https://www.emacswiki.org/emacs/download/lacarte.el
-;; (require 'lacarte)
-;; (bind-key (kbd "C-(") 'lacarte-execute-command)
-
-;; ;; search synonyms
-;; ;; https://www.emacswiki.org/emacs/download/synonyms.el
-;; (setq synonyms-file "~/.emacs.d/packages/dictionary/mthesaur.txt"
-;;       synonyms-cache-file "~/.emacs.d/packages/dictionary/mthesaur.cache.txt")
-;; (require 'synonyms)
-
-;;;;;;;;;;;;;;;;;;;;
-;; Language modes
-;;;;;;;;;;;;;;;;;;;;
-
-;; Matlab
-;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
-;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
-;(setq matlab-indent-function t)
-;(setq matlab-shell-command "matlab")
-;
-;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
-;(load-library "matlab")
-;
-;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
-;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
-;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
-
-;; BASH
-
-;; Haskell
-(use-package haskell-mode
-  :config
-  ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-  (setq haskell-process-type 'cabal-repl))
-
-;; Markdown
-(use-package markdown-mode
-  :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode))
-  :config
-  (setq markdown-command "markdown")
-  (setq markdown-indent-on-enter 'indent-and-new-item)
-
-  :bind (:map markdown-mode-map
-	      ("<return>" . markdown-custom-enter)
-	      ("C-`" . markdown-insert-gfm-code-block)))
-
-;; C++
-(use-package company-c-headers :ensure t)
-;;(use-package company-irony :ensure t
-;;  :config (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
-
-(add-hook 'c++-mode-hook '(lambda () 
-   (add-to-list (make-local-variable 'company-backends) 'company-clang)
-   ;;(setq (make-local-variable 'company-backends) (delete 'company-semantic 'company-backends))
-   ))
-
-(add-hook 'c++-mode-hook (lambda ()
-						   (local-set-key (kbd "<tab>") 'company-complete)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Company backend for IPA symbols
-
-(let ((ipa-symbols "~/.emacs.d/dictionary/ipa-symbols.csv"))
-  (if (file-exists-p ipa-symbols)
-	  (defconst ipa-completions (parse-csv-file ipa-symbols))
-	(message "IPA table of symbols not found")))
-
-(defun company-ipa-backend (command &optional arg &rest ignored)
-  (interactive (list 'interactive))
-  (case command
-    (interactive (company-begin-backend 'company-ipa-backend))
-    (prefix (and (eq major-mode 'fundamental-mode)
-		 (company-grab-symbol)))
-    (candidates
-
-	  (dolist (element ipa-completions)
-		(let ((head (car element)))
-		   (if (string= head arg)	
-			   (return (cdr element)))))
-	  )))
-
-(add-to-list 'company-backends 'company-ipa-backend)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; FUNCTIONS
@@ -660,6 +185,489 @@ Display progress in the mode line instead."
     "%" "%%"
     (ansi-color-apply progress))))
 
+
+;;;;;;;;;;;;;;;;;;;;
+;; add custom pairs
+
+;; https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
+(defun alma/add-mode-pairs (hook pairs)
+  `(add-hook ,hook
+	     (lambda ()
+	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
+	       (setq-local electric-text-pairs electric-pair-pairs))))
+
+;;;;;;;;;;;;;;;;;;;;
+;; INIT
+;;;;;;;;;;;;;;;;;;;;
+
+(require 'package)
+
+(setq package-archives
+	  '(("gnu" . "https://elpa.gnu.org/packages/")
+	    ("melpa-stable" . "https://stable.melpa.org/packages/")
+	    ("melpa" . "https://melpa.org/packages/"))
+	  package-archive-priorities
+	  '(("melpa-stable" . 10)
+	    ("gnu" . 5)
+	    ("melpa" . 0)))
+
+(package-initialize)
+;;(setq package-check-signature  nil)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package)
+  (eval-when-compile (require 'use-package))
+  (require 'bind-key)) ;; required for :bind
+
+;; Theme
+(use-package creamsody-theme :ensure :defer)
+(use-package parchment-theme :ensure :defer)
+(use-package circadian
+  :ensure t
+  :config
+  (setq circadian-themes '(("8:00" . parchment)
+                           ("19:00" . creamsody)))
+  (circadian-setup))
+
+;;;;;;;;;;;;;;;;;;;;
+;; Misc
+;;;;;;;;;;;;;;;;;;;;
+
+(setq ring-bell-function 'ignore ;; disable sound bell on error
+      read-buffer-completion-ignore-case t
+      read-file-name-completion-ignore-case t 
+      ;;indent-tabs-mode nil
+      tab-width 4
+      tab-always-indent nil
+      electric-indent-mode 1
+
+      select-enable-clipboard t ;; copy/cut kill-ring to clipboard
+      set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
+      mark-ring-max 50
+
+      window-combination-resize t
+      shift-select-mode t
+      auto-compression-mode t)
+
+(setq backup-by-copying t
+      backup-directory-alist '(("." . "~/.emacs.d/backup/"))
+      delete-old-versions t
+      kept-new-versions 6
+      kept-old-versions 2)
+
+(setq custom-file "~/.emacs.d/custom.el")
+(if (file-exists-p custom-file)
+    (load custom-file))
+
+;; GUI
+(menu-bar-mode 1)
+(tool-bar-mode -1)
+(size-indication-mode 1)
+
+(if (version< emacs-version "26")
+    (add-hook 'find-file-hook 'linum-mode) ;; add line numbers to opened files
+  (add-hook 'text-mode-hook #'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode))
+(column-number-mode 1) ;; show column position in mode line
+
+(auto-fill-mode -1)
+(put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
+
+;; Terminal
+(let ((frame (framep (selected-frame))))
+  (or (eq  t  frame)
+      (eq 'pc frame)
+      (define-key input-decode-map (kbd "C-[") [C-\[])
+      (define-key input-decode-map "\C-i" [C-i])
+      (define-key input-decode-map "\C-m" [C-m])
+      (define-key input-decode-map "\C-j" [C-j])
+     ))
+
+;; remap defaults
+(global-unset-key (kbd "C-z"))
+;; remap ctl-x-map keys
+;;(global-set-key (kbd "<menu>") ctl-x-map)
+(define-key ctl-x-map (kbd "f") 'find-file)
+(define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
+(define-key ctl-x-map (kbd "w") 'kill-buffer-and-window)
+(define-key ctl-x-map (kbd "g") '(lambda () (interactive) (revert-buffer t t)))
+
+;; Start up
+(setq inhibit-startup-screen t
+      initial-buffer-choice "~/Desktop/notes.md")
+(kill-buffer "*scratch*")
+
+;; scroll behaviour
+(setq scroll-preserve-screen-position t)
+(bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 5)))
+(bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 5)))
+
+;;;;;;;;;;;;;;;;;;;;
+;; Utilities
+
+;; Least frequent bigram combinations
+;;      gb gp
+;;  jj  jc jf jg jh jk jl jm jp jq js jt jv jw jx jy jz
+;;  qq  qb qf qg qh qk ql qm qp qt qv qw qx qy qz
+;;  vv  vc vf vg vh vk vm vp vw vz
+;;  ww  xb xd xg xk xm xs xw
+;;  yy  zb zd zf zg zk zm zp zs zw zx
+
+;; KEEP UP TOP before `:chords' usage
+(use-package use-package-chords
+  :diminish key-chord-mode "Chord"
+  :config (key-chord-mode 1)
+  (setq key-chord-two-keys-delay .020
+  	key-chord-one-key-delay .020))
+
+
+(use-package diminish :ensure t)
+
+;; Mode line
+(use-package smart-mode-line
+  :ensure t
+  :config 
+  (sml/setup)
+  (setq sml/theme 'light) ;; 'light, 'dark, 'respectful
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/replacer-regexp-list nil)
+  ;;(add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
+  )
+
+(use-package command-log-mode
+  ;; (command-log-mode)
+  ;; (clm/open-command-log-buffer)
+  :ensure t)
+
+(use-package keyfreq
+  :ensure t
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1))
+
+(use-package which-key
+  :ensure t
+  :config (which-key-mode 1))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; Speciality MODES
+;;;;;;;;;;;;;;;;;;;;
+
+(use-package dockerfile-mode
+  :ensure t
+  :mode (("Dockerfile\\'" . dockerfile-mode))
+  :bind (:map dockerfile-mode-map
+			  ("<XF86Reply>" . dockerfile-build-buffer))
+  :config
+  (put 'dockerfile-image-name 'safe-local-variable #'stringp)
+  (setq dockerfile-mode-command "docker"))
+
+(use-package docker
+  :bind (("C-c d" . docker)))
+
+(use-package magit
+  :ensure t
+  :chords (("gj" . magit-status)))
+
+;;;;;;;;;;;;;;;;;;;;
+;; CUSTOM MODES
+;;;;;;;;;;;;;;;;;;;;
+
+;; navigation mode
+
+(define-minor-mode navi-mode
+  "Toggle Navi Mode"
+  :init-value nil
+  :lighter " Navi"
+  :group 'navi
+  :keymap (let ((map (make-sparse-keymap)))
+            (suppress-keymap map)
+    
+            ;;(define-key map (kbd "s") 'set-goal-column)
+            ;;(define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
+
+            ;; INSERT
+            (define-key map (kbd "i") 'navi-mode)
+            map))
+
+(global-set-key (kbd "S-<return>") 'navi-mode)
+
+;;;;;;;;;;;;;;;;;;;;
+;; Buffer
+;;;;;;;;;;;;;;;;;;;;
+
+;; display buffer
+(add-to-list 'display-buffer-alist
+             '("^\\*.*\\*$" . (display-buffer-same-window)))
+
+(use-package winner
+  ;; default keys C-c <arrow-key>
+  :config (winner-mode 1))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; Editing
+;;;;;;;;;;;;;;;;;;;;
+
+(bind-key (kbd "C-c C-k") 'alma/copy)
+
+(show-paren-mode 1)
+
+(use-package electric
+  :ensure t
+  :config
+  (electric-pair-mode 1)
+  (setq electric-pair-pairs '((?\" . ?\")
+                              (?\{ . ?\}))))
+
+(use-package company
+  :ensure t
+  :config ;;(add-hook 'after-init-hook 'global-company-mode)
+  (global-company-mode 1)
+
+  ;; company-capfs uses completion-at-point-functions
+  ;; company-dabbrev-code uses words from current buffer
+  ;; (add-to-list 'company-backends '(company-capf company-dabbrev-code))
+
+  :custom
+  (company-selection-wrap-around t)
+  (company-begin-commands '(self-insert-command))
+  (company-idle-delay  0.2)
+  (company-minimum-prefix-legth 1)
+  (company-show-numbers t)
+  (company-tooltip-align-annotations t)
+  (company-require-match nil))
+
+(use-package undo-fu
+  :ensure t
+  :config
+  :bind (("C-z" . undo-fu-only-undo)
+	 ("C-S-z" . undo-fu-only-redo)
+	 ("C-M-z" . undo-fu-only-redo-all)))
+
+(use-package shell
+  :bind (:map shell-mode-map
+              ("<up>" . comint-previous-input)
+              ("<down>" . comint-next-input)))
+
+(use-package popwin
+  :ensure t
+  :config (popwin-mode 1)
+  ;; setup kill-ring window	
+  (defun popwin-bkr:update-window-reference ()
+    (popwin:update-window-reference 'browse-kill-ring-original-window :safe t))
+  (add-hook 'popwin:after-popup-hook 'popwin-bkr:update-window-reference)
+  (push '("*Kill Ring*" :position bottom :height 20) popwin:special-display-config))
+
+(use-package browse-kill-ring
+  :ensure t
+  :config  (setq browse-kill-ring-show-preview t)
+  :bind (("M-y" . browse-kill-ring)
+	 :map browse-kill-ring-mode-map
+	 ("N" . browse-kill-ring-forward)
+	 ("P" . browse-kill-ring-previous)))
+
+
+(use-package yasnippet
+  ;;:ensure t
+  ;;:init (use-package yasnippet-snippets :after yasnippet :ensure t)
+;;  :hook ((prog-mode LaTex-mode org-mode) . yas-minor-from-trigger-key)
+  :bind (
+;;	 :map yas-minor-mode-map
+;;	      ("C-c C-n" . yas-expand-from-trigger-key)
+;;	 :map yas-key-map
+;;	 	  ("TAB" . yas-expand)
+;;	 )
+  ))
+
+
+;; Parenthesis movement
+;; Go outside brackets C-M-u C-M-n
+;; C-M-u go up level
+;; C-M-n/p go next/previous paren on the same level
+;; C-M-e go to the end of defun
+;; C-M-a go to the start of defun
+;; C-M-f forward sexp
+
+;;;;;;;;;;;;;;;;;;;;
+;; Navigating
+;;;;;;;;;;;;;;;;;;;;
+
+(windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
+
+(global-set-key (kbd "M-[") 'backward-paragraph)
+(global-set-key (kbd "M-]") 'forward-paragraph)
+
+(use-package ace-window
+  :ensure t
+  :init (ace-window t)
+  (setq aw-keys '(?a ?s ?d ?f ?g ?w ?e ?r ?t)) ;; limit characters
+  :bind (:map ctl-x-map
+	 ("o" . ace-window)))
+
+(use-package treemacs
+  :ensure t
+  :custom
+  (treemacs-collapse-dirs 3)
+  (treemacs-follow-after-init)
+  (treemacs-persist-file (expand-file-name ".cache/treemacs-persist" user-emacs-directory))
+  (treemacs-width 35)
+  :config
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode t)
+  :chords (("tj" . treemacs-select-window)))
+
+;;;;;;;;;;;;;;;;;;;;
+;; Files
+
+;; view same buffer with two windows
+;; C-x 3 M-x follow-mode
+
+;; Default C-c C-v prefix map for vlf-mode
+;; prompt when opening large files
+(use-package vlf
+  :ensure t
+  :config
+  (require 'vlf-setup))
+
+(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
+
+(require 'recentf)
+(setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
+(recentf-mode 1)
+(setq recentf-max-menu-items 50
+      recentf-max-saved-items 50)
+(bind-key (kbd "C-x M-f") 'recentf-open-files)
+
+(use-package ido
+  :config (ido-mode 1)
+  (setq ido-enable-flex-matching t
+	ido-everywhere t
+	ido-auto-merge-work-directories-length -1
+	ido-use-virtual-buffers t)
+  :bind (:map ctl-x-map
+			  ("f" . ido-find-file)
+			  ("b" . ido-switch-buffer)))
+
+
+(use-package dired
+  :delight "Dired "
+  :custom
+  (dired-auto-revert-buffer t) ;; reverts buffer on visit
+  (dired-hide-details-hide-symlink-targets nil)
+  (dired-listing-switches "-alh")
+  (dired-ls-F-marks-symlinks nil)
+  (dired-recursive-copies 'always)
+  (delete-by-moving-to-trash t)
+  :config
+  (put 'dired-find-alternate-file 'disabled nil)
+  :bind (:map dired-mode-map
+	      ("RET" . dired-find-alternate-file)
+	      ("z" . open-in-external-app)
+	      ("b" . (lambda () (interactive) (find-alternate-file "..")))))
+
+
+(use-package swiper
+  :ensure t
+  :bind (("M-'" . swiper-isearch)
+	 ;;:map isearch-mode-map
+	 ;;("C-'" . avy-resume)
+	 )
+  :chords (("sj" . swiper-isearch)))
+
+(use-package avy
+  :ensure
+  :custom
+  (avy-time-out-seconds 0.7)
+  :bind (("C-'" . avy-goto-char-timer)
+	 ("C-\"" . avy-goto-line))
+  :chords (("jf" . avy-goto-char-timer)))
+
+;;;;;;;;;;;;;;;;;;;;
+;; ICICLES
+
+;; wget https://www.emacswiki.org/emacs/download/icicles{,-chg,-cmd1,-cmd2,-doc1,-doc2,-face,-fn,-mac,-mcmd,-mode,-opt,-var}.el
+;; (add-to-list 'load-path "~/.emacs.d/packages/icicles")
+;; (require 'icicles)
+;; (icy-mode 1)
+
+;; (bind-key (kbd "M-y") 'icicle-completing-yank)
+
+;; ;; icomplete+
+;; (require 'icomplete+)
+;; (icompletep-cycling-mode 1)
+
+;; ;; menu bar completion
+;; ;; https://www.emacswiki.org/emacs/download/lacarte.el
+;; (require 'lacarte)
+;; (bind-key (kbd "C-(") 'lacarte-execute-command)
+
+;; ;; search synonyms
+;; ;; https://www.emacswiki.org/emacs/download/synonyms.el
+;; (setq synonyms-file "~/.emacs.d/packages/dictionary/mthesaur.txt"
+;;       synonyms-cache-file "~/.emacs.d/packages/dictionary/mthesaur.cache.txt")
+;; (require 'synonyms)
+
+;;;;;;;;;;;;;;;;;;;;
+;; Language modes
+;;;;;;;;;;;;;;;;;;;;
+
+;; Matlab
+;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
+;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
+;(setq matlab-indent-function t)
+;(setq matlab-shell-command "matlab")
+;
+;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
+;(load-library "matlab")
+;
+;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
+;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
+;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
+
+;; BASH
+
+;; Haskell
+(use-package haskell-mode
+  :config
+  ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+  (setq haskell-process-type 'cabal-repl))
+
+;; Markdown
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :config
+  (setq markdown-command "markdown")
+  (setq markdown-indent-on-enter 'indent-and-new-item)
+
+  :bind (:map markdown-mode-map
+	      ("C-c C-k" . nil)
+	      ("<return>" . markdown-custom-enter)
+	      ("C-`" . markdown-insert-gfm-code-block)))
+
+;; C++
+(use-package company-c-headers :ensure t)
+;;(use-package company-irony :ensure t
+;;  :config (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
+
+(add-hook 'c++-mode-hook '(lambda () 
+   (add-to-list (make-local-variable 'company-backends) 'company-clang)
+   ;;(setq (make-local-variable 'company-backends) (delete 'company-semantic 'company-backends))
+   ))
+
+(add-hook 'c++-mode-hook (lambda ()
+						   (local-set-key (kbd "<tab>") 'company-complete)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Company backend for IPA symbols
+
+
 ;; PARSE CSV into list, e.g.
 ;; a, b \n f, c, e -> ((a, b) (f c e))
 ;; https://gist.github.com/syohex/5487731
@@ -677,15 +685,28 @@ Display progress in the mode line instead."
         (forward-line 1)))
     (reverse result)))
 
-;;;;;;;;;;;;;;;;;;;;
-;; add custom pairs
+(defun company-ipa-backend (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+  (case command
+    (interactive (company-begin-backend 'company-ipa-backend))
+    (prefix (and (eq major-mode 'fundamental-mode)
+		 (company-grab-symbol)))
+    (candidates
 
-;; https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
-(defun alma/add-mode-pairs (hook pairs)
-  `(add-hook ,hook
-	     (lambda ()
-	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
-	       (setq-local electric-text-pairs electric-pair-pairs))))
+	  (dolist (element ipa-completions)
+		(let ((head (car element)))
+		   (if (string= head arg)	
+			   (return (cdr element)))))
+	  )))
+
+(let ((ipa-symbols "~/.emacs.d/dictionary/ipa-symbols.csv"))
+  (if (file-exists-p ipa-symbols)
+      (progn
+	(defconst ipa-completions (parse-csv-file ipa-symbols))
+	(add-to-list 'company-backends 'company-ipa-backend))
+    (message "IPA table of symbols not found")))
+
+
 
 (alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
 (alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))

@@ -413,14 +413,17 @@ Display progress in the mode line instead."
 
 (bind-key (kbd "C-c C-k") 'alma/copy)
 
-(show-paren-mode 1)
-
-(use-package electric
+(use-package smartparens
   :ensure t
-  :config
-  (electric-pair-mode 1)
-  (setq electric-pair-pairs '((?\" . ?\")
-                              (?\{ . ?\}))))
+  :config (smartparens-mode 1)
+  (show-smartparens-global-mode t)
+  (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
+
+  ;;(sp-local-pair 'emacs-lisp-mode "'" nil :actions :rem)
+  (sp-with-modes 'emacs-lisp-mode
+    (sp-local-pair "'" nil :actions nil))
+  )
+
 
 (use-package company
   :ensure t
@@ -482,15 +485,6 @@ Display progress in the mode line instead."
 ;;	 )
   ))
 
-
-;; Parenthesis movement
-;; Go outside brackets C-M-u C-M-n
-;; C-M-u go up level
-;; C-M-n/p go next/previous paren on the same level
-;; C-M-e go to the end of defun
-;; C-M-a go to the start of defun
-;; C-M-f forward sexp
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating
 ;;;;;;;;;;;;;;;;;;;;
@@ -549,9 +543,8 @@ Display progress in the mode line instead."
 	ido-auto-merge-work-directories-length -1
 	ido-use-virtual-buffers t)
   :bind (:map ctl-x-map
-			  ("f" . ido-find-file)
-			  ("b" . ido-switch-buffer)))
-
+	      ("f" . ido-find-file)
+	      ("b" . ido-switch-buffer)))
 
 (use-package dired
   :delight "Dired "
@@ -585,31 +578,6 @@ Display progress in the mode line instead."
   :bind (("C-'" . avy-goto-char-timer)
 	 ("C-\"" . avy-goto-line))
   :chords (("jf" . avy-goto-char-timer)))
-
-;;;;;;;;;;;;;;;;;;;;
-;; ICICLES
-
-;; wget https://www.emacswiki.org/emacs/download/icicles{,-chg,-cmd1,-cmd2,-doc1,-doc2,-face,-fn,-mac,-mcmd,-mode,-opt,-var}.el
-;; (add-to-list 'load-path "~/.emacs.d/packages/icicles")
-;; (require 'icicles)
-;; (icy-mode 1)
-
-;; (bind-key (kbd "M-y") 'icicle-completing-yank)
-
-;; ;; icomplete+
-;; (require 'icomplete+)
-;; (icompletep-cycling-mode 1)
-
-;; ;; menu bar completion
-;; ;; https://www.emacswiki.org/emacs/download/lacarte.el
-;; (require 'lacarte)
-;; (bind-key (kbd "C-(") 'lacarte-execute-command)
-
-;; ;; search synonyms
-;; ;; https://www.emacswiki.org/emacs/download/synonyms.el
-;; (setq synonyms-file "~/.emacs.d/packages/dictionary/mthesaur.txt"
-;;       synonyms-cache-file "~/.emacs.d/packages/dictionary/mthesaur.cache.txt")
-;; (require 'synonyms)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes

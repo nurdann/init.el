@@ -611,6 +611,10 @@ Display progress in the mode line instead."
 
 ;; BASH
 
+(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
+(alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
+
+
 ;; Haskell
 (use-package haskell-mode
   :config
@@ -618,6 +622,7 @@ Display progress in the mode line instead."
   (setq haskell-process-type 'cabal-repl))
 
 ;; Markdown
+
 (use-package markdown-mode
   :ensure t
   :commands (markdown-mode gfm-mode)
@@ -627,6 +632,7 @@ Display progress in the mode line instead."
   (setq markdown-command "markdown")
   (setq markdown-indent-on-enter 'indent-and-new-item)
 
+  (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
   :bind (:map markdown-mode-map
 	      ("C-c C-k" . nil)
 	      ("<return>" . markdown-custom-enter)
@@ -687,8 +693,3 @@ Display progress in the mode line instead."
 	(add-to-list 'company-backends 'company-ipa-backend))
     (message "IPA table of symbols not found")))
 
-
-
-(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
-(alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
-(alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))

@@ -348,8 +348,11 @@ Display progress in the mode line instead."
 
 (use-package which-key
   :ensure t
-  :config (which-key-mode 1))
+  :config (which-key-mode 1)
+  :custom (which-key-idle-delay 0.4) 
+  	  (which-key-idle-secondary-delay 0.4))
 
+;;(use-package flycheck :ensure t :config (global-flycheck-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Speciality MODES
@@ -413,14 +416,22 @@ Display progress in the mode line instead."
 
 (bind-key (kbd "C-c C-k") 'alma/copy)
 
+;;;;;;;;;;;;;;;;;;;;
+;; Smart parentheses
+
+;; https://smartparens.readthedocs.io/en/latest/pair-management.html
+;; https://ebzzry.io/en/emacs-pairs/
 (use-package smartparens
   :ensure t
-  :config (smartparens-mode 1)
+  :config (smartparens-global-mode 1)
   (show-smartparens-global-mode t)
   (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
 
-  ;;(sp-local-pair 'emacs-lisp-mode "'" nil :actions :rem)
+
   (sp-with-modes 'emacs-lisp-mode
+    (sp-local-pair "'" nil :actions nil))
+
+  (sp-with-modes 'haskell-mode
     (sp-local-pair "'" nil :actions nil))
   )
 
@@ -461,8 +472,10 @@ Display progress in the mode line instead."
   ;; setup kill-ring window	
   (defun popwin-bkr:update-window-reference ()
     (popwin:update-window-reference 'browse-kill-ring-original-window :safe t))
-  (add-hook 'popwin:after-popup-hook 'popwin-bkr:update-window-reference)
-  (push '("*Kill Ring*" :position bottom :height 20) popwin:special-display-config))
+  (add-hook 'popwin:afterp-opup-hook 'popwin-bkr:update-window-reference)
+  (push '("*Kill Ring*" :position bottom :height 20) popwin:special-display-config)
+
+  (bind-key (kbd "C-;") popwin:keymap))
 
 (use-package browse-kill-ring
   :ensure t
@@ -486,7 +499,7 @@ Display progress in the mode line instead."
   ))
 
 ;;;;;;;;;;;;;;;;;;;;
-;; Navigating
+;; Navigating 
 ;;;;;;;;;;;;;;;;;;;;
 
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows

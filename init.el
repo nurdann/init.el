@@ -289,6 +289,11 @@ Display progress in the mode line instead."
 
 ;; remap defaults
 (global-unset-key (kbd "C-z"))
+
+;;use C-[zxcv] convention
+(cua-mode t)
+(setq cua-delete-selection nil) ;; delete selection only with delete commands
+
 ;; remap ctl-x-map keys
 ;;(global-set-key (kbd "<menu>") ctl-x-map)
 (define-key ctl-x-map (kbd "f") 'find-file)
@@ -300,9 +305,6 @@ Display progress in the mode line instead."
 (setq inhibit-startup-screen t
       initial-buffer-choice "~/Desktop/notes.md")
 (kill-buffer "*scratch*")
-
-;;;;;;;;;;;;;;;;;;;;
-;; Utilities
 
 ;; scroll behaviour
 (setq scroll-preserve-screen-position t)
@@ -448,7 +450,8 @@ Display progress in the mode line instead."
 (use-package undo-fu
   :ensure t
   :config
-  :bind (("C-z" . undo-fu-only-undo)
+  :bind (:map cua--cua-keys-keymap
+	 ("C-z" . undo-fu-only-undo)
 	 ("C-S-z" . undo-fu-only-redo)
 	 ("C-M-z" . undo-fu-only-redo-all)))
 
@@ -471,7 +474,8 @@ Display progress in the mode line instead."
 (use-package browse-kill-ring
   :ensure t
   :config  (setq browse-kill-ring-show-preview t)
-  :bind (("M-y" . browse-kill-ring)
+  :bind (:map cua--cua-keys-keymap
+	 ("M-v" . browse-kill-ring)
 	 :map browse-kill-ring-mode-map
 	 ("N" . browse-kill-ring-forward)
 	 ("P" . browse-kill-ring-previous)))

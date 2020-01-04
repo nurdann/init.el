@@ -1,16 +1,6 @@
-
-;; C-h c <command> to get output of command sequence
-
-;; TODO
-
-;; map:
-;; M-x flush-lines
-
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; FUNCTIONS
 ;;;;;;;;;;;;;;;;;;;;
-
 
 (defun alma/cut ()
   "Cut the region, if no region cut current line"
@@ -52,7 +42,6 @@
 	;;(message "No visible window to update")
 	))))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Allow buffer reverts to be undone
 
@@ -92,7 +81,6 @@
 
 (ad-activate 'ask-user-about-supersession-threat)
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Open certain files in different applications
 
@@ -131,7 +119,6 @@ Version 2019-11-04"
          (lambda ($fpath) (let ((process-connection-type nil))
                             (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Markdown enter behaviour
 
@@ -154,7 +141,6 @@ Version 2019-11-04"
 	  (progn
 		;;(message "regular markdown enter key: line-end(%s)" (= list-end-pos (+ list-begin-pos list-end-pos)))
 		(markdown-enter-key))))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; apt load bar
@@ -219,6 +205,23 @@ Display progress in the mode line instead."
   (package-install 'use-package)
   (eval-when-compile (require 'use-package))
   (require 'bind-key)) ;; required for :bind
+
+(use-package diminish :ensure t)
+
+;; Least frequent bigram combinations
+;;      gb gp
+;;  jj  jc jf jg jh jk jl jm jp jq js jt jv jw jx jy jz
+;;  qq  qb qf qg qh qk ql qm qp qt qv qw qx qy qz
+;;  vv  vc vf vg vh vk vm vp vw vz
+;;  ww  xb xd xg xk xm xs xw
+;;  yy  zb zd zf zg zk zm zp zs zw zx
+
+(use-package use-package-chords
+  :diminish key-chord-mode "Chord"
+  :ensure t
+  :config (key-chord-mode 1)
+  (setq key-chord-two-keys-delay .020
+	key-chord-one-key-delay .020))
 
 ;; Theme
 (use-package creamsody-theme :ensure :defer)
@@ -298,31 +301,13 @@ Display progress in the mode line instead."
       initial-buffer-choice "~/Desktop/notes.md")
 (kill-buffer "*scratch*")
 
+;;;;;;;;;;;;;;;;;;;;
+;; Utilities
+
 ;; scroll behaviour
 (setq scroll-preserve-screen-position t)
 (bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 5)))
 (bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 5)))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Utilities
-
-;; Least frequent bigram combinations
-;;      gb gp
-;;  jj  jc jf jg jh jk jl jm jp jq js jt jv jw jx jy jz
-;;  qq  qb qf qg qh qk ql qm qp qt qv qw qx qy qz
-;;  vv  vc vf vg vh vk vm vp vw vz
-;;  ww  xb xd xg xk xm xs xw
-;;  yy  zb zd zf zg zk zm zp zs zw zx
-
-;; KEEP UP TOP before `:chords' usage
-(use-package use-package-chords
-  :diminish key-chord-mode "Chord"
-  :config (key-chord-mode 1)
-  (setq key-chord-two-keys-delay .020
-  	key-chord-one-key-delay .020))
-
-
-(use-package diminish :ensure t)
 
 ;; Mode line
 (use-package smart-mode-line
@@ -352,8 +337,6 @@ Display progress in the mode line instead."
   :custom (which-key-idle-delay 0.4) 
   	  (which-key-idle-secondary-delay 0.4))
 
-;;(use-package flycheck :ensure t :config (global-flycheck-mode 1))
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Speciality MODES
 ;;;;;;;;;;;;;;;;;;;;
@@ -362,7 +345,7 @@ Display progress in the mode line instead."
   :ensure t
   :mode (("Dockerfile\\'" . dockerfile-mode))
   :bind (:map dockerfile-mode-map
-			  ("<XF86Reply>" . dockerfile-build-buffer))
+	      ("C-c l" . dockerfile-build-buffer))
   :config
   (put 'dockerfile-image-name 'safe-local-variable #'stringp)
   (setq dockerfile-mode-command "docker"))
@@ -387,15 +370,23 @@ Display progress in the mode line instead."
   :group 'navi
   :keymap (let ((map (make-sparse-keymap)))
             (suppress-keymap map)
-    
-            ;;(define-key map (kbd "s") 'set-goal-column)
-            ;;(define-key map (kbd "S") '(lambda () (interactive) (set-goal-column 1)))
-
-            ;; INSERT
             (define-key map (kbd "i") 'navi-mode)
             map))
 
 (global-set-key (kbd "S-<return>") 'navi-mode)
+
+;; space prefix mode
+
+(define-prefix-command 'menu-prefix-map)
+(let ((map 'menu-prefix-map))
+  (define-key map (kbd "f") 'ido-find-file)
+  (define-key map (kbd "b") 'ibuffer)
+  (define-key map (kbd "s") 'save-buffer)
+  (define-key map (kbd "w") 'kill-buffer-and-window)
+  (define-key map (kbd "<menu>") 'smex)
+)
+
+(global-set-key (kbd "<menu>") 'menu-prefix-map)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -416,6 +407,8 @@ Display progress in the mode line instead."
 
 (bind-key (kbd "C-c C-k") 'alma/copy)
 
+(use-package smex :ensure t)
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; Smart parentheses
 
@@ -427,14 +420,12 @@ Display progress in the mode line instead."
   (show-smartparens-global-mode t)
   (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
 
-
   (sp-with-modes 'emacs-lisp-mode
     (sp-local-pair "'" nil :actions nil))
 
   (sp-with-modes 'haskell-mode
     (sp-local-pair "'" nil :actions nil))
   )
-
 
 (use-package company
   :ensure t
@@ -484,19 +475,6 @@ Display progress in the mode line instead."
 	 :map browse-kill-ring-mode-map
 	 ("N" . browse-kill-ring-forward)
 	 ("P" . browse-kill-ring-previous)))
-
-
-(use-package yasnippet
-  ;;:ensure t
-  ;;:init (use-package yasnippet-snippets :after yasnippet :ensure t)
-;;  :hook ((prog-mode LaTex-mode org-mode) . yas-minor-from-trigger-key)
-  :bind (
-;;	 :map yas-minor-mode-map
-;;	      ("C-c C-n" . yas-expand-from-trigger-key)
-;;	 :map yas-key-map
-;;	 	  ("TAB" . yas-expand)
-;;	 )
-  ))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -575,13 +553,9 @@ Display progress in the mode line instead."
 	      ("z" . open-in-external-app)
 	      ("b" . (lambda () (interactive) (find-alternate-file "..")))))
 
-
 (use-package swiper
   :ensure t
-  :bind (("M-'" . swiper-isearch)
-	 ;;:map isearch-mode-map
-	 ;;("C-'" . avy-resume)
-	 )
+  :bind (("M-'" . swiper-isearch))
   :chords (("sj" . swiper-isearch)))
 
 (use-package avy
@@ -617,6 +591,7 @@ Display progress in the mode line instead."
 
 ;; Haskell
 (use-package haskell-mode
+  :ensure t
   :config
   ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
   (setq haskell-process-type 'cabal-repl))

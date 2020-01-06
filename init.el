@@ -1,3 +1,8 @@
+;; TO DO
+;; remap C-y and M-w
+;; show mark-ring
+
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; FUNCTIONS
 ;;;;;;;;;;;;;;;;;;;;
@@ -291,15 +296,13 @@ Display progress in the mode line instead."
 (global-unset-key (kbd "C-z"))
 
 ;;use C-[zxcv] convention
-(cua-mode t)
 (setq cua-delete-selection nil) ;; delete selection only with delete commands
+(cua-mode t)
 
 ;; remap ctl-x-map keys
 ;;(global-set-key (kbd "<menu>") ctl-x-map)
 (define-key ctl-x-map (kbd "f") 'find-file)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
-(define-key ctl-x-map (kbd "w") 'kill-buffer-and-window)
-(define-key ctl-x-map (kbd "g") '(lambda () (interactive) (revert-buffer t t)))
 
 ;; Start up
 (setq inhibit-startup-screen t
@@ -373,6 +376,8 @@ Display progress in the mode line instead."
   :keymap (let ((map (make-sparse-keymap)))
             (suppress-keymap map)
             (define-key map (kbd "i") 'navi-mode)
+	    (define-key map (kbd "w") 'scroll-down-line)
+	    (define-key map (kbd "s") 'scroll-up-line)
             map))
 
 (global-set-key (kbd "S-<return>") 'navi-mode)
@@ -382,11 +387,26 @@ Display progress in the mode line instead."
 (define-prefix-command 'menu-prefix-map)
 (let ((map 'menu-prefix-map))
   (define-key map (kbd "f") 'ido-find-file)
-  (define-key map (kbd "b") 'ibuffer)
+  (define-key map (kbd "d") 'ido-dired)
+  (define-key map (kbd "a") 'ido-switch-buffer)
+  (define-key map (kbd "g") 'revert-buffer)
   (define-key map (kbd "s") 'save-buffer)
-  (define-key map (kbd "w") 'kill-buffer-and-window)
+  (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
+  (define-key map (kbd "q") 'kill-buffer-and-window)
   (define-key map (kbd "<menu>") 'smex)
-)
+  (define-key map (kbd "<left>") 'previous-buffer)
+  (define-key map (kbd "<right>") 'next-buffer)
+  (define-key map (kbd "o") 'ace-window)
+  (define-key map (kbd "=") 'enlarge-window)
+  (define-key map (kbd "-") 'shrink-window)
+  (define-key map (kbd "[") 'shrink-window-horizontally)
+  (define-key map (kbd "]") 'enlarge-window-horizontally)
+  (define-key map (kbd "1") 'delete-other-windows)
+  (define-key map (kbd "2") 'split-window-below)
+  (define-key map (kbd "3") 'split-window-right)
+  (define-key map (kbd "4") 'delete-window)  
+  )
+
 
 (global-set-key (kbd "<menu>") 'menu-prefix-map)
 
@@ -616,6 +636,11 @@ Display progress in the mode line instead."
 	      ("C-c C-k" . nil)
 	      ("<return>" . markdown-custom-enter)
 	      ("C-`" . markdown-insert-gfm-code-block)))
+
+;; cmake
+
+(use-package cmake-mode
+  :ensure t)
 
 ;; C++
 (use-package company-c-headers :ensure t)

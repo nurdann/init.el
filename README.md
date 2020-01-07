@@ -128,22 +128,6 @@ Anywhere in Emacs
 - `M-!` to execute single shell command
 - `C-u M-!` same as `M-!` but insert command output at the mark point
 
-## Editing files
-
-`M-x align-regexp` to align columns based on a regex separator
-
-### Create shortcut
-```
-(add-to-list
-    'directory-abbrev-alist
-    '("^/jou" . "~/mnt/mdbackup/journal" ))
-```
-Then type `C-x C-f /jou <RET>`
-
-### Bookmark files
-`C-x r m` mark for bookmark
-`C-x r b` prompt for saved bookmarks
-
 ## Dired (Directory Editor)
 
 Type `C-x d` to open `dired`
@@ -163,6 +147,36 @@ Type `C-x d` to open `dired`
 - `^` go to parent directory
 
 
+## Files
+
+Open `find-file` by typing `C-x C-f`
+
+### sudo or TRAMP 
+
+Type `C-x C-f /sudo:user@localhost:`
+
+### Log files
+
+Type `M-x` and then
+- `revert-buffer` to refresh the contents of current buffer from hard storage
+- `auto-revert-mode` minor mode for automatically reverting a buffer
+- `auto-revert-tail-mode` minor mode for reverting and moving point to end of file
+
+### Editing
+
+`M-x align-regexp` to align columns based on a regex separator
+
+### Create shortcut
+```
+(add-to-list
+    'directory-abbrev-alist
+    '("^/jou" . "~/mnt/mdbackup/journal" ))
+```
+Then type `C-x C-f /jou <RET>`
+
+### Bookmark files
+`C-x r m` mark for bookmark
+`C-x r b` prompt for saved bookmarks
 
 ### ssh
 
@@ -175,9 +189,6 @@ Host goo
 ``` 
 Then type `C-x C-f /ssh:goo:/` to get password prompt 
 
-#### sudo or TRAMP 
-
-Type `C-x C-f /sudo:user@localhost:`
 
 # MODE LINE - Emacs
 
@@ -195,6 +206,12 @@ cs:ch-fr buffer pos line (major minor)
 # ELISP
 
 List is `'(a f b)`, without `'` an apostrophe the first atom (indivisible unit in elisp) is treated as a function.
+
+# Frequent key-bindings
+
+## Arrow keys
+
+Universal across many applications. Having ease access of modifier keys is important.
 
 
 # Troubleshooting

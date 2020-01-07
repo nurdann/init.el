@@ -188,6 +188,15 @@ Display progress in the mode line instead."
 	       (setq-local electric-text-pairs electric-pair-pairs))))
 
 ;;;;;;;;;;;;;;;;;;;;
+;; show current file path
+
+(defun copy-file-path ()
+  "Copy file path of buffer to kill ring"
+  (interactive)
+  (message (buffer-file-name))
+  (kill-new (file-truename buffer-file-name)))
+
+;;;;;;;;;;;;;;;;;;;;
 ;; INIT
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -389,7 +398,8 @@ Display progress in the mode line instead."
   (define-key map (kbd "f") 'ido-find-file)
   (define-key map (kbd "d") 'ido-dired)
   (define-key map (kbd "a") 'ido-switch-buffer)
-  (define-key map (kbd "g") 'revert-buffer)
+  (define-key map (kbd "r") 'revert-buffer)
+  (define-key map (kbd "g") 'revert-visible-windows)
   (define-key map (kbd "s") 'save-buffer)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
   (define-key map (kbd "q") 'kill-buffer-and-window)
@@ -421,6 +431,10 @@ Display progress in the mode line instead."
 (use-package winner
   ;; default keys C-c <arrow-key>
   :config (winner-mode 1))
+
+(use-package minibuffer
+  :config
+  (setq resize-mini-windows t))
 
 
 ;;;;;;;;;;;;;;;;;;;;

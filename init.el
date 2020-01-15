@@ -532,6 +532,10 @@ Display progress in the mode line instead."
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files
 
+(eval-after-load "dired-aux"
+  '(add-to-list 'dired-compress-file-suffixes
+		'("\\.zip\\'" ".zip" "unzip")))
+
 ;; view same buffer with two windows
 ;; C-x 3 M-x follow-mode
 

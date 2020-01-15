@@ -2,6 +2,8 @@
 ;; remap C-y and M-w
 ;; show mark-ring
 
+;; disable company-capf in remote shell-mode
+;; 
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; FUNCTIONS
@@ -19,7 +21,8 @@
   (interactive)
   (if (use-region-p)
       (copy-region-as-kill 1 1 t)
-    (copy-region-as-kill (line-beginning-position) (line-end-position))))
+    (copy-region-as-kill (line-beginning-position) (line-end-position))
+    (message "Copied current line"))))
 
 (defun search-next-char (c)
   "Move cursor to the next character matched"
@@ -186,6 +189,15 @@ Display progress in the mode line instead."
 	     (lambda ()
 	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
 	       (setq-local electric-text-pairs electric-pair-pairs))))
+
+;;;;;;;;;;;;;;;;;;;;
+;; show current file path
+
+(defun copy-file-path ()
+  "Copy file path of buffer to kill ring"
+  (interactive)
+  (message (buffer-file-name))
+  (kill-new (file-truename buffer-file-name)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; INIT
@@ -389,9 +401,12 @@ Display progress in the mode line instead."
   (define-key map (kbd "f") 'ido-find-file)
   (define-key map (kbd "d") 'ido-dired)
   (define-key map (kbd "a") 'ido-switch-buffer)
-  (define-key map (kbd "g") 'revert-buffer)
+  (define-key map (kbd "r") 'revert-without-query)
+  (define-key map (kbd "g") 'revert-visible-windows)
   (define-key map (kbd "s") 'save-buffer)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
+  (define-key map (kbd "e") 'eval-defun)
+  (define-key map (kbd "E") 'eval-last-sexp)
   (define-key map (kbd "q") 'kill-buffer-and-window)
   (define-key map (kbd "<menu>") 'smex)
   (define-key map (kbd "<left>") 'previous-buffer)
@@ -404,7 +419,7 @@ Display progress in the mode line instead."
   (define-key map (kbd "1") 'delete-other-windows)
   (define-key map (kbd "2") 'split-window-below)
   (define-key map (kbd "3") 'split-window-right)
-  (define-key map (kbd "4") 'delete-window)  
+  (define-key map (kbd "4") 'delete-window)
   )
 
 
@@ -421,6 +436,10 @@ Display progress in the mode line instead."
 (use-package winner
   ;; default keys C-c <arrow-key>
   :config (winner-mode 1))
+
+(use-package minibuffer
+  :config
+  (setq resize-mini-windows t))
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -499,6 +518,11 @@ Display progress in the mode line instead."
 	 :map browse-kill-ring-mode-map
 	 ("N" . browse-kill-ring-forward)
 	 ("P" . browse-kill-ring-previous)))
+
+;;(add-to-list 'load-path "~/.emacs.d/packages/show-marks")
+;;(require 'show-marks)
+;;(global-set-key (kbd "C-c m") 'show-marks)
+;;(x-popup-menu '((0 0) init.el) '(menu hi bye))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -598,6 +622,10 @@ Display progress in the mode line instead."
 ;; Language modes
 ;;;;;;;;;;;;;;;;;;;;
 
+(use-package flycheck
+  :ensure t)
+
+
 ;; Matlab
 ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
 ;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
@@ -644,12 +672,42 @@ Display progress in the mode line instead."
 ;; cmake
 
 (use-package cmake-mode
-  :ensure t)
+  :ensure t
+  :config
+  (setq auto-mode-alist (append
+			 '(("CMakeLists\\.txt\\'" . cmake-mode))
+			 '(("\\.cmake\\'" . cmake-mode))
+			 auto-mode-alist))
+  (add-hook 'cmake-mode-hook '(add-to-list 'company-backends 'company-cmake)))
 
 ;; C++
+
+(defun company-rtags-setup ()
+  "Configure company-backend for company-rtags"
+  (delete 'company-semantic company-backends)
+  (setq rtags-completions-enabled t)
+  (push '(company-rtags :with company-yasnippet) company-backends))
+
+;;(use-package rtags
+;;  :ensure t
+;;  :config
+;;  (rtags-enable-standard-keybindings)
+;;  (setq rtags-autostart-diagnostics t)
+;;  (rtags-diagnostics)
+;;  (rtags-start-process-unless-running)
+;;  (add-hook 'c++-mode-hook 'company-rtags-setup))
+
+(use-package irony
+  :ensure t
+  :config
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+
 (use-package company-c-headers :ensure t)
-;;(use-package company-irony :ensure t
-;;  :config (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
+
+(use-package company-irony :ensure t
+  :config
+  (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
 
 (add-hook 'c++-mode-hook '(lambda () 
    (add-to-list (make-local-variable 'company-backends) 'company-clang)
@@ -657,7 +715,7 @@ Display progress in the mode line instead."
    ))
 
 (add-hook 'c++-mode-hook (lambda ()
-						   (local-set-key (kbd "<tab>") 'company-complete)))
+			   (local-set-key (kbd "<tab>") 'company-complete)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Company backend for IPA symbols

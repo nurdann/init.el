@@ -22,8 +22,7 @@
   (if (use-region-p)
       (copy-region-as-kill 1 1 t)
     (copy-region-as-kill (line-beginning-position) (line-end-position))
-    (message "Copied current line"))))
-
+    (message "Copied current line")))
 (defun search-next-char (c)
   "Move cursor to the next character matched"
   (interactive "c")

@@ -1,4 +1,4 @@
-a;; TO DO
+;; TO DO
 ;; remap C-y and M-w
 ;; show mark-ring
 

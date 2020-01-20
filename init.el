@@ -265,8 +265,6 @@ Display progress in the mode line instead."
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
       mark-ring-max 50
-
-      window-combination-resize t
       shift-select-mode t
       auto-compression-mode t)
 
@@ -429,9 +427,8 @@ Display progress in the mode line instead."
 ;; Buffer
 ;;;;;;;;;;;;;;;;;;;;
 
-;; display buffer
-(add-to-list 'display-buffer-alist
-             '("^\\*.*\\*$" . (display-buffer-same-window)))
+;; display buffer in same window
+;; (add-to-list 'display-buffer-alist '("^\\*.*\\*$" . (display-buffer-same-window)))
 
 (use-package winner
   ;; default keys C-c <arrow-key>
@@ -501,7 +498,7 @@ Display progress in the mode line instead."
 
 (use-package popwin
   :ensure t
-  :config (popwin-mode 1)
+  :config (popwin-mode t)
   ;; setup kill-ring window	
   (defun popwin-bkr:update-window-reference ()
     (popwin:update-window-reference 'browse-kill-ring-original-window :safe t))
@@ -555,6 +552,10 @@ Display progress in the mode line instead."
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files
+
+(eval-after-load "dired-aux"
+  '(add-to-list 'dired-compress-file-suffixes
+		'("\\.zip\\'" ".zip" "unzip")))
 
 ;; view same buffer with two windows
 ;; C-x 3 M-x follow-mode

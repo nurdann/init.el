@@ -237,8 +237,8 @@ Display progress in the mode line instead."
   :diminish key-chord-mode "Chord"
   :ensure t
   :config (key-chord-mode 1)
-  (setq key-chord-two-keys-delay .020
-	key-chord-one-key-delay .020))
+  (setq key-chord-two-keys-delay .025
+	key-chord-one-key-delay .025))
 
 ;; Theme
 (use-package creamsody-theme :ensure :defer)
@@ -257,14 +257,13 @@ Display progress in the mode line instead."
 (setq ring-bell-function 'ignore ;; disable sound bell on error
       read-buffer-completion-ignore-case t
       read-file-name-completion-ignore-case t 
-      ;;indent-tabs-mode nil
+      indent-tabs-mode nil
       tab-width 4
-      tab-always-indent nil
+      tab-always-indent 'complete
       electric-indent-mode 1
 
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-      mark-ring-max 50
       shift-select-mode t
       auto-compression-mode t)
 
@@ -306,6 +305,7 @@ Display progress in the mode line instead."
 (global-unset-key (kbd "C-z"))
 
 ;;use C-[zxcv] convention
+;; `C-s M-e C-v` to paste in isearch minibuffer
 (setq cua-delete-selection nil) ;; delete selection only with delete commands
 (cua-mode t)
 
@@ -396,9 +396,8 @@ Display progress in the mode line instead."
 
 (define-prefix-command 'menu-prefix-map)
 (let ((map 'menu-prefix-map))
-  (define-key map (kbd "f") 'ido-find-file)
-  (define-key map (kbd "d") 'ido-dired)
-  (define-key map (kbd "a") 'ido-switch-buffer)
+  (define-key map (kbd "f") 'find-file)
+  (define-key map (kbd "d") 'dired)
   (define-key map (kbd "r") 'revert-without-query)
   (define-key map (kbd "g") 'revert-visible-windows)
   (define-key map (kbd "s") 'save-buffer)
@@ -406,10 +405,9 @@ Display progress in the mode line instead."
   (define-key map (kbd "e") 'eval-defun)
   (define-key map (kbd "E") 'eval-last-sexp)
   (define-key map (kbd "q") 'kill-buffer-and-window)
-  (define-key map (kbd "<menu>") 'smex)
+  (define-key map (kbd "<menu>") 'execute-extended-command)
   (define-key map (kbd "<left>") 'previous-buffer)
   (define-key map (kbd "<right>") 'next-buffer)
-  (define-key map (kbd "o") 'ace-window)
   (define-key map (kbd "=") 'enlarge-window)
   (define-key map (kbd "-") 'shrink-window)
   (define-key map (kbd "[") 'shrink-window-horizontally)
@@ -469,11 +467,22 @@ Display progress in the mode line instead."
   :ensure t
   :config ;;(add-hook 'after-init-hook 'global-company-mode)
   (global-company-mode 1)
-
+  ;; (setq company-global-modes '(not shell-mode))
   ;; company-capfs uses completion-at-point-functions
   ;; company-dabbrev-code uses words from current buffer
   ;; (add-to-list 'company-backends '(company-capf company-dabbrev-code))
+  ;;(setq company-backends '((company-files company-keywords company-yasnippet) company-dabbrev-code (company-abbrev company-dabbrev)))
+  (setq company-backends '(company-capf company-files company-keywords company-dabbrev-code (company-dabbrev company-abbrev)))
+;;  (add-hook 'c++-mode-hook (lambda ()
+;; 	(add-to-list (make-local-variable 'company-backends) 'company-irony)))
 
+
+  ;; disable company mode in remote shell
+  (add-hook 'shell-mode-hook '(lambda ()
+                                (when (and (fboundp 'company-mode)
+                                           (file-remote-p default-directory))
+                                  (company-mode -1))))
+  
   :custom
   (company-selection-wrap-around t)
   (company-begin-commands '(self-insert-command))
@@ -526,6 +535,11 @@ Display progress in the mode line instead."
 ;;;;;;;;;;;;;;;;;;;;
 
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
+(use-package buffer-move :ensure t
+  :bind (("C-S-<up>" . 'buf-move-up)
+         ("C-S-<down>" . 'buf-move-down)
+         ("C-S-<left>" . 'buf-move-left)
+         ("C-S-<right>" . 'buf-move-right)))
 
 (global-set-key (kbd "M-[") 'backward-paragraph)
 (global-set-key (kbd "M-]") 'forward-paragraph)
@@ -534,7 +548,7 @@ Display progress in the mode line instead."
   :ensure t
   :init (ace-window t)
   (setq aw-keys '(?a ?s ?d ?f ?g ?w ?e ?r ?t)) ;; limit characters
-  :bind (:map ctl-x-map
+  :bind (:map menu-prefix-map
 	 ("o" . ace-window)))
 
 (use-package treemacs
@@ -576,15 +590,38 @@ Display progress in the mode line instead."
       recentf-max-saved-items 50)
 (bind-key (kbd "C-x M-f") 'recentf-open-files)
 
+
 (use-package ido
   :config (ido-mode 1)
   (setq ido-enable-flex-matching t
 	ido-everywhere t
 	ido-auto-merge-work-directories-length -1
 	ido-use-virtual-buffers t)
-  :bind (:map ctl-x-map
-	      ("f" . ido-find-file)
-	      ("b" . ido-switch-buffer)))
+  :bind (:map menu-prefix-map
+	      ;;("f" . ido-find-file)
+	      ("a" . ido-switch-buffer))
+  )
+(use-package counsel
+  :ensure t
+  :config (counsel-mode 1)
+  (setq ivy-use-virtual-buffers t
+	enable-recursive-minibuffers t)
+  (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
+  (setq mark-ring-max 100)
+  :bind (:map menu-prefix-map
+	      ("f" . counsel-find-file)
+	      ("m" . counsel-mark-ring)
+	      ("k" . counsel-yank-pop)))
+
+;;(use-package ivy
+;;  :ensure t
+;;  :bind (:map menu-prefix-map
+;; 	 ("b" . ivy-switch-buffer)))
+
+
+(use-package swiper
+  :ensure t
+  :chords (("sj" . swiper-isearch)))
 
 (use-package dired
   :delight "Dired "
@@ -601,11 +638,6 @@ Display progress in the mode line instead."
 	      ("RET" . dired-find-alternate-file)
 	      ("z" . open-in-external-app)
 	      ("b" . (lambda () (interactive) (find-alternate-file "..")))))
-
-(use-package swiper
-  :ensure t
-  :bind (("M-'" . swiper-isearch))
-  :chords (("sj" . swiper-isearch)))
 
 (use-package avy
   :ensure

@@ -196,8 +196,30 @@ Display progress in the mode line instead."
 ;;;;;;;;;;;;;;;;;;;;
 ;; open local shell
 (defun local-shell ()
+  "open shell on localhost; C-u (universal argument) open with counter"
   (interactive)
-  (let ((default-directory "~/"))
-    (if (and (buffer-file-name) (not (file-remote-p buffer-file-name)))
-	(setq default-directory (file-name-directory buffer-file-name)))
-  (shell "*local shell*")))
+  (message "%s" current-prefix-arg)
+  (if (and (equal current-prefix-arg '(4)) (get-buffer "*local shell*"))
+      (let ((shell-count (count-prefix-match-buffer "*local shell*")))
+	    (let ((default-directory (get-default-or-current-directory)))
+	      (shell (format "*local shell*<%d>" (+ 0 shell-count)))
+	      (message "Created localhost shell")))
+    (let ((default-directory (get-default-or-current-directory)))
+	  (message "just shell")
+	  (shell "*local shell*"))))
+
+(defun get-default-or-current-directory ()
+  (interactive)
+  (if (buffer-file-name)
+      (file-name-directory buffer-file-name)
+    (if default-directory
+	default-directory
+      "~/")))
+
+(defun count-prefix-match-buffer (prefix)
+  (interactive)
+  (let ((count 0))
+    (dolist (buf (buffer-list))
+      (if (string-prefix-p prefix (buffer-name buf))
+	  (setq count (+ 1 count))))
+    count))

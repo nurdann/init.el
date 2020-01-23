@@ -212,7 +212,7 @@ Display progress in the mode line instead."
   (interactive)
   (if (buffer-file-name)
       (file-name-directory buffer-file-name)
-    (if default-directory
+    (if (and default-directory (not (file-remote-p default-directory)))
 	default-directory
       "~/")))
 

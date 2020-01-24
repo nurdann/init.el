@@ -210,7 +210,7 @@ Display progress in the mode line instead."
 
 (defun get-default-or-current-directory ()
   (interactive)
-  (if (buffer-file-name)
+  (if (and buffer-file-name (not (file-remote-p buffer-file-name)))
       (file-name-directory buffer-file-name)
     (if (and default-directory (not (file-remote-p default-directory)))
 	default-directory

@@ -204,7 +204,7 @@
 (let ((map 'menu-prefix-map))
   (define-key map (kbd "f") 'find-file)
   (define-key map (kbd "d") 'dired)
-  (define-key map (kbd "r") 'revert-without-query)
+  (define-key map (kbd "r") '(lambda () (interactive) (revert-buffer nil t)))
   (define-key map (kbd "g") 'revert-visible-windows)
   (define-key map (kbd "s") 'save-buffer)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))

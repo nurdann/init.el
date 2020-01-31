@@ -204,7 +204,7 @@
 (let ((map 'menu-prefix-map))
   (define-key map (kbd "f") 'find-file)
   (define-key map (kbd "d") 'dired)
-  (define-key map (kbd "r") '(lambda () (interactive) (revert-buffer nil t)))
+  (define-key map (kbd "r") 'revert-buffer-without-prompt)
   (define-key map (kbd "g") 'revert-visible-windows)
   (define-key map (kbd "s") 'save-buffer)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
@@ -278,7 +278,8 @@
   ;; company-dabbrev-code uses words from current buffer
   ;; (add-to-list 'company-backends '(company-capf company-dabbrev-code))
   ;;(setq company-backends '((company-files company-keywords company-yasnippet) company-dabbrev-code (company-abbrev company-dabbrev)))
-  (setq company-backends '(company-capf company-files company-keywords company-dabbrev-code (company-dabbrev company-abbrev)))
+  ;;(setq company-backends '(company-capf company-files company-keywords company-dabbrev-code (company-dabbrev company-abbrev)))
+  (setq company-backends '(company-capf company-files company-dabbrev-code company-dabbrev))
 ;;  (add-hook 'c++-mode-hook (lambda ()
 ;; 	(add-to-list (make-local-variable 'company-backends) 'company-irony)))
 
@@ -388,6 +389,7 @@
   (require 'vlf-setup))
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
+(add-hook 'auto-revert-tail-mode-hook 'end-of-buffer)
 
 (require 'recentf)
 (setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
@@ -404,9 +406,9 @@
 	ido-auto-merge-work-directories-length -1
 	ido-use-virtual-buffers t)
   :bind (:map menu-prefix-map
-	      ;;("f" . ido-find-file)
-	      ("a" . ido-switch-buffer))
-  )
+	      ("a" . ido-switch-buffer)
+	      ("b" . ido-switch-buffer)))
+
 (use-package counsel
   :ensure t
   :config (counsel-mode 1)

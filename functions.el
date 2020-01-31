@@ -223,3 +223,12 @@ Display progress in the mode line instead."
       (if (string-prefix-p prefix (buffer-name buf))
 	  (setq count (+ 1 count))))
     count))
+
+;;;;;;;;;;;;;;;;;;;;
+;; Revert buffer without prompt
+
+(defun revert-buffer-without-prompt ()
+  "Revert buffer without prompting yes/no unless buffer is modified"
+  (interactive)
+  (message "Reverted current buffer")
+  (revert-buffer nil t))

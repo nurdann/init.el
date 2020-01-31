@@ -223,3 +223,39 @@ Display progress in the mode line instead."
       (if (string-prefix-p prefix (buffer-name buf))
 	  (setq count (+ 1 count))))
     count))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Company backend for IPA symbols
+
+
+;; PARSE CSV into list, e.g.
+;; a, b \n f, c, e -> ((a, b) (f c e))
+;; https://gist.github.com/syohex/5487731
+(defun parse-csv-file (file)
+  (interactive
+   (list (read-file-name "CSV file: ")))
+  (let ((buf (find-file-noselect file))
+        (result nil))
+    (with-current-buffer buf
+      (goto-char (point-min))
+      (while (not (eobp))
+        (let ((line (buffer-substring-no-properties
+                     (line-beginning-position) (line-end-position))))
+          (push (split-string line ",") result))
+        (forward-line 1)))
+    (reverse result)))
+
+(defun company-ipa-backend (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+  (case command
+    (interactive (company-begin-backend 'company-ipa-backend))
+    (prefix (and (eq major-mode 'fundamental-mode)
+		 (company-grab-symbol)))
+    (candidates
+
+	  (dolist (element ipa-completions)
+		(let ((head (car element)))
+		   (if (string= head arg)	
+			   (return (cdr element)))))
+	  )))

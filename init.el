@@ -552,43 +552,6 @@
    ;;(setq (make-local-variable 'company-backends) (delete 'company-semantic 'company-backends))
    ))
 
-(add-hook 'c++-mode-hook (lambda ()
-			   (local-set-key (kbd "<tab>") 'company-complete)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Company backend for IPA symbols
-
-
-;; PARSE CSV into list, e.g.
-;; a, b \n f, c, e -> ((a, b) (f c e))
-;; https://gist.github.com/syohex/5487731
-(defun parse-csv-file (file)
-  (interactive
-   (list (read-file-name "CSV file: ")))
-  (let ((buf (find-file-noselect file))
-        (result nil))
-    (with-current-buffer buf
-      (goto-char (point-min))
-      (while (not (eobp))
-        (let ((line (buffer-substring-no-properties
-                     (line-beginning-position) (line-end-position))))
-          (push (split-string line ",") result))
-        (forward-line 1)))
-    (reverse result)))
-
-(defun company-ipa-backend (command &optional arg &rest ignored)
-  (interactive (list 'interactive))
-  (case command
-    (interactive (company-begin-backend 'company-ipa-backend))
-    (prefix (and (eq major-mode 'fundamental-mode)
-		 (company-grab-symbol)))
-    (candidates
-
-	  (dolist (element ipa-completions)
-		(let ((head (car element)))
-		   (if (string= head arg)	
-			   (return (cdr element)))))
-	  )))
 
 (let ((ipa-symbols "~/.emacs.d/dictionary/ipa-symbols.csv"))
   (if (file-exists-p ipa-symbols)

@@ -289,7 +289,7 @@
                                 (when (and (fboundp 'company-mode)
                                            (file-remote-p default-directory))
                                   (company-mode -1))))
-  
+
   :custom
   (company-selection-wrap-around t)
   (company-begin-commands '(self-insert-command))
@@ -518,6 +518,13 @@
 			 auto-mode-alist))
   (add-hook 'cmake-mode-hook '(add-to-list 'company-backends 'company-cmake)))
 
+;; Python
+
+(use-package company-jedi
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook '(lambda () (add-to-list 'company-backends 'company-jedi))))
+
 ;; C++
 
 (defun company-rtags-setup ()
@@ -545,10 +552,10 @@
 
 (use-package company-irony :ensure t
   :config
-  (eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
+  ;;(eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
 
 (add-hook 'c++-mode-hook '(lambda () 
-   (add-to-list (make-local-variable 'company-backends) 'company-clang)
+   (add-to-list (make-local-variable 'company-backends) '(company-clang company-irony))) ;
    ;;(setq (make-local-variable 'company-backends) (delete 'company-semantic 'company-backends))
    ))
 
@@ -560,3 +567,9 @@
 	(add-to-list 'company-backends 'company-ipa-backend))
     (message "IPA table of symbols not found")))
 
+
+;; mediawiki
+(use-package mediawiki
+  :ensure t
+  :config
+  (setq url-user-agent ""))

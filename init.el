@@ -97,6 +97,9 @@
 (auto-fill-mode -1)
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
+;; load same PATH as ~/.bashrc
+(setenv "PATH" (shell-command-to-string "/bin/bash -i -c `/bin/echo -n $PATH`"))
+
 ;; Terminal
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)

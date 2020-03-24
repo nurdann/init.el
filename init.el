@@ -206,6 +206,7 @@
 (define-prefix-command 'menu-prefix-map)
 (let ((map 'menu-prefix-map))
   (define-key map (kbd "f") 'find-file)
+  (define-key map (kbd "t") 'find-file-other-window)
   (define-key map (kbd "d") 'dired)
   (define-key map (kbd "r") 'revert-buffer-without-prompt)
   (define-key map (kbd "g") 'revert-visible-windows)
@@ -259,6 +260,8 @@
 
 ;; https://smartparens.readthedocs.io/en/latest/pair-management.html
 ;; https://ebzzry.io/en/emacs-pairs/
+;; https://github.com/Fuco1/smartparens/wiki/Hybrid-S-expressions
+;; https://github.com/Fuco1/smartparens/wiki/Permissions#insertion-specification
 (use-package smartparens
   :ensure t
   :config (smartparens-global-mode 1)
@@ -270,7 +273,14 @@
 
   (sp-with-modes 'haskell-mode
     (sp-local-pair "'" nil :actions nil))
+  (sp-with-modes '(c-mode c++-mode)
+    (sp-local-pair "{" nil :post-handlers '(:add ("||\n[i]" "RET")))
+    ;;(sp-local-pair "<" nil :when '(lambda (id action context) (sp--looking-at-p "[[:space:]]")))
+    )
   )
+
+;; try
+;; https://github.com/nivekuil/corral
 
 (use-package company
   :ensure t

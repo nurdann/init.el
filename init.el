@@ -165,6 +165,11 @@
 ;; Speciality MODES
 ;;;;;;;;;;;;;;;;;;;;
 
+(if (file-directory-p "~/.emacs.d/packages/docker-tramp")
+    (progn
+      (add-to-list 'load-path "~/.emacs.d/packages/docker-tramp")
+      (load "docker-tramp")))
+
 (use-package dockerfile-mode
   :ensure t
   :mode (("Dockerfile\\'" . dockerfile-mode))
@@ -403,6 +408,7 @@
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
 (add-hook 'auto-revert-tail-mode-hook 'end-of-buffer)
+(setq auto-revert-remote-files 1) ;; enable in TRAMP mode
 
 (require 'recentf)
 (setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process

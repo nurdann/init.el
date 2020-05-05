@@ -553,15 +553,6 @@
    ;;(setq (make-local-variable 'company-backends) (delete 'company-semantic 'company-backends))
    ))
 
-
-(let ((ipa-symbols "~/.emacs.d/dictionary/ipa-symbols.csv"))
-  (if (file-exists-p ipa-symbols)
-      (progn
-	(defconst ipa-completions (parse-csv-file ipa-symbols))
-	(add-to-list 'company-backends 'company-ipa-backend))
-    (message "IPA table of symbols not found")))
-
-
 ;; mediawiki
 (use-package mediawiki
   :ensure t

@@ -330,31 +330,6 @@
               ("<up>" . comint-previous-input)
               ("<down>" . comint-next-input)))
 
-(use-package popwin
-  :ensure t
-  :config (popwin-mode t)
-  ;; setup kill-ring window	
-  (defun popwin-bkr:update-window-reference ()
-    (popwin:update-window-reference 'browse-kill-ring-original-window :safe t))
-  (add-hook 'popwin:afterp-opup-hook 'popwin-bkr:update-window-reference)
-  (push '("*Kill Ring*" :position bottom :height 20) popwin:special-display-config)
-
-  (bind-key (kbd "C-;") popwin:keymap))
-
-(use-package browse-kill-ring
-  :ensure t
-  :config  (setq browse-kill-ring-show-preview t)
-  :bind (:map cua--cua-keys-keymap
-	 ("M-v" . browse-kill-ring)
-	 :map browse-kill-ring-mode-map
-	 ("N" . browse-kill-ring-forward)
-	 ("P" . browse-kill-ring-previous)))
-
-;;(add-to-list 'load-path "~/.emacs.d/packages/show-marks")
-;;(require 'show-marks)
-;;(global-set-key (kbd "C-c m") 'show-marks)
-;;(x-popup-menu '((0 0) init.el) '(menu hi bye))
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
 ;;;;;;;;;;;;;;;;;;;;

@@ -215,7 +215,6 @@
   (define-key map (kbd "d") 'dired)
   (define-key map (kbd "r") 'revert-buffer-without-prompt)
   (define-key map (kbd "g") 'revert-visible-windows)
-  (define-key map (kbd "s") 'save-buffer)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
   (define-key map (kbd "e") 'eval-defun)
   (define-key map (kbd "E") 'eval-last-sexp)
@@ -349,7 +348,7 @@
   :init (ace-window t)
   (setq aw-keys '(?a ?s ?d ?f ?g ?w ?e ?r ?t)) ;; limit characters
   :bind (:map menu-prefix-map
-	 ("o" . ace-window)))
+	 ("s" . ace-window)))
 
 (use-package treemacs
   :ensure t

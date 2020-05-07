@@ -218,7 +218,6 @@
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
   (define-key map (kbd "e") 'eval-defun)
   (define-key map (kbd "E") 'eval-last-sexp)
-  (define-key map (kbd "q") 'kill-buffer-and-window)
   (define-key map (kbd "<menu>") 'execute-extended-command)
   (define-key map (kbd "<left>") 'previous-buffer)
   (define-key map (kbd "<right>") 'next-buffer)

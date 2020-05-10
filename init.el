@@ -285,36 +285,6 @@
 ;; try
 ;; https://github.com/nivekuil/corral
 
-(use-package company
-  :ensure t
-  :config ;;(add-hook 'after-init-hook 'global-company-mode)
-  (global-company-mode 1)
-  ;; (setq company-global-modes '(not shell-mode))
-  ;; company-capfs uses completion-at-point-functions
-  ;; company-dabbrev-code uses words from current buffer
-  ;; (add-to-list 'company-backends '(company-capf company-dabbrev-code))
-  ;;(setq company-backends '((company-files company-keywords company-yasnippet) company-dabbrev-code (company-abbrev company-dabbrev)))
-  ;;(setq company-backends '(company-capf company-files company-keywords company-dabbrev-code (company-dabbrev company-abbrev)))
-  (setq company-backends '(company-capf company-files company-dabbrev-code company-dabbrev))
-;;  (add-hook 'c++-mode-hook (lambda ()
-;; 	(add-to-list (make-local-variable 'company-backends) 'company-irony)))
-
-
-  ;; disable company mode in remote shell
-  (add-hook 'shell-mode-hook '(lambda ()
-                                (when (and (fboundp 'company-mode)
-                                           (file-remote-p default-directory))
-                                  (company-mode -1))))
-
-  :custom
-  (company-selection-wrap-around t)
-  (company-begin-commands '(self-insert-command))
-  (company-idle-delay  0.2)
-  (company-minimum-prefix-legth 1)
-  (company-show-numbers t)
-  (company-tooltip-align-annotations t)
-  (company-require-match nil))
-
 (use-package undo-fu
   :ensure t
   :config
@@ -388,7 +358,7 @@
 (recentf-mode 1)
 (setq recentf-max-menu-items 50
       recentf-max-saved-items 50)
-(bind-key (kbd "C-x M-f") 'recentf-open-files)
+(bind-key (kbd "c") 'recentf-open-files menu-prefix-map)
 
 
 (use-package ido
@@ -398,19 +368,19 @@
 	ido-auto-merge-work-directories-length -1
 	ido-use-virtual-buffers t)
   :bind (:map menu-prefix-map
+	      ("f" . ido-find-file)
 	      ("a" . ido-switch-buffer)
 	      ("b" . ido-switch-buffer)))
 
 (use-package counsel
   :ensure t
-  :config (counsel-mode 1)
+  :config 
   (setq ivy-use-virtual-buffers t
 	enable-recursive-minibuffers t)
   (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
   (setq mark-ring-max 100)
   :bind (:map menu-prefix-map
-	      ("<menu>" . counsel-M-x)
-	      ("f" . counsel-find-file)
+	      ("x" . counsel-M-x)
 	      ("m" . counsel-mark-ring)
 	      ("k" . counsel-yank-pop)))
 
@@ -451,9 +421,6 @@
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes
 ;;;;;;;;;;;;;;;;;;;;
-
-(use-package flycheck
-  :ensure t)
 
 
 ;; Matlab
@@ -507,49 +474,7 @@
   (setq auto-mode-alist (append
 			 '(("CMakeLists\\.txt\\'" . cmake-mode))
 			 '(("\\.cmake\\'" . cmake-mode))
-			 auto-mode-alist))
-  (add-hook 'cmake-mode-hook '(add-to-list 'company-backends 'company-cmake)))
-
-;; Python
-
-(use-package company-jedi
-  :ensure t
-  :config
-  (add-hook 'python-mode-hook '(lambda () (add-to-list 'company-backends 'company-jedi))))
-
-;; C++
-
-(defun company-rtags-setup ()
-  "Configure company-backend for company-rtags"
-  (delete 'company-semantic company-backends)
-  (setq rtags-completions-enabled t)
-  (push '(company-rtags :with company-yasnippet) company-backends))
-
-;;(use-package rtags
-;;  :ensure t
-;;  :config
-;;  (rtags-enable-standard-keybindings)
-;;  (setq rtags-autostart-diagnostics t)
-;;  (rtags-diagnostics)
-;;  (rtags-start-process-unless-running)
-;;  (add-hook 'c++-mode-hook 'company-rtags-setup))
-
-(use-package irony
-  :ensure t
-  :config
-  (add-hook 'c++-mode-hook 'irony-mode)
-  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
-
-(use-package company-c-headers :ensure t)
-
-(use-package company-irony :ensure t
-  :config
-  ;;(eval-after-load 'company '(add-to-list 'company-backends 'company-irony)))
-
-(add-hook 'c++-mode-hook '(lambda () 
-   (add-to-list (make-local-variable 'company-backends) '(company-clang company-irony))) ;
-   ;;(setq (make-local-variable 'company-backends) (delete 'company-semantic 'company-backends))
-   ))
+			 auto-mode-alist)))
 
 ;; mediawiki
 (use-package mediawiki

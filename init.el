@@ -218,7 +218,7 @@
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
   (define-key map (kbd "e") 'eval-defun)
   (define-key map (kbd "E") 'eval-last-sexp)
-  (define-key map (kbd "<menu>") 'execute-extended-command)
+  (define-key map (kbd "x") 'execute-extended-command)
   (define-key map (kbd "<left>") 'previous-buffer)
   (define-key map (kbd "<right>") 'next-buffer)
   (define-key map (kbd "=") 'enlarge-window)
@@ -238,8 +238,11 @@
 ;; Buffer
 ;;;;;;;;;;;;;;;;;;;;
 
-;; display buffer in same window
-;; (add-to-list 'display-buffer-alist '("^\\*.*\\*$" . (display-buffer-same-window)))
+;; display buffers in same window
+(customize-set-variable 'display-buffer-alist
+			'(("^\\*shell.*\\*.*" . (display-buffer-same-window))
+			  ("\\*Message\\*" . (display-buffer-same-window))))
+(customize-set-variable 'Man-notify-method 'pushy)
 
 (use-package winner
   ;; default keys C-c <arrow-key>
@@ -443,6 +446,11 @@
 
 
 ;; Haskell
+;; https://gitlab.haskell.org/ghc/ghc/-/wikis/emacs#using-tags-to-quickly-locate-definitions-in-a-project
+;; cabal install hasktags
+;; hasktags --ignore-close-implementation .
+;; M-x visit-tags-table
+
 (use-package haskell-mode
   :ensure t
   :config
@@ -451,8 +459,9 @@
 
 ;; Markdown
 
+(add-to-list 'load-path "~/.emacs.d/packages/markdown/")
+(load "markdown-mode")
 (use-package markdown-mode
-  :ensure t
   :commands (markdown-mode gfm-mode)
   :mode (("\\.md\\'" . markdown-mode)
 	 ("\\.markdown\\'" . markdown-mode))

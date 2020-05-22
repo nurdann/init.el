@@ -206,13 +206,12 @@
 
 (global-set-key (kbd "S-<return>") 'navi-mode)
 
-;; space prefix mode
+;; menu prefix mode
 
 (define-prefix-command 'menu-prefix-map)
 (let ((map 'menu-prefix-map))
   (define-key map (kbd "f") 'find-file)
   (define-key map (kbd "t") 'find-file-other-window)
-  (define-key map (kbd "d") 'dired)
   (define-key map (kbd "r") 'revert-buffer-without-prompt)
   (define-key map (kbd "g") 'revert-visible-windows)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
@@ -229,10 +228,17 @@
   (define-key map (kbd "2") 'split-window-below)
   (define-key map (kbd "3") 'split-window-right)
   (define-key map (kbd "4") 'delete-window)
+  ;; (define-key map (kbd "<left>") 'backward-sexp)
+  ;; (define-key map (kbd "<right>") 'forward-sexp)
+  ;; (define-key map (kbd "<up>") 'backward-up-list)
+  ;; (define-key map (kbd "<down>") 'forward-list)
   )
 
-
-(global-set-key (kbd "<menu>") 'menu-prefix-map)
+(progn
+  (bind-key [f5] 'backward-up-list)
+   (bind-key [f6] 'forward-sexp)
+   )
+(bind-key (kbd "<menu>") 'menu-prefix-map)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -373,7 +379,8 @@
   :bind (:map menu-prefix-map
 	      ("f" . ido-find-file)
 	      ("a" . ido-switch-buffer)
-	      ("b" . ido-switch-buffer)))
+	      ("b" . ido-switch-buffer)
+	      ("d" . ido-dired)))
 
 (use-package counsel
   :ensure t

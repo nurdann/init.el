@@ -209,6 +209,11 @@ Display progress in the mode line instead."
       (shell local-shell-name)))
   (message "Created %s" local-shell-name)))
 
+(defun remote-shell (remote-string)
+  (interactive "sRemote:")
+  (let ((default-directory remote-string))
+    (shell remote-string)))
+
 (defun get-default-or-current-directory ()
   (interactive)
   (if (and buffer-file-name (not (file-remote-p buffer-file-name)))

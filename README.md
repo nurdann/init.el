@@ -117,7 +117,10 @@ Modes to help
 ## Command line interface
 
 Type either `shell` for dumb terminal or `term` which behaves same as regular terminal
-**Note**: inside `term`, the prefix command `C-x` switches to `C-c`, so to send an actual `C-c` to the terminal type it twice, i.e. `C-c C-c`.
+**Note**: 
+- inside `term`, the prefix command `C-x` switches to `C-c`, so to send an actual `C-c` to the terminal type it twice, i.e. `C-c C-c`.
+- In `term-mode`, command `C-c C-j` switches to `term-line-mode` and you can navigate text with regular key-binds; command `C-c C-k` switches to `term-char-mode` which behaves like terminal emulator.
+- In order to send escaped characters to `term`, switch to `term-line-mode` with `C-c C-j` then inserted quoted character `C-q C-x` and switch back to `term-char-mode`. So now, `C-x` is sent to the terminal emulator.
 
 Shell mode commands
 - `M-n` and `M-p` to cycle next and previous commands
@@ -127,6 +130,10 @@ Shell mode commands
 Anywhere in Emacs
 - `M-!` to execute single shell command
 - `C-u M-!` same as `M-!` but insert command output at the mark point
+
+### Copy and Paste
+
+Usually `C-w`, `M-w` and `C-y` are used for cutting, copying and pasting. Inside a terminal use `S-<insert>` and `C-<inseart>` for copying and pasting; the mark can be set with `C-<space>` albeit being invisible.
 
 ## Dired (Directory Editor)
 
@@ -149,11 +156,47 @@ Type `C-x d` to open `dired`
 
 ## Files
 
-Open `find-file` by typing `C-x C-f`
+Open `find-file` by pressing `C-x C-f`
 
 ### sudo or TRAMP 
 
-Type `C-x C-f /sudo:user@localhost:`
+Use`C-x C-f /sudo:user@localhost:`, this is similar to `sudo -s` function.
+To mimic `su` issue command and type  `C-x C-f /su:root@localhost:/`; localhost is synonymous with hostname.
+
+### SSH
+
+Syntax `/<method>:<user>@<host>:<dir>`.
+
+For Linux-based systems, `/ssh:user@host:/`
+
+On MS Windows, use PuTTY's `plink` method, `/plink:user@host:/path/to/file`
+
+
+#### Multihop
+
+Incase you need to change user inside remote host then issue `C-x C-f /ssh:userA@remoteA|ssh:userB@remoteA:/`. The same method can be used to hop from a remote host to another remote host.
+
+#### Direct shell 
+`default-directory` variable dictaces where shell is opened. The following functiono will prompt for SSH string, e.g. "/ssh:user@host:/".
+
+```
+(defun remote-shell (remote-string)
+  (interactive "sRemote:")
+  (let ((default-directory remote-string))
+    (shell remote-string)))
+```
+
+##### Config
+
+```
+# ~/.ssh/config
+
+Host goo
+     HostName google.ca
+     User root
+``` 
+Then type `C-x C-f /ssh:goo:/` to get password prompt 
+
 
 ### Log files
 
@@ -178,19 +221,10 @@ Then type `C-x C-f /jou <RET>`
 `C-x r m` mark for bookmark
 `C-x r b` prompt for saved bookmarks
 
-### ssh
-
-```
-# ~/.ssh/config
-
-Host goo
-     HostName google.ca
-     User root
-``` 
-Then type `C-x C-f /ssh:goo:/` to get password prompt 
-
 
 # MODE LINE - Emacs
+
+## Default
 
 ```
 cs:ch-fr buffer pos line (major minor)

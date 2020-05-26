@@ -184,7 +184,7 @@
 
 (use-package magit
   :ensure t
-  :chords (("gj" . magit-status)))
+  :bind (("g" . magit-status)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES

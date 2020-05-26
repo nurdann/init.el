@@ -213,10 +213,8 @@
   (define-key map (kbd "f") 'find-file)
   (define-key map (kbd "t") 'find-file-other-window)
   (define-key map (kbd "r") 'revert-buffer-without-prompt)
-  (define-key map (kbd "g") 'revert-visible-windows)
+  (define-key map (kbd "R") 'revert-visible-windows)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
-  (define-key map (kbd "e") 'eval-defun)
-  (define-key map (kbd "E") 'eval-last-sexp)
   (define-key map (kbd "x") 'execute-extended-command)
   (define-key map (kbd "<left>") 'previous-buffer)
   (define-key map (kbd "<right>") 'next-buffer)
@@ -235,8 +233,8 @@
   )
 
 (progn
-  (bind-key [f5] 'backward-up-list)
-   (bind-key [f6] 'forward-sexp)
+  (bind-key [f5] 'previous-buffer)
+   (bind-key [f6] 'next-buffer)
    )
 (bind-key (kbd "<menu>") 'menu-prefix-map)
 
@@ -266,6 +264,10 @@
 (bind-key (kbd "C-c C-k") 'alma/copy)
 
 (use-package smex :ensure t)
+
+(use-package auto-complete
+  :ensure t
+  :config  (ac-config-default))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Smart parentheses
@@ -326,7 +328,8 @@
   :init (ace-window t)
   (setq aw-keys '(?a ?s ?d ?f ?g ?w ?e ?r ?t)) ;; limit characters
   :bind (:map menu-prefix-map
-	 ("s" . ace-window)))
+	      ("s" . ace-window)
+	      ("o" . ace-window)))
 
 (use-package treemacs
   :ensure t
@@ -339,7 +342,8 @@
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
   (treemacs-fringe-indicator-mode t)
-  :chords (("tj" . treemacs-select-window)))
+  :bind (:map menu-prefix-map
+		("t" . treemacs-select-window)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files
@@ -401,8 +405,7 @@
 
 
 (use-package swiper
-  :ensure t
-  :chords (("sj" . swiper-isearch)))
+  :ensure t)
 
 (use-package dired
   :delight "Dired "
@@ -424,9 +427,9 @@
   :ensure
   :custom
   (avy-time-out-seconds 0.7)
-  :bind (("C-'" . avy-goto-char-timer)
-	 ("C-\"" . avy-goto-line))
-  :chords (("jf" . avy-goto-char-timer)))
+  :bind (:map menu-prefix-map
+		("j" . avy-goto-char-timer)
+		("l" . avy-goto-line)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes

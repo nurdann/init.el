@@ -123,9 +123,17 @@ Type either `shell` for dumb terminal or `term` which behaves same as regular te
 - In order to send escaped characters to `term`, switch to `term-line-mode` with `C-c C-j` then inserted quoted character `C-q C-x` and switch back to `term-char-mode`. So now, `C-x` is sent to the terminal emulator.
 
 Shell mode commands
-- `M-n` and `M-p` to cycle next and previous commands
+- `M-n` (or `C-<up>`) and `M-p` (or `C-<down>`) to cycle next and previous commands
 - `C-a` and `C-e` go to beggining and end of line
 - `M-x send-invisible` to hide typed text
+- `M-r` (`comint-history-isearch-backward-regexp`; similar to regular `C-r` in terminal emulators) search from previous commands
+  - After `M-r`, cycle matches with `C-r` backward or `C-s` forward in history
+- `C-c M-r` (`comint-previous-matching-input-from-input`) search backwards using current prompt string
+- `C-c C-l` create buffer with command per line
+
+> Often it is useful to reexecute several successive shell commands that were previously executed in sequence. To do this, first find and reexecute the first command of the sequence. Then type `C-c C-x`; that will fetch the following command—the one that follows the command you just repeated. Then type `<RET>` to reexecute this command. You can reexecute several successive commands by typing `C-c C-x <RET>` over and over.
+
+_source_: https://www.gnu.org/software/emacs/manual/html_node/emacs/Shell-Ring.html
 
 Anywhere in Emacs
 - `M-!` to execute single shell command

@@ -8,6 +8,8 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (load-file "~/.emacs.d/functions.el")
+(setenv "BASH_ENV" "~/.bashrc")
+(setq shell-command-switch "-ic")
 
 (require 'package)
 
@@ -184,7 +186,8 @@
 
 (use-package magit
   :ensure t
-  :bind (("g" . magit-status)))
+  :bind (:map ctl-x-map
+	 ("g" . magit-status)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -215,7 +218,7 @@
   (define-key map (kbd "r") 'revert-buffer-without-prompt)
   (define-key map (kbd "R") 'revert-visible-windows)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
-  (define-key map (kbd "x") 'execute-extended-command)
+  ;; (define-key map (kbd "x") 'execute-extended-command)
   (define-key map (kbd "<left>") 'previous-buffer)
   (define-key map (kbd "<right>") 'next-buffer)
   (define-key map (kbd "=") 'enlarge-window)
@@ -226,6 +229,9 @@
   (define-key map (kbd "2") 'split-window-below)
   (define-key map (kbd "3") 'split-window-right)
   (define-key map (kbd "4") 'delete-window)
+  (define-key map (kbd "q") 'quoted-insert)
+  (define-key map (kbd "s") 'save-buffer)
+  (define-key map (kbd "t") 'recentf-open-files)
   ;; (define-key map (kbd "<left>") 'backward-sexp)
   ;; (define-key map (kbd "<right>") 'forward-sexp)
   ;; (define-key map (kbd "<up>") 'backward-up-list)
@@ -326,10 +332,11 @@
 (use-package ace-window
   :ensure t
   :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?f ?g ?w ?e ?r ?t)) ;; limit characters
-  :bind (:map menu-prefix-map
-	      ("s" . ace-window)
-	      ("o" . ace-window)))
+  (setq aw-keys '(?a ?s ?d ?f ?q ?w ?e ?r)) ;; limit characters
+  :bind (:map ctl-x-map
+         ("o" . ace-window)
+         :map menu-prefix-map
+              ("o" . ace-window)))
 
 (use-package treemacs
   :ensure t
@@ -369,9 +376,8 @@
 (require 'recentf)
 (setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
 (recentf-mode 1)
-(setq recentf-max-menu-items 50
-      recentf-max-saved-items 50)
-(bind-key (kbd "c") 'recentf-open-files menu-prefix-map)
+(setq recentf-max-menu-items 200
+      recentf-max-saved-items 200)
 
 
 (use-package ido
@@ -397,12 +403,6 @@
 	      ("x" . counsel-M-x)
 	      ("m" . counsel-mark-ring)
 	      ("k" . counsel-yank-pop)))
-
-;;(use-package ivy
-;;  :ensure t
-;;  :bind (:map menu-prefix-map
-;; 	 ("b" . ivy-switch-buffer)))
-
 
 (use-package swiper
   :ensure t)

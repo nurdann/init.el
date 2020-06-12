@@ -68,7 +68,6 @@
       indent-tabs-mode nil
       tab-width 4
       tab-always-indent nil
-      electric-indent-mode 1
 
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
       set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
@@ -267,6 +266,8 @@
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
+
+(electric-indent-mode -1)
 
 (bind-key (kbd "C-c C-k") 'alma/copy)
 
@@ -471,8 +472,13 @@
   :ensure t
   :config
   ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-  (setq-default haskell-font-lock-symbols t)
-  (setq-default haskell-process-type 'cabal-repl))
+  ;;(setq-default haskell-font-lock-symbols t)
+  ;;(setq-default haskell-process-type 'cabal-repl)
+  )
+
+(use-package hindent
+  :ensure t
+  :config (add-hook 'haskell-mode-hook 'hindent-mode))
 
 ;; Markdown
 

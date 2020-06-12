@@ -62,12 +62,12 @@
 ;; Misc
 ;;;;;;;;;;;;;;;;;;;;
 
-(setq ring-bell-function 'ignore ;; disable sound bell on error
+(setq-default ring-bell-function 'ignore ;; disable sound bell on error
       read-buffer-completion-ignore-case t
       read-file-name-completion-ignore-case t 
       indent-tabs-mode nil
       tab-width 4
-      tab-always-indent 'complete
+      tab-always-indent nil
       electric-indent-mode 1
 
       select-enable-clipboard t ;; copy/cut kill-ring to clipboard
@@ -75,13 +75,13 @@
       shift-select-mode t
       auto-compression-mode t)
 
-(setq backup-by-copying t
+(setq-default backup-by-copying t
       backup-directory-alist '(("." . "~/.emacs.d/backup/"))
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 2)
 
-(setq custom-file "~/.emacs.d/custom.el")
+(setq-default custom-file "~/.emacs.d/custom.el")
 (if (file-exists-p custom-file)
     (load custom-file))
 
@@ -117,7 +117,7 @@
 
 ;;use C-[zxcv] convention
 ;; `C-s M-e C-v` to paste in isearch minibuffer
-(setq cua-delete-selection nil) ;; delete selection only with delete commands
+(setq-default cua-delete-selection nil) ;; delete selection only with delete commands
 (cua-mode t)
 
 ;; remap ctl-x-map keys
@@ -126,12 +126,12 @@
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
 
 ;; Start up
-(setq inhibit-startup-screen t
+(setq-default inhibit-startup-screen t
       initial-buffer-choice "~/Desktop/notes.md")
 (kill-buffer "*scratch*")
 
 ;; scroll behaviour
-(setq scroll-preserve-screen-position t)
+(setq-default scroll-preserve-screen-position t)
 (bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 5)))
 (bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 5)))
 
@@ -140,9 +140,10 @@
   :ensure t
   :config 
   (sml/setup)
-  (setq sml/theme 'light) ;; 'light, 'dark, 'respectful
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/replacer-regexp-list nil)
+  (setq-default
+   sml/theme 'light ;; 'light, 'dark, 'respectful
+   sml/no-confirm-load-theme t
+   sml/replacer-regexp-list nil)
   ;;(add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
   )
 
@@ -179,7 +180,7 @@
 	      ("C-c l" . dockerfile-build-buffer))
   :config
   (put 'dockerfile-image-name 'safe-local-variable #'stringp)
-  (setq dockerfile-mode-command "docker"))
+  (setq-default dockerfile-mode-command "docker"))
 
 (use-package docker
   :bind (("C-c d" . docker)))
@@ -260,7 +261,7 @@
 
 (use-package minibuffer
   :config
-  (setq resize-mini-windows t))
+  (setq-default resize-mini-windows t))
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -312,8 +313,14 @@
 
 (use-package shell
   :bind (:map shell-mode-map
-              ("<up>" . comint-previous-input)
-              ("<down>" . comint-next-input)))
+              ("<up>" . (lambda ()
+			  (interactive)
+			  (goto-char (point-max))
+			  (comint-previous-input 1)))
+              ("<down>" . (lambda ()
+			    (interactive)
+			    (goto-char (point-max))
+			    (comint-next-input 1)))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -332,7 +339,7 @@
 (use-package ace-window
   :ensure t
   :init (ace-window t)
-  (setq aw-keys '(?a ?s ?d ?f ?q ?w ?e ?r)) ;; limit characters
+  (setq-default aw-keys '(?a ?s ?d ?f ?q ?w ?e ?r)) ;; limit characters
   :bind (:map ctl-x-map
          ("o" . ace-window)
          :map menu-prefix-map
@@ -371,18 +378,18 @@
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
 (add-hook 'auto-revert-tail-mode-hook 'end-of-buffer)
-(setq auto-revert-remote-files 1) ;; enable in TRAMP mode
+(setq-default auto-revert-remote-files 1) ;; enable in TRAMP mode
 
 (require 'recentf)
-(setq recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
+(setq-default recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
 (recentf-mode 1)
-(setq recentf-max-menu-items 200
+(setq-default recentf-max-menu-items 200
       recentf-max-saved-items 200)
 
 
 (use-package ido
   :config (ido-mode 1)
-  (setq ido-enable-flex-matching t
+  (setq-default ido-enable-flex-matching t
 	ido-everywhere t
 	ido-auto-merge-work-directories-length -1
 	ido-use-virtual-buffers t)
@@ -395,10 +402,10 @@
 (use-package counsel
   :ensure t
   :config 
-  (setq ivy-use-virtual-buffers t
+  (setq-default ivy-use-virtual-buffers t
 	enable-recursive-minibuffers t)
   (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
-  (setq mark-ring-max 100)
+  (setq-default mark-ring-max 100)
   :bind (:map menu-prefix-map
 	      ("x" . counsel-M-x)
 	      ("m" . counsel-mark-ring)
@@ -465,7 +472,7 @@
   :ensure t
   :config
   ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-  (setq haskell-process-type 'cabal-repl))
+  (setq-default haskell-process-type 'cabal-repl))
 
 ;; Markdown
 
@@ -476,8 +483,8 @@
   :mode (("\\.md\\'" . markdown-mode)
 	 ("\\.markdown\\'" . markdown-mode))
   :config
-  (setq markdown-command "markdown")
-  (setq markdown-indent-on-enter 'indent-and-new-item)
+  (setq-default markdown-command "markdown")
+  (setq-default markdown-indent-on-enter 'indent-and-new-item)
 
   (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
   :bind (:map markdown-mode-map
@@ -490,7 +497,7 @@
 (use-package cmake-mode
   :ensure t
   :config
-  (setq auto-mode-alist (append
+  (setq-default auto-mode-alist (append
 			 '(("CMakeLists\\.txt\\'" . cmake-mode))
 			 '(("\\.cmake\\'" . cmake-mode))
 			 auto-mode-alist)))
@@ -499,4 +506,4 @@
 (use-package mediawiki
   :ensure t
   :config
-  (setq url-user-agent ""))
+  (setq-default url-user-agent ""))

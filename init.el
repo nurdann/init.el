@@ -442,7 +442,6 @@
 ;; Language modes
 ;;;;;;;;;;;;;;;;;;;;
 
-
 ;; Matlab
 ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
 ;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
@@ -472,6 +471,7 @@
   :ensure t
   :config
   ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+  (setq-default haskell-font-lock-symbols t)
   (setq-default haskell-process-type 'cabal-repl))
 
 ;; Markdown

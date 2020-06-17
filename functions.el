@@ -274,3 +274,15 @@ Display progress in the mode line instead."
 			   (return (cdr element)))))
 	  )))
 
+
+(defun my-company-visible-and-explicit-action-p ()
+  (and (company-tooltip-visible-p)
+       (company-explicit-action-p)))
+
+(defun company-ac-setup ()
+  "Sets up `company-mode' to behave similarly to `auto-complete-mode'."
+  (setq company-require-match 'never)
+  (setq company-auto-complete #'my-company-visible-and-explicit-action-p)
+  (setq company-frontends '(company-pseudo-tooltip-unless-just-one-frontend
+                            company-preview-frontend
+                            company-echo-metadata-frontend)))

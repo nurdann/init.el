@@ -98,6 +98,10 @@
 (auto-fill-mode -1)
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
+(when (display-graphic-p)
+  (desktop-save-mode 1))
+(add-to-list 'desktop-globals-to-save 'register-alist)
+
 ;; load same PATH as ~/.bashrc
 (setenv "PATH" (shell-command-to-string "/bin/bash -i -c `/bin/echo -n $PATH`"))
 
@@ -234,7 +238,12 @@
   (define-key map (kbd "t") 'recentf-open-files)
   ;; (define-key map (kbd "<left>") 'backward-sexp)
   ;; (define-key map (kbd "<right>") 'forward-sexp)
-  ;; (define-key map (kbd "<up>") 'backward-up-list)
+  (define-key map (kbd "k") 'backward-up-list)
+  (define-key map (kbd "j") 'down-list)
+  (define-key map (kbd "h") 'backward-list)
+  (define-key map (kbd "l") 'forward-list)
+  (define-key map (kbd "u") 'backward-sexp)
+  (define-key map (kbd "i") 'forward-sexp)
   ;; (define-key map (kbd "<down>") 'forward-list)
   )
 
@@ -273,9 +282,22 @@
 
 (use-package smex :ensure t)
 
-(use-package auto-complete
+;;(use-package auto-complete :config  (ac-config-default))
+
+(use-package company
   :ensure t
-  :config  (ac-config-default))
+  :config
+  (company-ac-setup)  
+  (add-hook 'haskell-mode-hook
+            (lambda ()
+              (set (make-local-variable 'company-backends)
+                   (append '((company-capf company-dabbrev-code)) company-backends))))
+  (add-hook 'haskell-mode-hook (company-mode 1))
+  (add-hook 'emacs-lisp-mode-hook (company-mode 1))
+  :bind (:map company-active-map
+              ("TAB" . company-complete-common-or-cycle)
+              ("S-TAB" . company-select-previous)))
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Smart parentheses
@@ -288,6 +310,11 @@
   :ensure t
   :config (smartparens-global-mode 1)
   (show-smartparens-global-mode t)
+  (sp-pair "\\\\(" nil :actions :rem)
+  (sp-pair "\\(" nil :actions :rem)
+  (sp-pair "\\{" nil :actions :rem)
+  (sp-pair "\\\"" nil :actions :rem)
+
   (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
 
   (sp-with-modes 'emacs-lisp-mode
@@ -410,7 +437,7 @@
   :bind (:map menu-prefix-map
 	      ("x" . counsel-M-x)
 	      ("m" . counsel-mark-ring)
-	      ("k" . counsel-yank-pop)))
+	      ("v" . counsel-yank-pop)))
 
 (use-package swiper
   :ensure t)
@@ -436,8 +463,7 @@
   :custom
   (avy-time-out-seconds 0.7)
   :bind (:map menu-prefix-map
-		("j" . avy-goto-char-timer)
-		("l" . avy-goto-line)))
+		("SPC" . avy-goto-char-timer)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes
@@ -471,9 +497,23 @@
 (use-package haskell-mode
   :ensure t
   :config
-  ;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+  (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
   ;;(setq-default haskell-font-lock-symbols t)
   ;;(setq-default haskell-process-type 'cabal-repl)
+
+  ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Interactive-Haskell
+  (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
+  (define-key haskell-mode-map (kbd "C-`") 'haskell-interactive-bring)
+  (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-process-do-type)
+  (define-key haskell-mode-map (kbd "C-c C-i") 'haskell-process-do-info)
+  (define-key haskell-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
+  (define-key haskell-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
+  (define-key haskell-mode-map (kbd "C-c c") 'haskell-process-cabal)
+
+  (define-key haskell-cabal-mode-map (kbd "C-`") 'haskell-interactive-bring)
+  (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
+  (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
+  (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)
   )
 
 (use-package hindent

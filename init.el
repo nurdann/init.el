@@ -46,7 +46,7 @@
   :ensure t
   :config (key-chord-mode 1)
   (setq key-chord-two-keys-delay .025
-	key-chord-one-key-delay .025))
+        key-chord-one-key-delay .025))
 
 ;; Theme
 (use-package humanoid-themes :ensure :defer)
@@ -64,22 +64,22 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (setq-default ring-bell-function 'ignore ;; disable sound bell on error
-      read-buffer-completion-ignore-case t
-      read-file-name-completion-ignore-case t 
-      indent-tabs-mode nil
-      tab-width 4
-      tab-always-indent nil
+              read-buffer-completion-ignore-case t
+              read-file-name-completion-ignore-case t 
+              indent-tabs-mode nil
+              tab-width 4
+              tab-always-indent nil
 
-      select-enable-clipboard t ;; copy/cut kill-ring to clipboard
-      set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
-      shift-select-mode t
-      auto-compression-mode t)
+              select-enable-clipboard t ;; copy/cut kill-ring to clipboard
+              set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
+              shift-select-mode t
+              auto-compression-mode t)
 
 (setq-default backup-by-copying t
-      backup-directory-alist '(("." . "~/.emacs.d/backup/"))
-      delete-old-versions t
-      kept-new-versions 6
-      kept-old-versions 2)
+              backup-directory-alist '(("." . "~/.emacs.d/backup/"))
+              delete-old-versions t
+              kept-new-versions 6
+              kept-old-versions 2)
 
 (setq-default custom-file "~/.emacs.d/custom.el")
 (if (file-exists-p custom-file)
@@ -110,7 +110,7 @@
       (define-key input-decode-map "\C-i" [C-i])
       (define-key input-decode-map "\C-m" [C-m])
       (define-key input-decode-map "\C-j" [C-j])
-     ))
+      ))
 
 ;; remap defaults
 (global-unset-key (kbd "C-z"))
@@ -127,7 +127,7 @@
 
 ;; Start up
 (setq-default inhibit-startup-screen t
-      initial-buffer-choice "~/Desktop/notes.md")
+              initial-buffer-choice "~/Desktop/notes.md")
 (kill-buffer "*scratch*")
 
 ;; scroll behaviour
@@ -162,34 +162,7 @@
   :ensure t
   :config (which-key-mode 1)
   :custom (which-key-idle-delay 0.4) 
-  	  (which-key-idle-secondary-delay 0.4))
-
-;;;;;;;;;;;;;;;;;;;;
-;; Speciality MODES
-;;;;;;;;;;;;;;;;;;;;
-
-(if (file-directory-p "~/.emacs.d/packages/docker-tramp")
-    (progn
-      (add-to-list 'load-path "~/.emacs.d/packages/docker-tramp")
-      (load "docker-tramp")))
-
-(use-package dockerfile-mode
-  :ensure t
-  :mode (("Dockerfile\\'" . dockerfile-mode))
-  :bind (:map dockerfile-mode-map
-	      ("C-c l" . dockerfile-build-buffer))
-  :config
-  (put 'dockerfile-image-name 'safe-local-variable #'stringp)
-  (setq-default dockerfile-mode-command "docker"))
-
-(use-package docker
-  :bind (:map menu-prefix-map
-         ("n" . docker)))
-
-(use-package magit
-  :ensure t
-  :bind (:map menu-prefix-map
-	 ("g" . magit-status)))
+  (which-key-idle-secondary-delay 0.4))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
@@ -247,9 +220,38 @@
 
 (progn
   (bind-key [f5] 'previous-buffer)
-   (bind-key [f6] 'next-buffer)
-   )
+  (bind-key [f6] 'next-buffer)
+  )
 (bind-key (kbd "<menu>") 'menu-prefix-map)
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; Speciality MODES
+;;;;;;;;;;;;;;;;;;;;
+
+(if (file-directory-p "~/.emacs.d/packages/docker-tramp")
+    (progn
+      (add-to-list 'load-path "~/.emacs.d/packages/docker-tramp")
+      (load "docker-tramp")))
+
+(use-package dockerfile-mode
+  :ensure t
+  :mode (("Dockerfile\\'" . dockerfile-mode))
+  :bind (:map dockerfile-mode-map
+              ("C-c l" . dockerfile-build-buffer))
+  :config
+  (put 'dockerfile-image-name 'safe-local-variable #'stringp)
+  (setq-default dockerfile-mode-command "docker"))
+
+(use-package docker
+  :ensure t
+  :bind (:map menu-prefix-map
+              ("n" . docker)))
+
+(use-package magit
+  :ensure t
+  :bind (:map menu-prefix-map
+              ("g" . magit-status)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Buffer
@@ -257,8 +259,8 @@
 
 ;; display buffers in same window
 (customize-set-variable 'display-buffer-alist
-			'(("^\\*shell.*\\*.*" . (display-buffer-same-window))
-			  ("\\*Message\\*" . (display-buffer-same-window))))
+                        '(("^\\*shell.*\\*.*" . (display-buffer-same-window))
+                          ("\\*Message\\*" . (display-buffer-same-window))))
 (customize-set-variable 'Man-notify-method 'pushy)
 
 (use-package winner
@@ -328,9 +330,9 @@
   :ensure t
   :config
   :bind (:map cua--cua-keys-keymap
-	 ("C-z" . undo-fu-only-undo)
-	 ("C-S-z" . undo-fu-only-redo)
-	 ("C-M-z" . undo-fu-only-redo-all)))
+              ("C-z" . undo-fu-only-undo)
+              ("C-S-z" . undo-fu-only-redo)
+              ("C-M-z" . undo-fu-only-redo-all)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -352,8 +354,8 @@
   :init (ace-window t)
   (setq-default aw-keys '(?a ?s ?d ?f ?q ?w ?e ?r)) ;; limit characters
   :bind (:map ctl-x-map
-         ("o" . ace-window)
-         :map menu-prefix-map
+              ("o" . ace-window)
+              :map menu-prefix-map
               ("o" . ace-window)))
 
 (use-package treemacs
@@ -368,14 +370,14 @@
   (treemacs-filewatch-mode t)
   (treemacs-fringe-indicator-mode t)
   :bind (:map menu-prefix-map
-		("t" . treemacs-select-window)))
+              ("t" . treemacs-select-window)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files
 
 (eval-after-load "dired-aux"
   '(add-to-list 'dired-compress-file-suffixes
-		'("\\.zip\\'" ".zip" "unzip")))
+                '("\\.zip\\'" ".zip" "unzip")))
 
 ;; view same buffer with two windows
 ;; C-x 3 M-x follow-mode
@@ -395,32 +397,32 @@
 (setq-default recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
 (recentf-mode 1)
 (setq-default recentf-max-menu-items 200
-      recentf-max-saved-items 200)
+              recentf-max-saved-items 200)
 
 
 (use-package ido
   :config (ido-mode 1)
   (setq-default ido-enable-flex-matching t
-	ido-everywhere t
-	ido-auto-merge-work-directories-length -1
-	ido-use-virtual-buffers t)
+                ido-everywhere t
+                ido-auto-merge-work-directories-length -1
+                ido-use-virtual-buffers t)
   :bind (:map menu-prefix-map
-	      ("f" . ido-find-file)
-	      ("a" . ido-switch-buffer)
-	      ("b" . ido-switch-buffer)
-	      ("d" . ido-dired)))
+              ("f" . ido-find-file)
+              ("a" . ido-switch-buffer)
+              ("b" . ido-switch-buffer)
+              ("d" . ido-dired)))
 
 (use-package counsel
   :ensure t
   :config 
   (setq-default ivy-use-virtual-buffers t
-	enable-recursive-minibuffers t)
+                enable-recursive-minibuffers t)
   (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
   (setq-default mark-ring-max 100)
   :bind (:map menu-prefix-map
-	      ("x" . counsel-M-x)
-	      ("m" . counsel-mark-ring)
-	      ("v" . counsel-yank-pop)))
+              ("x" . counsel-M-x)
+              ("m" . counsel-mark-ring)
+              ("v" . counsel-yank-pop)))
 
 (use-package swiper
   :ensure t
@@ -439,40 +441,40 @@
   :config
   (put 'dired-find-alternate-file 'disabled nil)
   :bind (:map dired-mode-map
-	      ("RET" . dired-find-alternate-file)
-	      ("z" . open-in-external-app)
-	      ("b" . (lambda () (interactive) (find-alternate-file "..")))))
+              ("RET" . dired-find-alternate-file)
+              ("z" . open-in-external-app)
+              ("b" . (lambda () (interactive) (find-alternate-file "..")))))
 
 (use-package avy
   :ensure
   :custom
   (avy-time-out-seconds 0.7)
   :bind (:map menu-prefix-map
-		("SPC" . avy-goto-char-timer)))
+              ("SPC" . avy-goto-char-timer)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes
 ;;;;;;;;;;;;;;;;;;;;
 
 ;; Matlab
-;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
-;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
-;(setq matlab-indent-function t)
-;(setq matlab-shell-command "matlab")
-;
-;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
-;(load-library "matlab")
-;
-;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
-;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
-;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
+                                        ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
+                                        ;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
+                                        ;(setq matlab-indent-function t)
+                                        ;(setq matlab-shell-command "matlab")
+                                        ;
+                                        ;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
+                                        ;(load-library "matlab")
+                                        ;
+                                        ;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
+                                        ;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
+                                        ;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
 
 ;; SHELL
 
 
 (use-package shell
   :config
-  (setq-default comint-password-prompt-regexp "")
+  (remove-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt)
   (electric-add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
   :bind (:map shell-mode-map
               ("<up>" . (lambda ()
@@ -497,15 +499,15 @@
   :config
   (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
   (custom-set-variables
-  ;;'(haskell-process-suggest-remove-import-lines t)
-  ;;'(haskell-process-auto-import-loaded-modules t)
-  '(haskell-process-log t)
-  ;;'(haskell-process-type 'cabal-repl)
+   ;;'(haskell-process-suggest-remove-import-lines t)
+   ;;'(haskell-process-auto-import-loaded-modules t)
+   '(haskell-process-log t)
+   ;;'(haskell-process-type 'cabal-repl)
 
-  ;; cabal install hasktags (make sure `hasktags` in PATH)
-  ;; M-x visit-tags-table (Manually select TAGS file)
-  '(haskell-tags-on-save t) 
-  )
+   ;; cabal install hasktags (make sure `hasktags` in PATH)
+   ;; M-x visit-tags-table (Manually select TAGS file)
+   '(haskell-tags-on-save t) 
+   )
 
   :bind (
          :map interactive-haskell-mode-map
@@ -528,15 +530,15 @@
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :mode (("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode))
+         ("\\.markdown\\'" . markdown-mode))
   :config
   (setq-default markdown-command "markdown")
   (setq-default markdown-indent-on-enter 'indent-and-new-item)
 
   :bind (:map markdown-mode-map
-	      ("C-c C-k" . nil)
-	      ("<return>" . markdown-custom-enter)
-	      ("C-`" . markdown-insert-gfm-code-block)))
+              ("C-c C-k" . nil)
+              ("<return>" . markdown-custom-enter)
+              ("C-`" . markdown-insert-gfm-code-block)))
 
 ;; cmake
 
@@ -544,9 +546,9 @@
   :ensure t
   :config
   (setq-default auto-mode-alist (append
-			 '(("CMakeLists\\.txt\\'" . cmake-mode))
-			 '(("\\.cmake\\'" . cmake-mode))
-			 auto-mode-alist)))
+                                 '(("CMakeLists\\.txt\\'" . cmake-mode))
+                                 '(("\\.cmake\\'" . cmake-mode))
+                                 auto-mode-alist)))
 
 ;; mediawiki
 (use-package mediawiki

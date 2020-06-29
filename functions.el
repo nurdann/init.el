@@ -2,14 +2,14 @@
 ;; FUNCTIONS
 ;;;;;;;;;;;;;;;;;;;;
 
-(defun alma/cut ()
+(defun cut-whole-line-at-cursor ()
   "Cut the region, if no region cut current line"
   (interactive)
   (if (use-region-p)
       (kill-region 1 1 t)
     (kill-region (line-beginning-position) (line-end-position))))
 
-(defun alma/copy ()
+(defun copy-whole-line-at-cursor ()
   "Copy the region, if no region copy current line"
   (interactive)
   (if (use-region-p)

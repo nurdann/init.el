@@ -271,7 +271,7 @@
 
 (electric-indent-mode -1)
 
-(bind-key (kbd "C-c C-k") 'alma/copy)
+(bind-key (kbd "C-c C-k") 'copy-whole-line-at-cursor)
 
 ;;(use-package auto-complete :config  (ac-config-default))
 
@@ -533,7 +533,6 @@
   (setq-default markdown-command "markdown")
   (setq-default markdown-indent-on-enter 'indent-and-new-item)
 
-  (alma/add-mode-pairs 'markdown-mode-hook '((?\` . ?\`)))
   :bind (:map markdown-mode-map
 	      ("C-c C-k" . nil)
 	      ("<return>" . markdown-custom-enter)

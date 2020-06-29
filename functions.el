@@ -177,7 +177,7 @@ Display progress in the mode line instead."
 ;; add custom pairs
 
 ;; https://emacs.stackexchange.com/questions/2538/how-to-define-additional-mode-specific-pairs-for-electric-pair-mode
-(defun alma/add-mode-pairs (hook pairs)
+(defun electric-add-mode-pairs (hook pairs)
   `(add-hook ,hook
 	     (lambda ()
 	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))

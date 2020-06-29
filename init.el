@@ -1,15 +1,15 @@
 ;; TO DO
-;; remap C-y and M-w
 ;; cua C-c doesn't work in `C-s` and magit-mode
-;; show mark-ring
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; INIT
 ;;;;;;;;;;;;;;;;;;;;
 
 (load-file "~/.emacs.d/functions.el")
-(setenv "BASH_ENV" "~/.bashrc")
-(setq shell-command-switch "-ic")
+;; (setenv "BASH_ENV" "~/.bashrc")
+;; (setq-default shell-command-switch "-c")
+;; load same PATH as ~/.bashrc
+;; (setenv "PATH" (shell-command-to-string "/bin/bash -i -c `/bin/echo -n $PATH`"))
 
 (require 'package)
 
@@ -56,7 +56,8 @@
   :config
   (setq circadian-themes '(("8:00" . humanoid-light)
                            ("19:00" . humanoid-dark)))
-  (circadian-setup))
+  (circadian-setup)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Misc
@@ -100,10 +101,6 @@
 
 (when (display-graphic-p)
   (desktop-save-mode 1))
-(add-to-list 'desktop-globals-to-save 'register-alist)
-
-;; load same PATH as ~/.bashrc
-(setenv "PATH" (shell-command-to-string "/bin/bash -i -c `/bin/echo -n $PATH`"))
 
 ;; Terminal
 (let ((frame (framep (selected-frame))))
@@ -142,13 +139,13 @@
 (use-package smart-mode-line
   :ensure t
   :config 
-  (sml/setup)
+
   (setq-default
-   sml/theme 'light ;; 'light, 'dark, 'respectful
+   sml/theme 'dark ;; 'light, 'dark, 'respectful
    sml/no-confirm-load-theme t
    sml/replacer-regexp-list nil)
   ;;(add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
-  )
+  (sml/setup))
 
 (use-package command-log-mode
   ;; (command-log-mode)
@@ -186,11 +183,12 @@
   (setq-default dockerfile-mode-command "docker"))
 
 (use-package docker
-  :bind (("C-c d" . docker)))
+  :bind (:map menu-prefix-map
+         ("n" . docker)))
 
 (use-package magit
   :ensure t
-  :bind (:map ctl-x-map
+  :bind (:map menu-prefix-map
 	 ("g" . magit-status)))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -207,8 +205,14 @@
   :keymap (let ((map (make-sparse-keymap)))
             (suppress-keymap map)
             (define-key map (kbd "i") 'navi-mode)
-	    (define-key map (kbd "w") 'scroll-down-line)
-	    (define-key map (kbd "s") 'scroll-up-line)
+            (define-key map (kbd "p") 'scroll-down-line)
+            (define-key map (kbd "n") 'scroll-up-line)
+            (define-key map (kbd "k") 'backward-up-list)
+            (define-key map (kbd "j") 'down-list)
+            (define-key map (kbd "h") 'backward-list)
+            (define-key map (kbd "l") 'forward-list)
+            ;;(define-key map (kbd "u") 'backward-sexp)
+            ;;(define-key map (kbd "i") 'forward-sexp)
             map))
 
 (global-set-key (kbd "S-<return>") 'navi-mode)
@@ -238,12 +242,6 @@
   (define-key map (kbd "t") 'recentf-open-files)
   ;; (define-key map (kbd "<left>") 'backward-sexp)
   ;; (define-key map (kbd "<right>") 'forward-sexp)
-  (define-key map (kbd "k") 'backward-up-list)
-  (define-key map (kbd "j") 'down-list)
-  (define-key map (kbd "h") 'backward-list)
-  (define-key map (kbd "l") 'forward-list)
-  (define-key map (kbd "u") 'backward-sexp)
-  (define-key map (kbd "i") 'forward-sexp)
   ;; (define-key map (kbd "<down>") 'forward-list)
   )
 
@@ -267,11 +265,6 @@
   ;; default keys C-c <arrow-key>
   :config (winner-mode 1))
 
-(use-package minibuffer
-  :config
-  (setq-default resize-mini-windows t))
-
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
@@ -279,8 +272,6 @@
 (electric-indent-mode -1)
 
 (bind-key (kbd "C-c C-k") 'alma/copy)
-
-(use-package smex :ensure t)
 
 ;;(use-package auto-complete :config  (ac-config-default))
 
@@ -341,22 +332,12 @@
 	 ("C-S-z" . undo-fu-only-redo)
 	 ("C-M-z" . undo-fu-only-redo-all)))
 
-(use-package shell
-  :bind (:map shell-mode-map
-              ("<up>" . (lambda ()
-			  (interactive)
-			  (goto-char (point-max))
-			  (comint-previous-input 1)))
-              ("<down>" . (lambda ()
-			    (interactive)
-			    (goto-char (point-max))
-			    (comint-next-input 1)))))
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
 ;;;;;;;;;;;;;;;;;;;;
 
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
+
 (use-package buffer-move :ensure t
   :bind (("C-S-<up>" . 'buf-move-up)
          ("C-S-<down>" . 'buf-move-down)
@@ -442,7 +423,9 @@
 	      ("v" . counsel-yank-pop)))
 
 (use-package swiper
-  :ensure t)
+  :ensure t
+  :bind (:map menu-prefix-map
+              ("e" . swiper)))
 
 (use-package dired
   :delight "Dired "
@@ -484,11 +467,22 @@
 ;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
 ;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
 
-;; BASH
+;; SHELL
 
-(alma/add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
-(alma/add-mode-pairs 'sh-mode-hook '((?\' . ?\') (?\` . ?\`)))
 
+(use-package shell
+  :config
+  (setq-default comint-password-prompt-regexp "")
+  (electric-add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
+  :bind (:map shell-mode-map
+              ("<up>" . (lambda ()
+                          (interactive)
+                          (goto-char (point-max))
+                          (comint-previous-input 1)))
+              ("<down>" . (lambda ()
+                            (interactive)
+                            (goto-char (point-max))
+                            (comint-next-input 1)))))
 
 ;; Haskell
 ;; https://gitlab.haskell.org/ghc/ghc/-/wikis/emacs#using-tags-to-quickly-locate-definitions-in-a-project
@@ -496,19 +490,16 @@
 ;; hasktags --ignore-close-implementation .
 ;; M-x visit-tags-table
 
+;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Interactive-Haskell
 (use-package haskell-mode
   :ensure t
+  :requires (haskell-interactive-mode haskell-process)
   :config
   (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-  ;;(setq-default haskell-font-lock-symbols t)
-  ;;(setq-default haskell-process-type 'cabal-repl)
-
-  ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Interactive-Haskell
   (custom-set-variables
   ;;'(haskell-process-suggest-remove-import-lines t)
   ;;'(haskell-process-auto-import-loaded-modules t)
   '(haskell-process-log t)
-
   ;;'(haskell-process-type 'cabal-repl)
 
   ;; cabal install hasktags (make sure `hasktags` in PATH)
@@ -517,12 +508,11 @@
   )
 
   :bind (
-         :map haskell-interactive-mode-map
+         :map interactive-haskell-mode-map
          ("C-c C-k" . nil)
          ("M-." . haskell-mode-jump-to-def-or-tag)
+         ("C-`" . haskell-interactive-bring)
          ("C-c f" . haskell-goto-first-error)
-         ("<up>" . haskell-interactive-mode-history-previous)
-         ("<down>" . haskell-interactive-mode-history-next)
          :map haskell-cabal-mode-map
          
          ))

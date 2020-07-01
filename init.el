@@ -54,10 +54,10 @@
 (use-package circadian
   :ensure t
   :config
-  (setq circadian-themes '(("8:00" . humanoid-light)
-                           ("19:00" . humanoid-dark)))
-  (circadian-setup)
-  )
+  (setq-default circadian-themes '(("8:00" . humanoid-light)
+                                   ("19:00" . humanoid-dark)))
+  (add-hook 'circadian-after-load-theme-hook 'sml/setup)
+  (circadian-setup))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Misc
@@ -139,7 +139,6 @@
 (use-package smart-mode-line
   :ensure t
   :config 
-
   (setq-default
    sml/theme 'dark ;; 'light, 'dark, 'respectful
    sml/no-confirm-load-theme t

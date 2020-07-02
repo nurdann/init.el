@@ -56,7 +56,6 @@
   :config
   (setq-default circadian-themes '(("8:00" . humanoid-light)
                                    ("19:00" . humanoid-dark)))
-  (add-hook 'circadian-after-load-theme-hook 'sml/setup)
   (circadian-setup))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -99,9 +98,6 @@
 (auto-fill-mode -1)
 (put 'set-goal-column 'disabled nil) ;; enable C-x C-n; disable C-u C-x C-n
 
-(when (display-graphic-p)
-  (desktop-save-mode 1))
-
 ;; Terminal
 (let ((frame (framep (selected-frame))))
   (or (eq  t  frame)
@@ -142,9 +138,10 @@
   (setq-default
    sml/theme 'dark ;; 'light, 'dark, 'respectful
    sml/no-confirm-load-theme t
-   sml/replacer-regexp-list nil)
+   sml/replacer-regexp-list nil
+   sml/no-confirm-load-theme t)
   ;;(add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
-  (sml/setup))
+  (add-hook 'circadian-after-load-theme-hook 'sml/setup))
 
 (use-package command-log-mode
   ;; (command-log-mode)

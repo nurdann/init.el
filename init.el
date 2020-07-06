@@ -491,7 +491,6 @@
 ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Interactive-Haskell
 (use-package haskell-mode
   :ensure t
-  :requires (haskell-interactive-mode haskell-process)
   :config
   (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
   (custom-set-variables

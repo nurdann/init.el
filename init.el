@@ -1,5 +1,6 @@
 ;; TO DO
 ;; cua C-c doesn't work in `C-s` and magit-mode
+;; Make bullet lists behave same as in Google Docs
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; INIT
@@ -192,10 +193,8 @@
 (let ((map 'menu-prefix-map))
   (define-key map (kbd "f") 'find-file)
   (define-key map (kbd "t") 'find-file-other-window)
-  (define-key map (kbd "r") 'revert-buffer-without-prompt)
-  (define-key map (kbd "R") 'revert-visible-windows)
+  (define-key map (kbd "r") 'revert-visible-windows)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
-  ;; (define-key map (kbd "x") 'execute-extended-command)
   (define-key map (kbd "<left>") 'previous-buffer)
   (define-key map (kbd "<right>") 'next-buffer)
   (define-key map (kbd "=") 'enlarge-window)
@@ -206,12 +205,8 @@
   (define-key map (kbd "2") 'split-window-below)
   (define-key map (kbd "3") 'split-window-right)
   (define-key map (kbd "4") 'delete-window)
-  (define-key map (kbd "q") 'quoted-insert)
   (define-key map (kbd "s") 'save-buffer)
   (define-key map (kbd "t") 'recentf-open-files)
-  ;; (define-key map (kbd "<left>") 'backward-sexp)
-  ;; (define-key map (kbd "<right>") 'forward-sexp)
-  ;; (define-key map (kbd "<down>") 'forward-list)
   )
 
 (progn
@@ -267,7 +262,8 @@
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
 
-(electric-indent-mode -1)
+(electric-indent-mode 1)
+(setq-default electric-indent-inhibit t)
 
 (bind-key (kbd "C-c C-k") 'copy-whole-line-at-cursor)
 
@@ -281,46 +277,10 @@
             (lambda ()
               (set (make-local-variable 'company-backends)
                    (append '((company-capf company-dabbrev-code)) company-backends))))
-  (add-hook 'haskell-mode-hook (company-mode 1))
   (add-hook 'emacs-lisp-mode-hook (company-mode 1))
   :bind (:map company-active-map
               ("TAB" . company-complete-common-or-cycle)
               ("S-TAB" . company-select-previous)))
-
-
-;;;;;;;;;;;;;;;;;;;;
-;; Smart parentheses
-
-;; https://smartparens.readthedocs.io/en/latest/pair-management.html
-;; https://ebzzry.io/en/emacs-pairs/
-;; https://github.com/Fuco1/smartparens/wiki/Hybrid-S-expressions
-;; https://github.com/Fuco1/smartparens/wiki/Permissions#insertion-specification
-
-;; use C-q <any-bracket> to insert a single character otherwise Emacs freezes
-(use-package smartparens
-  :ensure t
-  :config (smartparens-global-mode 1)
-  (show-smartparens-global-mode t)
-  (sp-pair "\\\\(" nil :actions :rem)
-  (sp-pair "\\(" nil :actions :rem)
-  (sp-pair "\\{" nil :actions :rem)
-  (sp-pair "\\\"" nil :actions :rem)
-
-  (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
-
-  (sp-with-modes 'emacs-lisp-mode
-    (sp-local-pair "'" nil :actions nil))
-
-  (sp-with-modes 'haskell-mode
-    (sp-local-pair "'" nil :actions nil))
-  (sp-with-modes '(c-mode c++-mode)
-    (sp-local-pair "{" nil :post-handlers '(:add ("||\n[i]" "RET")))
-    ;;(sp-local-pair "<" nil :when '(lambda (id action context) (sp--looking-at-p "[[:space:]]")))
-    )
-  )
-
-;; try
-;; https://github.com/nivekuil/corral
 
 (use-package undo-fu
   :ensure t
@@ -385,9 +345,13 @@
   :config
   (require 'vlf-setup))
 
-(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-tail-mode))
-(add-hook 'auto-revert-tail-mode-hook 'end-of-buffer)
-(setq-default auto-revert-remote-files 1) ;; enable in TRAMP mode
+(use-package itail
+  :ensure
+  :config
+  (add-to-list 'auto-mode-alist '("\\.log\\'" . itail-mode))
+  (add-hook 'itail-mode-hook 'end-of-buffer)
+  )
+
 
 (require 'recentf)
 (setq-default recentf-auto-cleanup 'never) ;; otherwise tramp-mode will block emacs process
@@ -404,7 +368,10 @@
                 ido-use-virtual-buffers t)
   :bind (:map menu-prefix-map
               ("f" . ido-find-file)
-              ("a" . ido-switch-buffer)
+              ("b" . ido-switch-buffer)
+              ("d" . ido-dired)
+         :map ctl-x-map
+              ("f" . ido-find-file)
               ("b" . ido-switch-buffer)
               ("d" . ido-dired)))
 
@@ -415,7 +382,10 @@
                 enable-recursive-minibuffers t)
   (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
   (setq-default mark-ring-max 100)
-  :bind (:map menu-prefix-map
+  :bind (     ("M-x" . counsel-M-x)
+              ("C-c m" . counsel-mark-ring)
+              ("M-y" . counsel-yank-pop)
+         :map menu-prefix-map
               ("x" . counsel-M-x)
               ("m" . counsel-mark-ring)
               ("v" . counsel-yank-pop)))
@@ -445,7 +415,8 @@
   :ensure
   :custom
   (avy-time-out-seconds 0.7)
-  :bind (:map menu-prefix-map
+  :bind (("C-." . avy-goto-char-timer)
+         :map menu-prefix-map
               ("SPC" . avy-goto-char-timer)))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -487,12 +458,28 @@
 ;; cabal install hasktags
 ;; hasktags --ignore-close-implementation .
 ;; M-x visit-tags-table
-
+(require 'haskell-interactive-mode)
+(require 'haskell-process)
 ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Interactive-Haskell
+(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+
+(use-package lsp-haskell
+  :ensure
+  :config (setq lsp-haskell-process-path-hie "hie-wrapper"))
+
 (use-package haskell-mode
   :ensure t
+  :hook ((haskell-mode . (lambda ()
+                           (lsp)
+                           ;;(direnv-update-environment)
+                           ;;(lsp-ui-doc-mode)
+                           (set (make-local-variable 'company-backends)
+                                '((company-capf company-files :with company-yasnippet)
+                                  (company-dabbrev-code company-dabbrev)))
+                           (company-mode)
+                           ;;(haskell-collapse-mode)
+                           )))
   :config
-  (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
   (custom-set-variables
    ;;'(haskell-process-suggest-remove-import-lines t)
    ;;'(haskell-process-auto-import-loaded-modules t)
@@ -531,7 +518,6 @@
   (setq-default markdown-indent-on-enter 'indent-and-new-item)
 
   :bind (:map markdown-mode-map
-              ("C-c C-k" . nil)
               ("<return>" . markdown-custom-enter)
               ("C-`" . markdown-insert-gfm-code-block)))
 

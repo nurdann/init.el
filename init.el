@@ -1,5 +1,4 @@
 ;; TO DO
-;; cua C-c doesn't work in `C-s` and magit-mode
 ;; Make bullet lists behave same as in Google Docs
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -262,6 +261,7 @@
 ;; Editing
 ;;;;;;;;;;;;;;;;;;;;
 
+(electric-pair-mode 1)
 (electric-indent-mode 1)
 (setq-default electric-indent-inhibit t)
 
@@ -277,10 +277,18 @@
             (lambda ()
               (set (make-local-variable 'company-backends)
                    (append '((company-capf company-dabbrev-code)) company-backends))))
-  (add-hook 'emacs-lisp-mode-hook (company-mode 1))
+  (add-hook 'emacs-lisp-mode-hook 'company-mode)
   :bind (:map company-active-map
               ("TAB" . company-complete-common-or-cycle)
               ("S-TAB" . company-select-previous)))
+
+(use-package company-anaconda
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook 'company-mode)
+  (add-hook 'python-mode-hook 'anaconda-mode)
+  (eval-after-load "company"
+    '(add-to-list 'company-backends 'company-anaconda)))
 
 (use-package undo-fu
   :ensure t
@@ -515,7 +523,9 @@
          ("\\.markdown\\'" . markdown-mode))
   :config
   (setq-default markdown-command "markdown")
-  (setq-default markdown-indent-on-enter 'indent-and-new-item)
+
+  ;; add bullet point on enter
+  ;;(setq-default markdown-indent-on-enter 'indent-and-new-item)
 
   :bind (:map markdown-mode-map
               ("<return>" . markdown-custom-enter)

@@ -65,7 +65,7 @@
 (setq-default ring-bell-function 'ignore ;; disable sound bell on error
               read-buffer-completion-ignore-case t
               read-file-name-completion-ignore-case t 
-              indent-tabs-mode nil
+              indent-tabs-mode t
               tab-width 4
               tab-always-indent nil
 
@@ -118,7 +118,6 @@
 
 ;; remap ctl-x-map keys
 ;;(global-set-key (kbd "<menu>") ctl-x-map)
-(define-key ctl-x-map (kbd "f") 'find-file)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
 
 ;; Start up
@@ -190,7 +189,6 @@
 
 (define-prefix-command 'menu-prefix-map)
 (let ((map 'menu-prefix-map))
-  (define-key map (kbd "f") 'find-file)
   (define-key map (kbd "t") 'find-file-other-window)
   (define-key map (kbd "r") 'revert-visible-windows)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
@@ -208,10 +206,6 @@
   (define-key map (kbd "t") 'recentf-open-files)
   )
 
-(progn
-  (bind-key [f5] 'previous-buffer)
-  (bind-key [f6] 'next-buffer)
-  )
 (bind-key (kbd "<menu>") 'menu-prefix-map)
 
 
@@ -273,22 +267,16 @@
   :ensure t
   :config
   (company-ac-setup)  
+
   (add-hook 'haskell-mode-hook
             (lambda ()
               (set (make-local-variable 'company-backends)
                    (append '((company-capf company-dabbrev-code)) company-backends))))
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
+  (add-hook 'python-mode-hook 'company-mode)
   :bind (:map company-active-map
               ("TAB" . company-complete-common-or-cycle)
               ("S-TAB" . company-select-previous)))
-
-(use-package company-anaconda
-  :ensure t
-  :config
-  (add-hook 'python-mode-hook 'company-mode)
-  (add-hook 'python-mode-hook 'anaconda-mode)
-  (eval-after-load "company"
-    '(add-to-list 'company-backends 'company-anaconda)))
 
 (use-package undo-fu
   :ensure t
@@ -303,12 +291,6 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
-
-(use-package buffer-move :ensure t
-  :bind (("C-S-<up>" . 'buf-move-up)
-         ("C-S-<down>" . 'buf-move-down)
-         ("C-S-<left>" . 'buf-move-left)
-         ("C-S-<right>" . 'buf-move-right)))
 
 (global-set-key (kbd "M-[") 'backward-paragraph)
 (global-set-key (kbd "M-]") 'forward-paragraph)
@@ -401,7 +383,7 @@
 (use-package swiper
   :ensure t
   :bind (:map menu-prefix-map
-              ("e" . swiper)))
+              ("s" . swiper)))
 
 (use-package dired
   :delight "Dired "
@@ -432,20 +414,19 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 ;; Matlab
-                                        ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
-                                        ;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
-                                        ;(setq matlab-indent-function t)
-                                        ;(setq matlab-shell-command "matlab")
-                                        ;
-                                        ;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
-                                        ;(load-library "matlab")
-                                        ;
-                                        ;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
-                                        ;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
-                                        ;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
+;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
+;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
+;(setq matlab-indent-function t)
+;(setq matlab-shell-command "matlab")
+;
+;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
+;(load-library "matlab")
+;
+;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
+;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
+;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
 
 ;; SHELL
-
 
 (use-package shell
   :config
@@ -466,10 +447,10 @@
 ;; cabal install hasktags
 ;; hasktags --ignore-close-implementation .
 ;; M-x visit-tags-table
-(require 'haskell-interactive-mode)
-(require 'haskell-process)
+;;(require 'haskell-interactive-mode)
+;;(require 'haskell-process)
 ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Interactive-Haskell
-(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 
 (use-package lsp-haskell
   :ensure
@@ -546,3 +527,20 @@
   :ensure t
   :config
   (setq-default url-user-agent ""))
+
+
+;; Python
+
+;; (use-package anaconda-mode
+;;   :ensure t
+;;   :config
+;;   (add-hook 'python-mode-hook 'anaconda-mode))
+
+;; (use-package company-anaconda
+;;   :ensure t
+;;   :init (require 'rx)
+;;   :after (company)
+;;   :config
+;;   '(add-to-list 'company-backends 'company-anaconda))
+ 
+ 

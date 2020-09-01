@@ -119,6 +119,7 @@
 ;; remap ctl-x-map keys
 ;;(global-set-key (kbd "<menu>") ctl-x-map)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
+(define-key ctl-x-map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
 
 ;; Start up
 (setq-default inhibit-startup-screen t
@@ -413,6 +414,14 @@
 ;; Language modes
 ;;;;;;;;;;;;;;;;;;;;
 
+(use-package flycheck
+  :ensure t
+  :after (elpy)
+  :config
+  (when (require 'flycheck nil t)
+	(setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+	(add-hook 'elpy-mode-hook 'flycheck-mode)))
+
 ;; Matlab
 ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
 ;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
@@ -533,4 +542,19 @@
  
 (use-package elpy
   :ensure t
-  :init (elpy-enable))
+  :init (elpy-enable)
+  :config
+  ;; pip install jupyter
+  (setq python-shell-interpreter "jupyter"
+		python-shell-interpreter-args "console --simple-prompt"
+		python-shell-prompt-detect-failure-warning nil)
+  (add-to-list 'python-shell-completion-native-disabled-interpreters "jupyter"))
+
+(use-package ein
+  :ensure t)
+
+(use-package blacken
+  ;; pip install blacken
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook 'blacken-mode))

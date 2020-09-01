@@ -273,7 +273,7 @@
               (set (make-local-variable 'company-backends)
                    (append '((company-capf company-dabbrev-code)) company-backends))))
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
-  (add-hook 'python-mode-hook 'company-mode)
+
   :bind (:map company-active-map
               ("TAB" . company-complete-common-or-cycle)
               ("S-TAB" . company-select-previous)))
@@ -529,18 +529,8 @@
   (setq-default url-user-agent ""))
 
 
-;; Python
-
-;; (use-package anaconda-mode
-;;   :ensure t
-;;   :config
-;;   (add-hook 'python-mode-hook 'anaconda-mode))
-
-;; (use-package company-anaconda
-;;   :ensure t
-;;   :init (require 'rx)
-;;   :after (company)
-;;   :config
-;;   '(add-to-list 'company-backends 'company-anaconda))
+;; Python 
  
- 
+(use-package elpy
+  :ensure t
+  :init (elpy-enable))

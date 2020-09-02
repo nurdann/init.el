@@ -23,30 +23,45 @@
   ;;(if (char-equal ?char-after ?c))
   (search-forward (char-to-string c) nil nil 1))
 
-(defun sudo-save-buffer ()
+(defun sudo-local-save-buffer ()
   (interactive)
   (if (not buffer-file-name)
       (write-file (concat "/sudo:root@localhost:" (read-file-name "File:")))
     (write-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
+(defun alma/revert-current-buffer-or-visible-windows ()
+	"Revert current buffer, or revert all visible buffers if universal argument `C-u' provided"
+  	(interactive)
+	 (if (equal current-prefix-arg '(4))
+		 (revert-visible-windows)
+	   (revert-buffer)))
+
 (defun revert-visible-windows ()
   "Revert visible unmodified windows"
   (interactive)
-  (dolist (buf (buffer-list))
-    (let ((filename (buffer-file-name buf)))
-      ;;(message "file %s buffer %s" filename buf)
-      (if (and filename (file-readable-p filename) (not (buffer-modified-p buf))
-	       (get-buffer-window buf))
-	  (progn (with-current-buffer buf
-		   (revert-buffer :ignore-auto :nonconfirm :preserve-modes))
-		 (message "Updated buffer %s" buf))
-	;;(message "No visible window to update")
-	))))
+  (let ((visible-buffers '()))
+	(dolist (buf (buffer-list))
+      (let ((filename (buffer-file-name buf)))
+		;;(message "file %s buffer %s" filename buf)
+		(if (and filename (file-readable-p filename)
+				 ;;(not (buffer-modified-p buf)
+				 (get-buffer-window buf 'visible)
+				 )
+			(progn
+			  (get-buffer-window buf)
+			  (with-current-buffer buf
+				(revert-buffer :ignore-auto  :preserve-modes))
+	  		  (add-to-list 'visible-buffers buf)
+			  (message "Updated buffer %s" buf))
+		  
+		;;(message "No visible window to update")
+	)))
+	(message "Reverted buffers: %s" visible-buffers)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Allow buffer reverts to be undone
 
-(defun my-revert-buffer (&optional ignore-auto noconfirm preserve-modes)
+(defun preserve-undo-revert-buffer (&optional ignore-auto noconfirm preserve-modes)
   "Revert buffer from file in an undo-able manner."
   (interactive)
   (when (buffer-file-name)

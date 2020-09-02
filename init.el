@@ -191,7 +191,7 @@
 (define-prefix-command 'menu-prefix-map)
 (let ((map 'menu-prefix-map))
   (define-key map (kbd "t") 'find-file-other-window)
-  (define-key map (kbd "r") 'revert-visible-windows)
+  (define-key map (kbd "r") 'alma/revert-current-buffer-or-visible-windows)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
   (define-key map (kbd "<left>") 'previous-buffer)
   (define-key map (kbd "<right>") 'next-buffer)
@@ -271,6 +271,7 @@
   (company-ac-setup)  
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
   (add-hook 'haskell-mode-hook 'company-mode)
+  (add-hook 'haskell-interactive-mode-hook 'company-mode)
   ;;(setq company-backends '((company-files company-keywords company-capf company-dabbrev-code company-etags company-dabbrev)))
   :bind (:map company-active-map
               ("TAB" . company-complete-common-or-cycle)
@@ -458,8 +459,7 @@
   :ensure
   :config (setq lsp-haskell-process-path-hie "hie-wrapper"))
 
-(use-package lsp-ui
-  :ensure t)
+(use-package lsp-ui  :ensure t)
 
 (use-package haskell-mode
   :ensure t
@@ -469,12 +469,11 @@
                            (lsp-ui-doc-mode)
                            ;;(haskell-collapse-mode)
 						   (interactive-haskell-mode)
-						   (haskell-doc-mode)
-                           )))
+						   (haskell-doc-mode))))
   :config
   (custom-set-variables
-   ;;'(haskell-process-suggest-remove-import-lines t)
-   ;;'(haskell-process-auto-import-loaded-modules t)
+   '(haskell-process-suggest-remove-import-lines nil)
+   '(haskell-process-auto-import-loaded-modules nil)
    '(haskell-process-log t)
    '(haskell-process-type 'cabal-repl) ;; 'cabal-repl or 'stack-ghci
 
@@ -487,9 +486,6 @@
   (let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
 	(setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
 	(add-to-list 'exec-path my-cabal-path))
-
-  ;; bash$ cabal install stylish-haskel
-  ;; (haskell-mode-stylish-buffer)
   
   :bind (
 		 :map haskell-mode-map
@@ -500,28 +496,7 @@
          ("C-`" . haskell-interactive-bring)
          ("C-c f" . haskell-goto-first-error)
          :map haskell-cabal-mode-map
-
          ))
-
-(autoload 'ghc-init "ghc" nil t)
-(autoload 'ghc-debug "ghc" nil t)
-(add-hook 'haskell-mode-hook (lambda () (ghc-init)))
-
-(use-package company-ghc
-  :ensure t
-  :custom
-  (company-ghc-show-info t)
-  :init (ghc-comp-init)
-  :config
-  ;; sudo apt install --no-recommends-install ghc-mod
-  (add-hook 'haskell-mode-hook (lambda ()
-								 (set (make-local-variable 'company-backends)
-									  (add-to-list 'company-backends 'company-ghc)))))
-
-(use-package company-ghci
-  :ensure t
-  :config
-  (add-hook 'haskell-interactive-mode-hook 'company-mode))
 
 (use-package hindent
   :ensure t

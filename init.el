@@ -258,6 +258,7 @@
 
 (electric-pair-mode 1)
 (electric-indent-mode 1)
+(show-paren-mode 1)
 (setq-default electric-indent-inhibit t)
 
 (bind-key (kbd "c") 'copy-whole-line-at-cursor 'menu-prefix-map)

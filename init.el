@@ -260,7 +260,7 @@
 (electric-indent-mode 1)
 (setq-default electric-indent-inhibit t)
 
-(bind-key (kbd "C-c C-k") 'copy-whole-line-at-cursor)
+(bind-key (kbd "c") 'copy-whole-line-at-cursor 'menu-prefix-map)
 
 ;;(use-package auto-complete :config  (ac-config-default))
 
@@ -268,13 +268,9 @@
   :ensure t
   :config
   (company-ac-setup)  
-
-  (add-hook 'haskell-mode-hook
-            (lambda ()
-              (set (make-local-variable 'company-backends)
-                   (append '((company-capf company-dabbrev-code)) company-backends))))
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
-
+  (add-hook 'haskell-mode-hook 'company-mode)
+  ;;(setq company-backends '((company-files company-keywords company-capf company-dabbrev-code company-etags company-dabbrev)))
   :bind (:map company-active-map
               ("TAB" . company-complete-common-or-cycle)
               ("S-TAB" . company-select-previous)))
@@ -452,52 +448,79 @@
                             (comint-next-input 1)))))
 
 ;; Haskell
-;; https://gitlab.haskell.org/ghc/ghc/-/wikis/emacs#using-tags-to-quickly-locate-definitions-in-a-project
-;; cabal install hasktags
-;; hasktags --ignore-close-implementation .
-;; M-x visit-tags-table
+
 ;;(require 'haskell-interactive-mode)
 ;;(require 'haskell-process)
 ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Interactive-Haskell
-;;(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 
 (use-package lsp-haskell
   :ensure
   :config (setq lsp-haskell-process-path-hie "hie-wrapper"))
+
+(use-package lsp-ui
+  :ensure t)
 
 (use-package haskell-mode
   :ensure t
   :hook ((haskell-mode . (lambda ()
                            (lsp)
                            ;;(direnv-update-environment)
-                           ;;(lsp-ui-doc-mode)
-                           (set (make-local-variable 'company-backends)
-                                '((company-capf company-files :with company-yasnippet)
-                                  (company-dabbrev-code company-dabbrev)))
-                           (company-mode)
+                           (lsp-ui-doc-mode)
                            ;;(haskell-collapse-mode)
+						   (interactive-haskell-mode)
+						   (haskell-doc-mode)
                            )))
   :config
   (custom-set-variables
    ;;'(haskell-process-suggest-remove-import-lines t)
    ;;'(haskell-process-auto-import-loaded-modules t)
    '(haskell-process-log t)
-   ;;'(haskell-process-type 'cabal-repl)
+   '(haskell-process-type 'cabal-repl) ;; 'cabal-repl or 'stack-ghci
 
    ;; cabal install hasktags (make sure `hasktags` in PATH)
    ;; M-x visit-tags-table (Manually select TAGS file)
    '(haskell-tags-on-save t) 
    )
 
+  ;; cabal install hasktags
+  (let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
+	(setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
+	(add-to-list 'exec-path my-cabal-path))
+
+  ;; bash$ cabal install stylish-haskel
+  ;; (haskell-mode-stylish-buffer)
+  
   :bind (
+		 :map haskell-mode-map
+		 ("C-c C-l" . haskell-process-load-or-reload)
+   		 ("C-c C-z" . haskell-interactive-switch)
          :map interactive-haskell-mode-map
-         ("C-c C-k" . nil)
-         ("M-." . haskell-mode-jump-to-def-or-tag)
+		 ("M-." . haskell-mode-jump-to-def-or-tag)
          ("C-`" . haskell-interactive-bring)
          ("C-c f" . haskell-goto-first-error)
          :map haskell-cabal-mode-map
-         
+
          ))
+
+(autoload 'ghc-init "ghc" nil t)
+(autoload 'ghc-debug "ghc" nil t)
+(add-hook 'haskell-mode-hook (lambda () (ghc-init)))
+
+(use-package company-ghc
+  :ensure t
+  :custom
+  (company-ghc-show-info t)
+  :init (ghc-comp-init)
+  :config
+  ;; sudo apt install --no-recommends-install ghc-mod
+  (add-hook 'haskell-mode-hook (lambda ()
+								 (set (make-local-variable 'company-backends)
+									  (add-to-list 'company-backends 'company-ghc)))))
+
+(use-package company-ghci
+  :ensure t
+  :config
+  (add-hook 'haskell-interactive-mode-hook 'company-mode))
 
 (use-package hindent
   :ensure t

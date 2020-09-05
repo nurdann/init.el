@@ -203,8 +203,8 @@
   (define-key map (kbd "2") 'split-window-below)
   (define-key map (kbd "3") 'split-window-right)
   (define-key map (kbd "4") 'delete-window)
-  (define-key map (kbd "s") 'save-buffer)
   (define-key map (kbd "t") 'recentf-open-files)
+  (define-key map (kbd "s") 'save-buffer)
   )
 
 (bind-key (kbd "<menu>") 'menu-prefix-map)
@@ -250,7 +250,10 @@
 
 (use-package winner
   ;; default keys C-c <arrow-key>
-  :config (winner-mode 1))
+  :config (winner-mode 1)
+  :bind (:map menu-prefix-map
+			  ("<down>" . winner-undo)
+			  ("<up>" . winner-redo)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
@@ -268,14 +271,22 @@
 (use-package company
   :ensure t
   :config
-  (company-ac-setup)  
+  (company-ac-setup)
+  
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
   (add-hook 'haskell-mode-hook 'company-mode)
   (add-hook 'haskell-interactive-mode-hook 'company-mode)
   ;;(setq company-backends '((company-files company-keywords company-capf company-dabbrev-code company-etags company-dabbrev)))
+
+  ;;(company-sort-by-occurrence)
+  :custom
+  (company-dabbrev-downcase nil)
+  (company-idle-delay 0.25)
   :bind (:map company-active-map
-              ("TAB" . company-complete-common-or-cycle)
-              ("S-TAB" . company-select-previous)))
+              ("<up>" . (lambda () (interactive)
+						  (company-complete-common-or-cycle -1)))
+              ("<down>" . (lambda () (interactive)
+						  (company-complete-common-or-cycle 1)))))
 
 (use-package undo-fu
   :ensure t
@@ -293,6 +304,7 @@
 
 (global-set-key (kbd "M-[") 'backward-paragraph)
 (global-set-key (kbd "M-]") 'forward-paragraph)
+(bind-key (kbd "<home>") 'back-to-indentation-or-beginning-of-line)
 
 (use-package ace-window
   :ensure t
@@ -382,7 +394,7 @@
 (use-package swiper
   :ensure t
   :bind (:map menu-prefix-map
-              ("s" . swiper)))
+              ("e" . swiper)))
 
 (use-package dired
   :delight "Dired "
@@ -437,7 +449,8 @@
 
 (use-package shell
   :config
-  (remove-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt)
+  ;; Disable catching password prompt
+  ;;(remove-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt)
   (electric-add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
   :bind (:map shell-mode-map
               ("<up>" . (lambda ()
@@ -556,4 +569,5 @@
   ;; pip install blacken
   :ensure t
   :config
-  (add-hook 'python-mode-hook 'blacken-mode))
+  ;;(add-hook 'python-mode-hook 'blacken-mode)
+  )

@@ -193,8 +193,6 @@
   (define-key map (kbd "t") 'find-file-other-window)
   (define-key map (kbd "r") 'alma/revert-current-buffer-or-visible-windows)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
-  (define-key map (kbd "<left>") 'previous-buffer)
-  (define-key map (kbd "<right>") 'next-buffer)
   (define-key map (kbd "=") 'enlarge-window)
   (define-key map (kbd "-") 'shrink-window)
   (define-key map (kbd "[") 'shrink-window-horizontally)
@@ -209,6 +207,8 @@
 
 (bind-key (kbd "<menu>") 'menu-prefix-map)
 
+(bind-key [f5] 'previous-buffer)
+(bind-key [f6] 'next-buffer)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Speciality MODES
@@ -383,9 +383,8 @@
                 enable-recursive-minibuffers t)
   (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "")
   (setq-default mark-ring-max 100)
-  :bind (     ("M-x" . counsel-M-x)
-              ("C-c m" . counsel-mark-ring)
-              ("M-y" . counsel-yank-pop)
+  :bind (
+		 ("M-x" . counsel-M-x)
          :map menu-prefix-map
               ("x" . counsel-M-x)
               ("m" . counsel-mark-ring)
@@ -430,7 +429,20 @@
   :config
   (when (require 'flycheck nil t)
 	(setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-	(add-hook 'elpy-mode-hook 'flycheck-mode)))
+	(add-hook 'elpy-mode-hook 'flycheck-mode))
+
+  ;; allow cell delimeters to start not strictly from beginning of line
+  (setq elpy-shell-codecell-beginning-regexp "\\(?:##.*\\|#\\s-*<codecell>\\|#\\s-*In\\[.*\\]:\\)\\s-*$"
+		elpy-shell-cell-boundary-regexp "\\(?:##.*\\|#\\s-*<.+>\\|#\\s-*\\(?:In\\|Out\\)\\[.*\\]:\\)\\s-*$")
+
+  :bind (:map python-mode-map
+		 ("M-c" . elpy-shell-send-region-or-buffer)))
+
+(use-package realgud
+  :ensure t)
+
+(use-package realgud-ipdb
+  :ensure t)
 
 ;; Matlab
 ;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)

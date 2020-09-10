@@ -450,7 +450,11 @@
   :config
   ;; Disable catching password prompt
   ;;(remove-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt)
-  (electric-add-mode-pairs 'shell-mode-hook '((?\' . ?\') (?\` . ?\`)))
+  
+  (add-hook 'shell-mode-hook (lambda ()
+							  (setq-local electric-pair-pairs (append electric-pair-pairs '((?\' . ?\') (?\` . ?\`))))
+							  (setq-local electric-text-pairs electric-pair-pairs)))
+
   :bind (:map shell-mode-map
               ("<up>" . (lambda ()
                           (interactive)
@@ -527,6 +531,10 @@
 
   ;; add bullet point on enter
   ;;(setq-default markdown-indent-on-enter 'indent-and-new-item)
+
+  (add-hook 'markdown-mode-hook (lambda ()
+							  (setq-local electric-pair-pairs (append electric-pair-pairs '((?\' . ?\') (?\` . ?\`))))
+							  (setq-local electric-text-pairs electric-pair-pairs)))
 
   :bind (:map markdown-mode-map
               ("<return>" . markdown-custom-enter)

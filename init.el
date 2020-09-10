@@ -444,19 +444,6 @@
 (use-package realgud-ipdb
   :ensure t)
 
-;; Matlab
-;(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
-;(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
-;(setq matlab-indent-function t)
-;(setq matlab-shell-command "matlab")
-;
-;(add-to-list 'load-path "~/.emacs.d/packages/ematlab")
-;(load-library "matlab")
-;
-;(define-key matlab-mode-map (kbd "C-c l") 'matlab-shell-run-cell)
-;(define-key matlab-mode-map (kbd "C-c C-l") 'matlab-shell-run-region)
-;(define-key matlab-mode-map (kbd "C-S-l") 'matlab-shell-save-and-go)
-
 ;; SHELL
 
 (use-package shell

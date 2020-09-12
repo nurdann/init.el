@@ -1,5 +1,3 @@
-;; TO DO
-;; Make bullet lists behave same as in Google Docs
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; INIT
@@ -110,11 +108,6 @@
 
 ;; remap defaults
 (global-unset-key (kbd "C-z"))
-
-;;use C-[zxcv] convention
-;; `C-s M-e C-v` to paste in isearch minibuffer
-(setq-default cua-delete-selection nil) ;; delete selection only with delete commands
-(cua-mode t)
 
 ;; remap ctl-x-map keys
 ;;(global-set-key (kbd "<menu>") ctl-x-map)
@@ -291,10 +284,10 @@
 (use-package undo-fu
   :ensure t
   :config
-  :bind (:map cua--cua-keys-keymap
-              ("C-z" . undo-fu-only-undo)
-              ("C-S-z" . undo-fu-only-redo)
-              ("C-M-z" . undo-fu-only-redo-all)))
+  :bind (
+         ("C-z" . undo-fu-only-undo)
+         ("C-S-z" . undo-fu-only-redo)
+         ("C-M-z" . undo-fu-only-redo-all)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 

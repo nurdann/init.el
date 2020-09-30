@@ -65,7 +65,7 @@
               read-file-name-completion-ignore-case t 
               indent-tabs-mode t
               tab-width 4
-              tab-always-indent nil
+              tab-always-indent 'complete
 
               select-enable-clipboard t ;; copy/cut kill-ring to clipboard
               set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
@@ -243,10 +243,7 @@
 
 (use-package winner
   ;; default keys C-c <arrow-key>
-  :config (winner-mode 1)
-  :bind (:map menu-prefix-map
-			  ("<down>" . winner-undo)
-			  ("<up>" . winner-redo)))
+  :config (winner-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Editing
@@ -426,10 +423,7 @@
 
   ;; allow cell delimeters to start not strictly from beginning of line
   (setq elpy-shell-codecell-beginning-regexp "\\(?:##.*\\|#\\s-*<codecell>\\|#\\s-*In\\[.*\\]:\\)\\s-*$"
-		elpy-shell-cell-boundary-regexp "\\(?:##.*\\|#\\s-*<.+>\\|#\\s-*\\(?:In\\|Out\\)\\[.*\\]:\\)\\s-*$")
-
-  :bind (:map python-mode-map
-		 ("M-c" . elpy-shell-send-region-or-buffer)))
+		elpy-shell-cell-boundary-regexp "\\(?:##.*\\|#\\s-*<.+>\\|#\\s-*\\(?:In\\|Out\\)\\[.*\\]:\\)\\s-*$"))
 
 (use-package realgud
   :ensure t)
@@ -526,7 +520,7 @@
   ;;(setq-default markdown-indent-on-enter 'indent-and-new-item)
 
   (add-hook 'markdown-mode-hook (lambda ()
-							  (setq-local electric-pair-pairs (append electric-pair-pairs '((?\' . ?\') (?\` . ?\`))))
+							  (setq-local electric-pair-pairs (append electric-pair-pairs '((?\` . ?\`))))
 							  (setq-local electric-text-pairs electric-pair-pairs)))
 
   :bind (:map markdown-mode-map

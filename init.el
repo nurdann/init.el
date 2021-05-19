@@ -112,6 +112,7 @@
 ;; remap ctl-x-map keys
 ;;(global-set-key (kbd "<menu>") ctl-x-map)
 (define-key ctl-x-map (kbd "s") 'save-buffer) ;; same as C-x C-s
+
 (define-key ctl-x-map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
 
 ;; Start up
@@ -407,7 +408,7 @@
   (avy-time-out-seconds 0.7)
   :bind (("C-." . avy-goto-char-timer)
          :map menu-prefix-map
-              ("SPC" . avy-goto-char-timer)))
+         ("SPC" . avy-goto-char-timer)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes
@@ -565,3 +566,27 @@
   :config
   ;;(add-hook 'python-mode-hook 'blacken-mode)
   )
+
+
+(use-package rjsx-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+  (add-hook 'rjsx-mode-hook (lambda () (setq-local create-lockfiles nil)))
+  (with-eval-after-load 'rjsx-mode
+	(define-key rjsx-mode-map "<" nil)
+	(define-key rjsx-mode-map (kbd "C-d") nil)
+	(define-key rjsx-mode-map ">" nil)))
+
+;; Latex
+
+(use-package auctex
+  :ensure
+  :defer
+  :config
+  (setq-default TeX-auto-save t
+				Tex-parse-self t
+				TeX-master nil ;; ask for master file on a directory
+				TeX-engine 'xetex
+				TeX-PDF-mode t
+				))

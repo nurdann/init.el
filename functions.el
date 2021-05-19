@@ -196,7 +196,8 @@ Display progress in the mode line instead."
   `(add-hook ,hook
 	     (lambda ()
 	       (setq-local electric-pair-pairs (append electric-pair-pairs ,pairs))
-	       (setq-local electric-text-pairs electric-pair-pairs))))
+	       (setq-local electric-text-pairs electric-pair-pairs)
+		   (message "%s" electric-pair-pairs))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; show current file path

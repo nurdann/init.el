@@ -67,6 +67,8 @@ For example, the combination `C-n` (hold Control and press n) moves cursor to th
 - `S` for Shift
 - `s` for Super or windows
 
+e.g. `C-n`, `C-x C-f`, `<return>`, `RET`, etc.
+
 You can also have combinations such as `C-M-x` (hold Control and Alt, then press x). 
 
 Note that Emacs will try to map shifted keys to regular keys if they are not bound, so for example `M-x` and `M-X` map to the same thing, i.e. `execute-extended-command`.
@@ -74,16 +76,7 @@ Note that Emacs will try to map shifted keys to regular keys if they are not bou
 `C-x C-f` is two combinations is sequence, so press `C-x` first (you will see it minibuffer as `C-x-`) and then press `C-f`. 
 **DO NOT** try to hold Control while trying to press `x` and `f` in sequence because it puts too much strain on your fingers and can result in RSI (Repetitive-Strain-Injury) Syndrom. Or even better is to remap frequent keys into dedicated keys or use fewer key strokes.
 
-### Grammar
 
-```EBNF
-<key-sequence> 		:== <key-combination>+
-<key-combination> 	:== <modifier> { '-' <modifier> } <key>
-<modifier> 			:== [CSsM]
-<key> 				:== [a-zA-Z] | <special-key>
-<special-key> 		:== '<return>' | 'RET' | ...
-```
-e.g. `C-n`, `C-x C-f`, `<return>`, `RET`, etc.
 
 ## Movement
 
@@ -185,7 +178,7 @@ On MS Windows, use PuTTY's `plink` method, `/plink:user@host:/path/to/file`
 Incase you need to change user inside remote host then issue `C-x C-f /ssh:userA@remoteA|ssh:userB@remoteA:/`. The same method can be used to hop from a remote host to another remote host.
 
 #### Direct shell 
-`default-directory` variable dictaces where shell is opened. The following functiono will prompt for SSH string, e.g. "/ssh:user@host:/".
+`default-directory` variable dictaces where shell is opened. The following function will prompt for SSH string, e.g. "/ssh:user@host:/".
 
 ```
 (defun remote-shell (remote-string)

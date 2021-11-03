@@ -1,4 +1,3 @@
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; INIT
 ;;;;;;;;;;;;;;;;;;;;
@@ -20,8 +19,11 @@
 	    ("gnu" . 5)
 	    ("melpa" . 0)))
 
+;; Update signature manually
+;; gpg --homedir ~/.emacs.d/elpa/gnupg --keyserver keyserver.ubuntu.com --recv-keys 066DAFCB81E42C40
 (package-initialize)
 ;;(setq package-check-signature  nil)
+
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -31,30 +33,16 @@
 
 (use-package diminish :ensure t)
 
-;; Least frequent bigram combinations
-;;      gb gp
-;;  jj  jc jf jg jh jk jl jm jp jq js jt jv jw jx jy jz
-;;  qq  qb qf qg qh qk ql qm qp qt qv qw qx qy qz
-;;  vv  vc vf vg vh vk vm vp vw vz
-;;  ww  xb xd xg xk xm xs xw
-;;  yy  zb zd zf zg zk zm zp zs zw zx
-
-(use-package use-package-chords
-  :diminish key-chord-mode "Chord"
-  :ensure t
-  :config (key-chord-mode 1)
-  (setq key-chord-two-keys-delay .025
-        key-chord-one-key-delay .025))
-
 ;; Theme
 (use-package humanoid-themes :ensure :defer)
 
 (use-package circadian
   :ensure t
   :config
-  (setq-default circadian-themes '(("8:00" . humanoid-light)
-                                   ("19:00" . humanoid-dark)))
-  (circadian-setup))
+  (setq-default circadian-themes '(("8:00" . leuven)
+                                   ("19:00" . tango-dark)))
+  (circadian-setup)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Misc
@@ -63,10 +51,10 @@
 (setq-default ring-bell-function 'ignore ;; disable sound bell on error
               read-buffer-completion-ignore-case t
               read-file-name-completion-ignore-case t 
-              indent-tabs-mode t
+              indent-tabs-mode nil
               tab-width 4
               tab-always-indent 'complete
-
+              
               select-enable-clipboard t ;; copy/cut kill-ring to clipboard
               set-mark-command-repeat-pop t ;; After C-u C-SPC, C-SPC cycles through the mark ring
               shift-select-mode t
@@ -84,11 +72,14 @@
 
 ;; GUI
 (menu-bar-mode 1)
-(tool-bar-mode -1)
 (size-indication-mode 1)
+(tool-bar-mode -1)
+(global-visual-line-mode t)
 
 (if (version< emacs-version "26")
+  (progn
     (add-hook 'find-file-hook 'linum-mode) ;; add line numbers to opened files
+    )
   (add-hook 'text-mode-hook #'display-line-numbers-mode)
   (add-hook 'prog-mode-hook #'display-line-numbers-mode))
 (column-number-mode 1) ;; show column position in mode line
@@ -106,6 +97,11 @@
       (define-key input-decode-map "\C-j" [C-j])
       ))
 
+(use-package clipetty
+  :ensure t
+  :hook (after-init . global-clipetty-mode)
+  )
+
 ;; remap defaults
 (global-unset-key (kbd "C-z"))
 
@@ -115,13 +111,11 @@
 
 (define-key ctl-x-map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
 
-;; Start up
-(setq-default inhibit-startup-screen t
-              initial-buffer-choice "~/Desktop/notes.md")
-(kill-buffer "*scratch*")
 
 ;; scroll behaviour
 (setq-default scroll-preserve-screen-position t)
+(bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 5)))
+(bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 5)))
 (bind-key (kbd "<prior>") '(lambda () (interactive) (scroll-down-line 5)))
 (bind-key (kbd "<next>") '(lambda () (interactive) (scroll-up-line 5)))
 
@@ -136,11 +130,6 @@
    sml/no-confirm-load-theme t)
   ;;(add-to-list 'sml/replacer-regexp-list '("^/sudo:root@.*:/" ":root:"))
   (add-hook 'circadian-after-load-theme-hook 'sml/setup))
-
-(use-package command-log-mode
-  ;; (command-log-mode)
-  ;; (clm/open-command-log-buffer)
-  :ensure t)
 
 (use-package keyfreq
   :ensure t
@@ -199,7 +188,7 @@
   (define-key map (kbd "s") 'save-buffer)
   )
 
-(bind-key (kbd "<menu>") 'menu-prefix-map)
+(bind-key (kbd "<f8>") 'menu-prefix-map)
 
 (bind-key [f5] 'previous-buffer)
 (bind-key [f6] 'next-buffer)
@@ -266,7 +255,7 @@
   
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
   (add-hook 'haskell-mode-hook 'company-mode)
-  (add-hook 'haskell-interactive-mode-hook 'company-mode)
+  ;; (add-hook 'haskell-interactive-mode-hook 'company-mode)
   ;;(setq company-backends '((company-files company-keywords company-capf company-dabbrev-code company-etags company-dabbrev)))
 
   ;;(company-sort-by-occurrence)
@@ -283,9 +272,10 @@
   :ensure t
   :config
   :bind (
-         ("C-z" . undo-fu-only-undo)
-         ("C-S-z" . undo-fu-only-redo)
-         ("C-M-z" . undo-fu-only-redo-all)))
+         ;; ("C-z" . undo-fu-only-undo)
+         ;; ("C-S-z" . undo-fu-only-redo)
+         ;; ("C-M-z" . undo-fu-only-redo-all))
+  ))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -293,9 +283,12 @@
 
 (windmove-default-keybindings) ;; Shift <arrow-key> to move around windows
 
-(global-set-key (kbd "M-[") 'backward-paragraph)
-(global-set-key (kbd "M-]") 'forward-paragraph)
+;; Causes terminal to misinterpret commands such as <f8>
+;; (global-set-key (kbd "M-[") 'backward-paragraph)
+;; (global-set-key (kbd "M-]") 'forward-paragraph)
+
 (bind-key (kbd "<home>") 'back-to-indentation-or-beginning-of-line)
+(bind-key (kbd "a") 'back-to-indentation-or-beginning-of-line 'menu-prefix-map)
 
 (use-package ace-window
   :ensure t
@@ -357,7 +350,8 @@
   (setq-default ido-enable-flex-matching t
                 ido-everywhere t
                 ido-auto-merge-work-directories-length -1
-                ido-use-virtual-buffers t)
+                ido-use-virtual-buffers t
+                ido-case-fold t)
   :bind (:map menu-prefix-map
               ("f" . ido-find-file)
               ("b" . ido-switch-buffer)
@@ -456,24 +450,28 @@
 ;; Haskell
 
 ;;(require 'haskell-interactive-mode)
-;;(require 'haskell-process)
+;; (require 'haskell-process
+;;          :config
+;;          (setq-default haskell-process-type 'stack-ghci))
 ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html#Interactive-Haskell
 
-(use-package lsp-haskell
-  :ensure
-  :config (setq lsp-haskell-process-path-hie "hie-wrapper"))
+;; (use-package lsp-mode :ensure t)
+;; (use-package lsp-haskell
+;;   :ensure
+;;   :config (setq lsp-haskell-process-path-hie "hie-wrapper"))
 
-(use-package lsp-ui  :ensure t)
+;; (use-package lsp-ui  :ensure t)
 
 (use-package haskell-mode
   :ensure t
   :hook ((haskell-mode . (lambda ()
-                           (lsp)
+                           ;;(lsp)
                            ;;(direnv-update-environment)
                            (lsp-ui-doc-mode)
                            ;;(haskell-collapse-mode)
 						   (interactive-haskell-mode)
 						   (haskell-doc-mode))))
+  :after (interactive-haskell-mode)
   :config
   (custom-set-variables
    '(haskell-process-suggest-remove-import-lines nil)
@@ -494,10 +492,10 @@
   :bind (
 		 :map haskell-mode-map
 		 ("C-c C-l" . haskell-process-load-or-reload)
-   		 ("C-c C-z" . haskell-interactive-switch)
+   		 ;;("C-c C-z" . haskell-interactive-switch)
          :map interactive-haskell-mode-map
 		 ("M-." . haskell-mode-jump-to-def-or-tag)
-         ("C-`" . haskell-interactive-bring)
+         ;;("C-`" . haskell-interactive-bring)
          ("C-c f" . haskell-goto-first-error)
          :map haskell-cabal-mode-map
          ))
@@ -508,8 +506,12 @@
 
 ;; Markdown
 
-(add-to-list 'load-path "~/.emacs.d/packages/markdown/")
-(load "markdown-mode")
+(if (file-directory-p "~/.emacs.d/packages/markdown/")
+	(progn
+	  (add-to-list 'load-path "~/.emacs.d/packages/markdown/")
+	  (load "markdown-mode")
+	  ))
+
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :mode (("\\.md\\'" . markdown-mode)
@@ -527,6 +529,11 @@
   :bind (:map markdown-mode-map
               ("<return>" . markdown-custom-enter)
               ("C-`" . markdown-insert-gfm-code-block)))
+
+;; YAML
+(use-package yaml-mode
+  :ensure t
+  :mode ("\\.yml$" . yaml-mode))
 
 ;; cmake
 
@@ -590,3 +597,11 @@
 				TeX-engine 'xetex
 				TeX-PDF-mode t
 				))
+
+;; Terraform
+(use-package terraform-mode
+  :ensure t
+  :hook
+  (terraform-mode . company-mode))
+
+

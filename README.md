@@ -43,6 +43,17 @@ In case your Emacs icon is missing
 sudo gtk-update-icon-cache /usr/share/icons/hicolor
 ```
 
+## MacOS install
+
+After installing `brew`,
+
+```
+brew install --cask emacs
+```
+
+Go to `Finder > Applications`, then right-click `Open`. Otherwise, you get [Apple can't check app for malicious software](https://support.apple.com/en-ca/guide/mac-help/mchleab3a043/mac)
+
+If you get the error [`Opening directory: Operation not permitted, /Users/nalma/Documents/`](https://apple.stackexchange.com/a/371945/301364), then give permission to `ruby` which launches the Emacs.
 
 
 # Basics

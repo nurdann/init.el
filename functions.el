@@ -202,7 +202,7 @@ Display progress in the mode line instead."
 ;;;;;;;;;;;;;;;;;;;;
 ;; show current file path
 
-(defun copy-file-path ()
+(defun copy-path ()
   "Copy file path of buffer to kill ring"
   (interactive)
   (message (buffer-file-name))
@@ -229,6 +229,15 @@ Display progress in the mode line instead."
   (interactive "sRemote:")
   (let ((default-directory remote-string))
     (shell remote-string)))
+
+(defun new-shell (name)
+  ;; https://www.quora.com/What-does-Tikhon-Jelviss-Emacs-setup-look-like
+  "Opens a new shell buffer with the given name in 
+asterisks (*shell-name*) in the current directory." 
+  (interactive "sName: ") 
+  (pop-to-buffer (concat "*shell-" name "*")) 
+  (unless (eq major-mode 'shell-mode) 
+    (shell (current-buffer))))
 
 (defun get-default-or-current-directory ()
   (interactive)
@@ -327,3 +336,21 @@ point reaches the beginning or end of the buffer, stop there."
     (back-to-indentation)
     (when (= orig-point (point))
       (move-beginning-of-line 1))))
+
+;; In ido-mode, invoke "C-d" to filter only directories
+;; source: https://www.emacswiki.org/emacs/InteractivelyDoThings#h5o-7
+(defun ido-switch-to-dired (&optional removep)
+  (interactive "P")
+  (setq ido-cur-list
+	    (cl-remove-if-not (lambda (buf-name)
+			             (setq buf (get-buffer buf-name))
+			             (when (buffer-live-p buf)
+			               (with-current-buffer buf
+			                 (eq major-mode 'dired-mode))))
+		               ido-cur-list)))
+
+(defun bind-ido-keys ()
+  "Keybindings for ido mode."
+  (define-key ido-completion-map (kbd "C-d") 'ido-switch-to-dired))
+
+(add-hook 'ido-setup-hook #'bind-ido-keys)

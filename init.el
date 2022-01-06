@@ -144,6 +144,13 @@
   (which-key-idle-secondary-delay 0.4))
 
 ;;;;;;;;;;;;;;;;;;;;
+;; OS specific
+;;;;;;;;;;;;;;;;;;;;
+
+(cond ((eq system-type 'darwin)
+       (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))))
+
+;;;;;;;;;;;;;;;;;;;;
 ;; CUSTOM MODES
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -176,16 +183,14 @@
   (define-key map (kbd "t") 'find-file-other-window)
   (define-key map (kbd "r") 'alma/revert-current-buffer-or-visible-windows)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
-  (define-key map (kbd "=") 'enlarge-window)
-  (define-key map (kbd "-") 'shrink-window)
-  (define-key map (kbd "[") 'shrink-window-horizontally)
-  (define-key map (kbd "]") 'enlarge-window-horizontally)
   (define-key map (kbd "1") 'delete-other-windows)
   (define-key map (kbd "2") 'split-window-below)
   (define-key map (kbd "3") 'split-window-right)
   (define-key map (kbd "4") 'delete-window)
-  (define-key map (kbd "t") 'recentf-open-files)
+  ;(define-key map (kbd "t") 'counsel-recentf)
   (define-key map (kbd "s") 'save-buffer)
+  (define-key map (kbd ",") 'beginning-of-buffer)
+  (define-key map (kbd ".") 'end-of-buffer)
   )
 
 (bind-key (kbd "<f8>") 'menu-prefix-map)
@@ -196,25 +201,6 @@
 ;;;;;;;;;;;;;;;;;;;;
 ;; Speciality MODES
 ;;;;;;;;;;;;;;;;;;;;
-
-(if (file-directory-p "~/.emacs.d/packages/docker-tramp")
-    (progn
-      (add-to-list 'load-path "~/.emacs.d/packages/docker-tramp")
-      (load "docker-tramp")))
-
-(use-package dockerfile-mode
-  :ensure t
-  :mode (("Dockerfile\\'" . dockerfile-mode))
-  :bind (:map dockerfile-mode-map
-              ("C-c l" . dockerfile-build-buffer))
-  :config
-  (put 'dockerfile-image-name 'safe-local-variable #'stringp)
-  (setq-default dockerfile-mode-command "docker"))
-
-(use-package docker
-  :ensure t
-  :bind (:map menu-prefix-map
-              ("n" . docker)))
 
 (use-package magit
   :ensure t
@@ -272,10 +258,10 @@
   :ensure t
   :config
   :bind (
-         ;; ("C-z" . undo-fu-only-undo)
-         ;; ("C-S-z" . undo-fu-only-redo)
-         ;; ("C-M-z" . undo-fu-only-redo-all))
-  ))
+         ("C-z" . undo-fu-only-undo)
+         ("C-S-z" . undo-fu-only-redo)
+         ("C-M-z" . undo-fu-only-redo-all))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -299,19 +285,6 @@
               :map menu-prefix-map
               ("o" . ace-window)))
 
-(use-package treemacs
-  :ensure t
-  :custom
-  (treemacs-collapse-dirs 3)
-  (treemacs-follow-after-init)
-  (treemacs-persist-file (expand-file-name ".cache/treemacs-persist" user-emacs-directory))
-  (treemacs-width 35)
-  :config
-  (treemacs-follow-mode t)
-  (treemacs-filewatch-mode t)
-  (treemacs-fringe-indicator-mode t)
-  :bind (:map menu-prefix-map
-              ("t" . treemacs-select-window)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files
@@ -346,12 +319,14 @@
 
 
 (use-package ido
-  :config (ido-mode 1)
+  :config
+  (ido-mode 1)
   (setq-default ido-enable-flex-matching t
                 ido-everywhere t
                 ido-auto-merge-work-directories-length -1
                 ido-use-virtual-buffers t
                 ido-case-fold t)
+
   :bind (:map menu-prefix-map
               ("f" . ido-find-file)
               ("b" . ido-switch-buffer)
@@ -420,12 +395,6 @@
   (setq elpy-shell-codecell-beginning-regexp "\\(?:##.*\\|#\\s-*<codecell>\\|#\\s-*In\\[.*\\]:\\)\\s-*$"
 		elpy-shell-cell-boundary-regexp "\\(?:##.*\\|#\\s-*<.+>\\|#\\s-*\\(?:In\\|Out\\)\\[.*\\]:\\)\\s-*$"))
 
-(use-package realgud
-  :ensure t)
-
-(use-package realgud-ipdb
-  :ensure t)
-
 ;; SHELL
 
 (use-package shell
@@ -437,7 +406,11 @@
 							  (setq-local electric-pair-pairs (append electric-pair-pairs '((?\' . ?\') (?\` . ?\`))))
 							  (setq-local electric-text-pairs electric-pair-pairs)))
 
-  :bind (:map shell-mode-map
+  :bind (
+         ("C-c n" . new-shell)
+         ("C-c r" . remote-shell)
+         ("C-c t" . term)
+         :map shell-mode-map
               ("<up>" . (lambda ()
                           (interactive)
                           (goto-char (point-max))
@@ -446,6 +419,15 @@
                             (interactive)
                             (goto-char (point-max))
                             (comint-next-input 1)))))
+
+(use-package bash-completion
+  :ensure t
+  :config
+  (bash-completion-setup))
+
+;; Puppet
+(use-package puppet-mode
+  :ensure t)
 
 ;; Haskell
 
@@ -547,13 +529,16 @@
 
 ;; mediawiki
 (use-package mediawiki
-  :ensure t
   :config
   (setq-default url-user-agent ""))
 
 
-;; Python 
- 
+;; Python
+
+(use-package pyvenv
+  ;; M-x pyvenv-activate RET <path-to-venv>
+  :ensure t)
+
 (use-package elpy
   :ensure t
   :init (elpy-enable)
@@ -564,16 +549,7 @@
 		python-shell-prompt-detect-failure-warning nil)
   (add-to-list 'python-shell-completion-native-disabled-interpreters "jupyter"))
 
-(use-package ein
-  :ensure t)
-
-(use-package blacken
-  ;; pip install blacken
-  :ensure t
-  :config
-  ;;(add-hook 'python-mode-hook 'blacken-mode)
-  )
-
+(use-package ein)
 
 (use-package rjsx-mode
   :ensure t

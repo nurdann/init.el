@@ -29,7 +29,7 @@
       (write-file (concat "/sudo:root@localhost:" (read-file-name "File:")))
     (write-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
-(defun alma/revert-current-buffer-or-visible-windows ()
+(defun revert-current-buffer-or-visible-windows ()
 	"Revert current buffer, or revert all visible buffers if universal argument `C-u' provided"
   	(interactive)
 	 (if (equal current-prefix-arg '(4))
@@ -208,6 +208,21 @@ Display progress in the mode line instead."
   (message (buffer-file-name))
   (kill-new (file-truename buffer-file-name)))
 
+;;;;;;;;;;;;;;;;;;;;
+;; re-initialize stopped shell buffer
+(defun reinit-current-shell-buffer ()
+  "re-open shell instance"
+  (interactive)
+  (shell (current-buffer)))
+
+;;;;;;;;;;;;;;;;;;;;
+;; revert shell or file
+(defun revert-current-or-shell-buffer ()
+  (interactive)
+  "Revert shell buffer, if not revert regular file"
+  (if buffer-file-name
+      (revert-buffer)
+    (reinit-current-shell-buffer)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; open local shell
@@ -225,10 +240,10 @@ Display progress in the mode line instead."
       (shell local-shell-name)))
   (message "Created %s" local-shell-name)))
 
-(defun remote-shell (remote-string)
-  (interactive "sRemote:")
-  (let ((default-directory remote-string))
-    (shell remote-string)))
+(defun remote-shell (remote-string buffer)
+  (interactive "sRemote: \nBBuffer name:")
+  (dired remote-string)
+  (new-shell buffer))
 
 (defun new-shell (name)
   ;; https://www.quora.com/What-does-Tikhon-Jelviss-Emacs-setup-look-like
@@ -254,6 +269,10 @@ asterisks (*shell-name*) in the current directory."
       (if (string-prefix-p prefix (buffer-name buf))
 	  (setq count (+ 1 count))))
     count))
+
+(defun remote-ssh-shell (ssh-server)
+  (interactive "sHost: ")
+  (remote-shell (concat "/ssh:" ssh-server ":") ssh-server))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Revert buffer without prompt

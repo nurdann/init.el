@@ -1,3 +1,10 @@
+;; TODO
+;; https://realpython.com/emacs-the-best-python-editor/
+;; https://www.emacswiki.org/emacs/PythonProgrammingInEmacs
+;; Python LSP https://www.kotaweaver.com/blog/emacs-python-lsp/
+;; https://github.com/howardabrams/dot-files/blob/master/emacs-python.org
+;; https://github.com/bbatsov/projectile
+;; links in shell-mode https://www.reddit.com/r/emacs/comments/g1fs0a/hyperlinks_in_shell/
 ;;;;;;;;;;;;;;;;;;;;
 ;; INIT
 ;;;;;;;;;;;;;;;;;;;;
@@ -181,22 +188,20 @@
 (define-prefix-command 'menu-prefix-map)
 (let ((map 'menu-prefix-map))
   (define-key map (kbd "t") 'find-file-other-window)
-  (define-key map (kbd "r") 'alma/revert-current-buffer-or-visible-windows)
+  (define-key map (kbd "r") 'revert-current-or-shell-buffer)
   (define-key map (kbd "w") '(lambda () (interactive) (kill-buffer (buffer-name))))
   (define-key map (kbd "1") 'delete-other-windows)
   (define-key map (kbd "2") 'split-window-below)
   (define-key map (kbd "3") 'split-window-right)
   (define-key map (kbd "4") 'delete-window)
   ;(define-key map (kbd "t") 'counsel-recentf)
-  (define-key map (kbd "s") 'save-buffer)
   (define-key map (kbd ",") 'beginning-of-buffer)
   (define-key map (kbd ".") 'end-of-buffer)
   )
 
-(bind-key (kbd "<f8>") 'menu-prefix-map)
+(bind-key (kbd "<f9>") 'menu-prefix-map)
 
-(bind-key [f5] 'previous-buffer)
-(bind-key [f6] 'next-buffer)
+(bind-key [f5] 'save-buffer)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Speciality MODES
@@ -258,10 +263,10 @@
   :ensure t
   :config
   :bind (
-         ("C-z" . undo-fu-only-undo)
-         ("C-S-z" . undo-fu-only-redo)
-         ("C-M-z" . undo-fu-only-redo-all))
-  )
+         ;; ("C-z" . undo-fu-only-undo)
+         ;; ("C-S-z" . undo-fu-only-redo)
+         ;; ("C-M-z" . undo-fu-only-redo-all))
+  ))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Navigating 
@@ -274,7 +279,7 @@
 ;; (global-set-key (kbd "M-]") 'forward-paragraph)
 
 (bind-key (kbd "<home>") 'back-to-indentation-or-beginning-of-line)
-(bind-key (kbd "a") 'back-to-indentation-or-beginning-of-line 'menu-prefix-map)
+(bind-key (kbd "<end>") 'end-of-buffer)
 
 (use-package ace-window
   :ensure t
@@ -285,6 +290,10 @@
               :map menu-prefix-map
               ("o" . ace-window)))
 
+(use-package isearch-mode
+  :bind (:map isearch-mode-map
+              ("<up>" . isearch-repeat-backward)
+              ("<down>" . isearch-repeat-forward)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Files
@@ -327,10 +336,11 @@
                 ido-use-virtual-buffers t
                 ido-case-fold t)
 
-  :bind (:map menu-prefix-map
+  :bind (
+         :map menu-prefix-map
               ("f" . ido-find-file)
-              ("b" . ido-switch-buffer)
               ("d" . ido-dired)
+              ("b" . ido-switch-buffer)
          :map ctl-x-map
               ("f" . ido-find-file)
               ("b" . ido-switch-buffer)
@@ -345,15 +355,15 @@
   (setq-default mark-ring-max 100)
   :bind (
 		 ("M-x" . counsel-M-x)
+         ("M-y" . counsel-yank-pop)
          :map menu-prefix-map
               ("x" . counsel-M-x)
-              ("m" . counsel-mark-ring)
-              ("v" . counsel-yank-pop)))
+              ("m" . counsel-mark-ring)))
 
 (use-package swiper
   :ensure t
   :bind (:map menu-prefix-map
-              ("e" . swiper)))
+              ("s" . swiper)))
 
 (use-package dired
   :delight "Dired "
@@ -378,6 +388,13 @@
   :bind (("C-." . avy-goto-char-timer)
          :map menu-prefix-map
          ("SPC" . avy-goto-char-timer)))
+
+(use-package docker-tramp
+  :ensure t
+  :config
+   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+
+(use-package dockerfile-mode :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Language modes
@@ -405,10 +422,10 @@
   (add-hook 'shell-mode-hook (lambda ()
 							  (setq-local electric-pair-pairs (append electric-pair-pairs '((?\' . ?\') (?\` . ?\`))))
 							  (setq-local electric-text-pairs electric-pair-pairs)))
-
+  (setq explicit-shell-file-name "/bin/bash")
   :bind (
          ("C-c n" . new-shell)
-         ("C-c r" . remote-shell)
+         ("C-c r" . remote-ssh-shell)
          ("C-c t" . term)
          :map shell-mode-map
               ("<up>" . (lambda ()
@@ -420,10 +437,33 @@
                             (goto-char (point-max))
                             (comint-next-input 1)))))
 
+;; (use-package native-complete
+;;   :ensure t
+;;   :config
+;;   (with-eval-after-load 'shell
+;;     (native-complete-setup-bash))
+;;   (defun shell-mode-hook-setup ()
+;;     "Set up `shell-mode'."
+;;     (setq-local company-backends '((company-files company-native-complete)))
+;;     ;; `company-native-complete' is better than `completion-at-point'
+;;     (local-set-key (kbd "TAB") 'company-complete)
+
+;;     ;; @see https://github.com/redguardtoo/emacs.d/issues/882
+;;     (setq-local company-idle-delay 1)
+;;     (company-mode)
+;;     )
+;;   (add-hook 'shell-mode-hook 'shell-mode-hook-setup)
+;;   )
+
 (use-package bash-completion
   :ensure t
   :config
-  (bash-completion-setup))
+  (autoload 'bash-completion-dynamic-complete
+    "bash-completion"
+    "BASH completion hook")
+  (add-hook 'shell-dynamic-complete-functions
+            'bash-completion-dynamic-complete)
+  (setq bash-completion-use-separate-processes t))
 
 ;; Puppet
 (use-package puppet-mode
@@ -544,12 +584,24 @@
   :init (elpy-enable)
   :config
   ;; pip install jupyter
-  (setq python-shell-interpreter "jupyter"
-		python-shell-interpreter-args "console --simple-prompt"
-		python-shell-prompt-detect-failure-warning nil)
-  (add-to-list 'python-shell-completion-native-disabled-interpreters "jupyter"))
+  (cond
+   ((executable-find "python") ;; use python instead of ipython to pick up virtualenv
+    (setq-default python-shell-interpreter "python"
+                  python-shell-interpreter-args "-i"))
+   ((executable-find "jupyter")
+    (setq-default python-shell-interpreter "jupyter"
+          python-shell-interpreter-args "console --simple-prompt"
+          python-shell-prompt-detect-failure-warning nil)
+    (add-to-list 'python-shell-completion-native-disabled-interpreters "jupyter"))
+   ))
+
+(use-package auto-virtualenv
+  :ensure t
+  :hook (python-mode . auto-virtualenv-set-virtualenv))
 
 (use-package ein)
+
+;; JavaScript
 
 (use-package rjsx-mode
   :ensure t

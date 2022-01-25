@@ -596,6 +596,7 @@
    ))
 
 (use-package auto-virtualenv
+  :after (pyvenv)
   :ensure t
   :hook (python-mode . auto-virtualenv-set-virtualenv))
 

@@ -221,6 +221,12 @@ Type `M-x` and then
 
 `M-x align-regexp` to align columns based on a regex separator
 
+#### Writing unicode characters
+
+To type unicode characters, the toggle custom input `C-\` and type `\lambda` to get `λ`.
+
+To find how a unicode can be inserted, hover over it and type `C-u C-x =`.
+
 ### Create shortcut
 ```
 (add-to-list

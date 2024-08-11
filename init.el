@@ -303,6 +303,8 @@
 
 (bind-key (kbd "<f12>") 'menu-prefix-map)
 
+(use-package hydra)
+
 ;; hydra
 (unless (version< emacs-version "28")
   (defhydra hydra-window (global-map "C-x o" :color red)

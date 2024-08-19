@@ -459,51 +459,41 @@
   (require 'vlf-setup)
   (setq-default vlf-batch-size 10000))
 
-(when (version< emacs-version "27.1")
-  (ido-mode t)
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles orderless basic partial-completion))))
   )
-(unless (version< emacs-version "27")
-  (use-package orderless
-    :custom
-    (completion-styles '(orderless basic))
-    (completion-category-overrides '((file (styles orderless basic partial-completion))))
-    )
 
-  (use-package consult
-    :custom
-    (consult-preview-key 'any)
-    :after (orderless vertico bash-completion)
-    :init
-    (setq completion-in-region-function
-      (lambda (&rest args)
-        (apply (if vertico-mode
-                   #'consult-completion-in-region
-                 #'completion--in-region)
-               args)))
-    :config
-    (consult-customize consult-completion-in-region
-                       :completion-styles '(substring orderless basic))
-    :bind (
-           ("C-b" . consult-buffer)
-           ("M-y" . consult-yank-pop)
-           :map menu-prefix-map
-           ("d" . consult-line)
-           ))
-
-
-  (use-package vertico
-    ; https://kristofferbalintona.me/posts/202202211546/#vertico
-    :custom
-    (vertico-count 10)
-    (vertico-cycle t)
-    :init
-    (vertico-mode)
-    :bind (:map vertico-map
-                ("<down>" . vertico-next)
-                ("<up>" . vertico-previous)
-                ("DEL" . vertico-directory-delete-word)
-                ))
-  )
+(use-package consult
+  :custom
+  (consult-preview-key 'any)
+  :after (orderless vertico bash-completion)
+  :init
+  (setq completion-in-region-function
+    (lambda (&rest args)
+      (apply (if vertico-mode
+                 #'consult-completion-in-region
+               #'completion--in-region)
+             args)))
+  :bind (
+         ("C-b" . consult-buffer)
+         ("M-y" . consult-yank-pop)
+         :map menu-prefix-map
+         ("d" . consult-line)
+         ))
+(use-package vertico
+  ; https://kristofferbalintona.me/posts/202202211546/#vertico
+  :custom
+  (vertico-count 10)
+  (vertico-cycle t)
+  :init
+  (vertico-mode)
+  :bind (:map vertico-map
+              ("<down>" . vertico-next)
+              ("<up>" . vertico-previous)
+              ("DEL" . vertico-directory-delete-word)
+              ))
 
 (use-package dired
   :ensure nil
@@ -593,7 +583,7 @@
                                (process-send-string (get-buffer-process (current-buffer))
                                                     "export PAGER=cat\n")))
   
-  (setq explicit-shell-file-name "/bin/bash")
+  (customize-set-variable 'explicit-shell-file-name "/opt/homebrew/bin/bash")
   (shell-dirtrack-mode -1)
   (dirtrack-mode 1)
   :bind (

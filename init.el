@@ -757,6 +757,7 @@
     (org-journal-time-format "")
     (org-journal-hide-entries-p t)
     (org-journal-date-format "%A, %d/%m/%Y")
+    (org-journal-carryover-items "")
     :bind (:map menu-prefix-map
            ("j f" . u/org-journal-new-entry)
            ("j t" . u/org-journal-new-todo)

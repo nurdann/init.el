@@ -583,7 +583,9 @@
                                (process-send-string (get-buffer-process (current-buffer))
                                                     "export PAGER=cat\n")))
   
-  (customize-set-variable 'explicit-shell-file-name "/opt/homebrew/bin/bash")
+  ;; does not work in VM:
+  ;;    env: ‘/opt/homebrew/bin/bash’: No such file or directory
+  ;;(customize-set-variable 'explicit-shell-file-name "/opt/homebrew/bin/bash")
   (shell-dirtrack-mode -1)
   (dirtrack-mode 1)
   :bind (
